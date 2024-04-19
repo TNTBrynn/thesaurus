@@ -17,7 +17,7 @@ function creerObj3DMurs(objgl, obj3DSol, intNoTexture, intNiveau) {
     for (let i = 0; i < 4; i++)
         obj3DMurs.tabDebutRelTrou.push(Math.random());
     obj3DMurs.fltLargeurTrou = 1.5 * (25 - intNiveau) / 25;
-    obj3DMurs.fltHauteurTrou = 1;
+    obj3DMurs.fltHauteurTrou = 0;
 
     obj3DMurs.vertex = creerVertexMurs(objgl, obj3DMurs.fltLargeur, obj3DMurs.fltProfondeur, obj3DMurs.fltHauteur,
                                        obj3DMurs.tabAUntrou, obj3DMurs.tabDebutRelTrou, obj3DMurs.fltLargeurTrou, obj3DMurs.fltHauteurTrou);

@@ -203,24 +203,24 @@
             tabObjets3D.push(obj3DCreneaux);
 
             // Créer les tunnels
-            // const obj3DTunnels = creerObj3DTunnels(objgl, obj3DMurs, TEX_MUR);
-            // tabObjets3D.push(obj3DTunnels);
+            //const obj3DTunnels = creerObj3DTunnels(objgl, obj3DMurs, TEX_MUR);
+            //tabObjets3D.push(obj3DTunnels);
 
             // Créer le ciel
             const obj3DCiel = creerObj3DCiel(objgl, obj3DMurs, obj3DCreneaux, TEX_CIEL);
             tabObjets3D.push(obj3DCiel);
 
             // Créer le nextlevel
-            // const obj3DNextLevel = creerObj3DNextLevel(objgl, obj3DTunnels, TEX_NEXTLEVEL);
-            // tabObjets3D.push(obj3DNextLevel);
+           // const obj3DNextLevel = creerObj3DNextLevel(objgl, obj3DTunnels, TEX_NEXTLEVEL);
+            //tabObjets3D.push(obj3DNextLevel);
 
             // Créer les tornades
-            // intNbTornades = Math.floor(intNiveau / 2) + 1;
-            // for (let x = 0; x < intNbTornades; x++)
-            //     tabObjets3D.push(creerObj3DTornade(objgl, obj3DMurs, obj3DCreneaux, TEX_TRANSPARENT, intNiveau));
+            //intNbTornades = Math.floor(intNiveau / 2) + 1;
+            //for (let x = 0; x < intNbTornades; x++)
+            //    tabObjets3D.push(creerObj3DTornade(objgl, obj3DMurs, obj3DCreneaux, TEX_TRANSPARENT, intNiveau));
 
-            // // Mettre les objets 3D sur la scène
-            // objScene3D.tabObjets3D = tabObjets3D;
+            // Mettre les objets 3D sur la scène
+            objScene3D.tabObjets3D = tabObjets3D;
 
             // La caméra
             const camera = creerCamera();
@@ -230,20 +230,20 @@
             objScene3D.camera = camera;
 
             // Arrêter le son Next Level (si le son joue)
-            // if (!objSons.sonNextLevel.paused) {
-            //     objSons.sonNextLevel.pause();
-            //     objSons.sonNextLevel.currentTime = 0.0;
-            // }
+            if (!objSons.sonNextLevel.paused) {
+                objSons.sonNextLevel.pause();
+                objSons.sonNextLevel.currentTime = 0.0;
+            }
 
-            // // Arrêter le son de la tornade (si le son joue)
-            // if (!objSons.sonTornade.paused) {
-            //     objSons.sonTornade.pause();
-            //     objSons.sonTornade.currentTime = 0.0;
-            // }
+            // Arrêter le son de la tornade (si le son joue)
+            if (!objSons.sonTornade.paused) {
+                objSons.sonTornade.pause();
+                objSons.sonTornade.currentTime = 0.0;
+            }
 
-            // // Faire jouer le son du vent au début du niveau
-            // objSons.sonVent.volume = 1.0;
-            // objSons.sonVent.play();
+            // Faire jouer le son du vent au début du niveau
+            objSons.sonVent.volume = 1.0;
+            objSons.sonVent.play();
 
             return objScene3D;
         }
