@@ -1,7 +1,7 @@
-// Librairie sur la cam�ra
+// Librairie sur la camera
 
-    // Pour cr�er une cam�ra
-    // Au point de d�part, le transformations sont neutres.
+    // Pour creer une camera
+    // Au point de depart, le transformations sont neutres.
     function creerCamera() {
       const tabCamera = [0, 0, 1, 0, 0, 0, 0, 1, 0];
       return tabCamera;

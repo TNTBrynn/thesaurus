@@ -1,7 +1,7 @@
 // Librairie sur les transformations
 
-    // Pour cr�er des transformations.
-    // Au point de d�part, le transformations sont neutres.
+    // Pour creer des transformations.
+    // Au point de depart, le transformations sont neutres.
     function creerTransformations() {
       const tabTransformations = [0, 0, 0, 0, 0, 0, 1, 1, 1];
       return tabTransformations;
