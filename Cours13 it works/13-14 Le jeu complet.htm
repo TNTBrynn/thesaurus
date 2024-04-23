@@ -25,7 +25,6 @@
     <script type="text/javascript" src="Tunnels.js"></script>
     <script type="text/javascript" src="Ciel.js"></script>
     <script type="text/javascript" src="NextLevel.js"></script>
-    <script type="text/javascript" src="TornadeAvecNiveaux.js"></script>
     <script type="text/javascript" src="Textures.js"></script>
     <script type="text/javascript">
 
@@ -43,18 +42,21 @@
         const OBJ3D_NEXTLEVEL = 5;
         const OBJ3D_TORNADE = 6;
 
-        const tabImages = [ 'Sol.jpg', 'Mur.jpg', 'Ciel.jpg'];
+        const tabImages = ['Sol.jpg', 'Mur.jpg', 'Ciel.jpg'];
         //const TEX_TRANSPARENT = 0;
         const TEX_SOL = 0;
         const TEX_MUR = 1;
         const TEX_CIEL = 2;
         //const TEX_NEXTLEVEL = 4;
 
+        const intDimension = 31;
+
         // Le niveau actuel du jeu
         let intNiveau = 0;
 
         // Le nombre de tornades
         let intNbTornades = 0;
+
 
         function demarrer() {
             const objCanvas = document.getElementById('monCanvas');
@@ -191,7 +193,7 @@
             objScene3D.textures = creerTextures(objgl, tabImages);
 
             // Créer le sol
-            const obj3DSol = creerObj3DSol(objgl, TEX_SOL, intNiveau);
+            const obj3DSol = creerObj3DSol(objgl, TEX_SOL, intNiveau, intDimension);
             tabObjets3D.push(obj3DSol);
 
             // Créer les murs
@@ -211,7 +213,7 @@
             tabObjets3D.push(obj3DCiel);
 
             // Créer le nextlevel
-           // const obj3DNextLevel = creerObj3DNextLevel(objgl, obj3DTunnels, TEX_NEXTLEVEL);
+            // const obj3DNextLevel = creerObj3DNextLevel(objgl, obj3DTunnels, TEX_NEXTLEVEL);
             //tabObjets3D.push(obj3DNextLevel);
 
             // Créer les tornades
