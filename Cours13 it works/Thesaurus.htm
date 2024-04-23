@@ -4,7 +4,7 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>16-14 Le jeu complet</title>
+    <title>Thesaurus Grégory Léa Marilyn Simon</title>
     <style>
         p {
             color: black;
@@ -19,13 +19,11 @@
     <script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
     <script type="text/javascript" src="Transformations.js"></script>
     <script type="text/javascript" src="Camera.js"></script>
-    <script type="text/javascript" src="SolAvecNiveaux.js"></script>
-    <script type="text/javascript" src="MursTrouésAvecNiveaux.js"></script>
+    <script type="text/javascript" src="Sol.js"></script>
+    <script type="text/javascript" src="Murs.js"></script>
     <script type="text/javascript" src="Creneaux.js"></script>
     <script type="text/javascript" src="Tunnels.js"></script>
     <script type="text/javascript" src="Ciel.js"></script>
-    <script type="text/javascript" src="NextLevel.js"></script>
-    <script type="text/javascript" src="TornadeAvecNiveaux.js"></script>
     <script type="text/javascript" src="Textures.js"></script>
     <script type="text/javascript">
 
@@ -35,26 +33,26 @@
         let objProgShaders = null;
         let objScene3D = null;
 
+        let isRestrictKeysActive = false;
+        let previousCameraPosition = null;
+        let previousCameraDirection = null;
+
+        /*Cette section est utilisé pour pouvoir itérer sur les objets 3D avec leur nom et, s'il y
+        en a plusieurs, pouvoir utiliser une boucle avec le nombre connu d'objets 3D de ce type
+        comme pour les flèches*/
         const OBJ3D_SOL = 0;
         const OBJ3D_MURS = 1;
         const OBJ3D_CRENEAUX = 2;
-        const OBJ3D_TUNNELS = 3;
-        const OBJ3D_CIEL = 4;
-        const OBJ3D_NEXTLEVEL = 5;
-        const OBJ3D_TORNADE = 6;
+        const OBJ3D_CIEL = 3;
+        const OBJ3D_FLECHE = 4;
 
-        const tabImages = [ 'Sol.jpg', 'Mur.jpg', 'Ciel.jpg'];
-        //const TEX_TRANSPARENT = 0;
+        const tabImages = ['Sol.jpg', 'Mur.jpg', 'Ciel.jpg'];
         const TEX_SOL = 0;
         const TEX_MUR = 1;
         const TEX_CIEL = 2;
-        //const TEX_NEXTLEVEL = 4;
 
         // Le niveau actuel du jeu
         let intNiveau = 0;
-
-        // Le nombre de tornades
-        let intNbTornades = 0;
 
         function demarrer() {
             const objCanvas = document.getElementById('monCanvas');
@@ -81,77 +79,73 @@
 
         // Pour mettre à jour l'animation
         function mettreAjourAnimation() {
-            for (let i = 0; i < intNbTornades; i++) {
-                const obj3DTornade = objScene3D.tabObjets3D[OBJ3D_TORNADE + i];
-                if (!obj3DTornade.binEnCollision) {
-                    tournerTornade(i); deplacerTornade(i);
-                }
-                else
-                    tournerCameraDansTornade(i);
-            }
+            /* for (let i = 0; i < nbFleches; i++) {
+                const obj3DFleche = objScene3D.tabObjets3D[OBJ3D_FLECHE + i];
+                    tournerFleche(i);
+            } */
         }
 
-        function tournerTornade(intNoTornade) {
-            const obj3DTornade = objScene3D.tabObjets3D[OBJ3D_TORNADE + intNoTornade];
-            let fltAngleY = getAngleY(obj3DTornade.transformations) + 17;
+        /* function tournerFleche(intNoTornade) {
+            const obj3DFleche = objScene3D.tabObjets3D[OBJ3D_FLECHE + intNoTornade];
+            let fltAngleY = getAngleY(obj3DFleche.transformations) + 0.5;
             if (fltAngleY > 360) fltAngleY -= 360;
-            setAngleY(fltAngleY, obj3DTornade.transformations);
-        }
+            setAngleY(fltAngleY, obj3DFleche.transformations);
+        } */
 
-        function deplacerTornade(intNoTornade) {
-            const obj3DTornade = objScene3D.tabObjets3D[OBJ3D_TORNADE + intNoTornade];
-            if (obj3DTornade.binAutreDirection == null || obj3DTornade.binAutreDirection) {
-                // Pour changer la direction de la tornade au hasard
-                const intAngleHasard = Math.floor(Math.random() * 360);
-                obj3DTornade.fltDeplacementX = Math.cos(intAngleHasard * Math.PI / 180) * 0.03;
-                obj3DTornade.fltDeplacementZ = Math.sin(intAngleHasard * Math.PI / 180) * 0.03;
-            }
+        // function deplacerTornade(intNoTornade) {
+        //     const obj3DTornade = objScene3D.tabObjets3D[OBJ3D_TORNADE + intNoTornade];
+        //     if (obj3DTornade.binAutreDirection == null || obj3DTornade.binAutreDirection) {
+        //         // Pour changer la direction de la tornade au hasard
+        //         const intAngleHasard = Math.floor(Math.random() * 360);
+        //         obj3DTornade.fltDeplacementX = Math.cos(intAngleHasard * Math.PI / 180) * 0.03;
+        //         obj3DTornade.fltDeplacementZ = Math.sin(intAngleHasard * Math.PI / 180) * 0.03;
+        //     }
 
             // La nouvelle position de la tornade
-            const fltNouvellePositionX = getPositionX(obj3DTornade.transformations) + obj3DTornade.fltDeplacementX;
-            const fltNouvellePositionZ = getPositionZ(obj3DTornade.transformations) + obj3DTornade.fltDeplacementZ;
+        //     const fltNouvellePositionX = getPositionX(obj3DTornade.transformations) + obj3DTornade.fltDeplacementX;
+        //     const fltNouvellePositionZ = getPositionZ(obj3DTornade.transformations) + obj3DTornade.fltDeplacementZ;
 
-            // S'assurer que la tornade ne dépasse pas les nurs
-            const fltLimiteNord = -objScene3D.tabObjets3D[OBJ3D_MURS].fltProfondeur / 2 + obj3DTornade.fltProfondeur;
-            const fltLimiteSud = objScene3D.tabObjets3D[OBJ3D_MURS].fltProfondeur / 2 - obj3DTornade.fltProfondeur;
-            const fltLimiteOuest = -objScene3D.tabObjets3D[OBJ3D_MURS].fltLargeur / 2 + obj3DTornade.fltLargeur;
-            const fltLimiteEst = objScene3D.tabObjets3D[OBJ3D_MURS].fltLargeur / 2 - obj3DTornade.fltLargeur;
+        //     // S'assurer que la tornade ne dépasse pas les nurs
+        //     const fltLimiteNord = -objScene3D.tabObjets3D[OBJ3D_MURS].fltProfondeur / 2 + obj3DTornade.fltProfondeur;
+        //     const fltLimiteSud = objScene3D.tabObjets3D[OBJ3D_MURS].fltProfondeur / 2 - obj3DTornade.fltProfondeur;
+        //     const fltLimiteOuest = -objScene3D.tabObjets3D[OBJ3D_MURS].fltLargeur / 2 + obj3DTornade.fltLargeur;
+        //     const fltLimiteEst = objScene3D.tabObjets3D[OBJ3D_MURS].fltLargeur / 2 - obj3DTornade.fltLargeur;
 
-            const binAucuneCollision = (fltNouvellePositionX > fltLimiteOuest) && (fltNouvellePositionX < fltLimiteEst) &&
-                (fltNouvellePositionZ > fltLimiteNord) && (fltNouvellePositionZ < fltLimiteSud);
+        //     const binAucuneCollision = (fltNouvellePositionX > fltLimiteOuest) && (fltNouvellePositionX < fltLimiteEst) &&
+        //         (fltNouvellePositionZ > fltLimiteNord) && (fltNouvellePositionZ < fltLimiteSud);
 
-            if (binAucuneCollision) {
-                // Déplacer dans la même direction
-                setPositionX(fltNouvellePositionX, obj3DTornade.transformations);
-                setPositionZ(fltNouvellePositionZ, obj3DTornade.transformations);
-                // 1 chance sur 100 de changer de diection en cours de route
-                obj3DTornade.binAutreDirection = Math.random() <= 0.01;
-            }
-            else { // Changement de direction à cause de la collision
-                obj3DTornade.binAutreDirection = true;
-            }
+        //     if (binAucuneCollision) {
+        //         // Déplacer dans la même direction
+        //         setPositionX(fltNouvellePositionX, obj3DTornade.transformations);
+        //         setPositionZ(fltNouvellePositionZ, obj3DTornade.transformations);
+        //         // 1 chance sur 100 de changer de diection en cours de route
+        //         obj3DTornade.binAutreDirection = Math.random() <= 0.01;
+        //     }
+        //     else { // Changement de direction à cause de la collision
+        //         obj3DTornade.binAutreDirection = true;
+        //     }
 
-            // Vérification de la collision de la tornade avec la caméra
-            const fltPositionXTornade = getPositionX(obj3DTornade.transformations);
-            const fltPositionZTornade = getPositionZ(obj3DTornade.transformations);
-            const fltPositionXCamera = getPositionCameraX(objScene3D.camera);
-            const fltPositionZCamera = getPositionCameraZ(objScene3D.camera);
+        //     // Vérification de la collision de la tornade avec la caméra
+        //     const fltPositionXTornade = getPositionX(obj3DTornade.transformations);
+        //     const fltPositionZTornade = getPositionZ(obj3DTornade.transformations);
+        //     const fltPositionXCamera = getPositionCameraX(objScene3D.camera);
+        //     const fltPositionZCamera = getPositionCameraZ(objScene3D.camera);
 
-            obj3DTornade.binEnCollision = (fltPositionXCamera > fltPositionXTornade - obj3DTornade.fltLargeur) &&
-                (fltPositionXCamera < fltPositionXTornade + obj3DTornade.fltLargeur) &&
-                (fltPositionZCamera > fltPositionZTornade - obj3DTornade.fltProfondeur) &&
-                (fltPositionZCamera < fltPositionZTornade + obj3DTornade.fltProfondeur);
+        //     obj3DTornade.binEnCollision = (fltPositionXCamera > fltPositionXTornade - obj3DTornade.fltLargeur) &&
+        //         (fltPositionXCamera < fltPositionXTornade + obj3DTornade.fltLargeur) &&
+        //         (fltPositionZCamera > fltPositionZTornade - obj3DTornade.fltProfondeur) &&
+        //         (fltPositionZCamera < fltPositionZTornade + obj3DTornade.fltProfondeur);
 
-            if (obj3DTornade.binEnCollision) {
-                // Baisser le son du vent et
-                // faire jouer le son de la tornade
-                objSons.sonVent.volume = 0.50;
-                objSons.sonTornade.play();
+        //     if (obj3DTornade.binEnCollision) {
+        //         // Baisser le son du vent et
+        //         // faire jouer le son de la tornade
+        //         objSons.sonVent.volume = 0.50;
+        //         objSons.sonTornade.play();
 
-                obj3DTornade.intCompteur = 0;
-                obj3DTornade.intAngleCameraPris = 0;
-            }
-        }
+        //         obj3DTornade.intCompteur = 0;
+        //         obj3DTornade.intAngleCameraPris = 0;
+        //     }
+        // }
 
         function tournerCameraDansTornade(intNoTornade) {
             const obj3DTornade = objScene3D.tabObjets3D[OBJ3D_TORNADE + intNoTornade];
@@ -211,7 +205,7 @@
             tabObjets3D.push(obj3DCiel);
 
             // Créer le nextlevel
-           // const obj3DNextLevel = creerObj3DNextLevel(objgl, obj3DTunnels, TEX_NEXTLEVEL);
+            // const obj3DNextLevel = creerObj3DNextLevel(objgl, obj3DTunnels, TEX_NEXTLEVEL);
             //tabObjets3D.push(obj3DNextLevel);
 
             // Créer les tornades
@@ -312,8 +306,10 @@
                         objgl.uniform1i(objProgShaders.noTexture, texels[j].intNoTexture);
                         objgl.uniform1f(objProgShaders.pcCouleurTexel, texels[j].pcCouleurTexel);
 
-                        // Dessiner
-                        objgl.drawArrays(vertex[j].typeDessin, 0, intNbVertex);
+                        if (i != 3 || objScene3D.tabObjets3D[i].binVisible == true) {
+                            // Dessiner
+                            objgl.drawArrays(vertex[j].typeDessin, 0, intNbVertex);
+                        }
                     }
                 else { // Dessiner le maillage
 
@@ -340,10 +336,12 @@
                     // Sélectionner le maillage qu'on va utiliser pour les triangles et les droites
                     objgl.bindBuffer(objgl.ELEMENT_ARRAY_BUFFER, maillage);
 
-                    // Dessiner les triangles
-                    objgl.drawElements(objgl.TRIANGLES, maillage.intNbTriangles * 3, objgl.UNSIGNED_SHORT, 0);
-                    // Dessiner les droites à la suite des triangles
-                    objgl.drawElements(objgl.LINES, maillage.intNbDroites * 2, objgl.UNSIGNED_SHORT, maillage.intNbTriangles * 2 * 3);
+                    if (i != 3 || objScene3D.tabObjets3D[3].binVisible == true) {
+                        // Dessiner les triangles
+                        objgl.drawElements(objgl.TRIANGLES, maillage.intNbTriangles * 3, objgl.UNSIGNED_SHORT, 0);
+                        // Dessiner les droites à la suite des triangles
+                        objgl.drawElements(objgl.LINES, maillage.intNbDroites * 2, objgl.UNSIGNED_SHORT, maillage.intNbTriangles * 2 * 3);
+                    }
                 }
             }
         }
@@ -381,6 +379,18 @@
 
             return objSons;
         }
+        //NOTE: Si le joueur appui sur PageUp, puis PageDown, et ensuite bouge,
+        //il se reteleportera à l'endroit sauver s'il rappui sur PageDown
+        function restrictKeys(event) {
+            // Key codes: CTRL = 17, SHIFT = 16, SPACE = 32
+            var allowedKeys = [17, 16, 32];
+
+            if (event.keyCode === 34) { // PageDown
+                // Restaurer le contrôle des touches
+                document.removeEventListener('keydown', restrictKeys);
+                isRestrictKeysActive = false;
+            }
+        }
 
         function deplacerCamera() {
             const camera = objScene3D.camera;
@@ -396,7 +406,43 @@
             let fltLimiteNord2;
             let fltLimiteSud2;
 
-            if (event.keyCode == 37 || event.keyCode == 39) {
+            if (!isRestrictKeysActive && event.keyCode == 33) { // PageUp
+                // Sauvegarder la position courante de la caméra
+                previousCameraPosition = {
+                    x: getPositionCameraX(camera),
+                    y: getPositionCameraY(camera),
+                    z: getPositionCameraZ(camera)
+                };
+                previousCameraDirection = {
+                    x: getCibleCameraX(camera),
+                    y: getCibleCameraY(camera),
+                    z: getCibleCameraZ(camera)
+                };
+
+                // Bouger la caméra au millieu en haut
+                setPositionCameraX(0, camera);
+                setPositionCameraY(40, camera);
+                setPositionCameraZ(0, camera);
+                setCibleCameraX(0.001, camera);
+                setCibleCameraY(0, camera); //La caméra regarde le bas
+                setCibleCameraZ(0, camera);
+
+                //Restreindre le mouvement
+                document.addEventListener('keydown', restrictKeys);
+                isRestrictKeysActive = true;
+            } else if (event.keyCode == 34) { // PageDown
+                // Restaurer la position de la caméra
+                if (previousCameraPosition && previousCameraDirection) {
+                    setPositionCameraX(previousCameraPosition.x, camera);
+                    setPositionCameraY(previousCameraPosition.y, camera);
+                    setPositionCameraZ(previousCameraPosition.z, camera);
+                    setCibleCameraX(previousCameraDirection.x, camera);
+                    setCibleCameraY(previousCameraDirection.y, camera);
+                    setCibleCameraZ(previousCameraDirection.z, camera);
+                }
+            }
+
+            if (!isRestrictKeysActive && (event.keyCode == 37 || event.keyCode == 39)) {
                 // 37:  Flèche-à-gauche; 39:Flèche-à-droite
                 fltX = getCibleCameraX(camera) - getPositionCameraX(camera);
                 fltZ = getCibleCameraZ(camera) - getPositionCameraZ(camera);
@@ -408,7 +454,7 @@
                 setCibleCameraZ(getPositionCameraZ(camera) + fltZPrime, camera);
             }
             else
-                if (event.keyCode == 38 || event.keyCode == 40) {
+                if (!isRestrictKeysActive && (event.keyCode == 38 || event.keyCode == 40)) {
                     // 38:  Flèche-en-haut; 40:Flèche-en-bas
                     fltX = getCibleCameraX(camera) - getPositionCameraX(camera);
                     fltZ = getCibleCameraZ(camera) - getPositionCameraZ(camera);
@@ -433,7 +479,7 @@
                     let binFondTunnel = false;
 
                     if (!binAucuneCollision) {
-                        // Vérifier si le mur NORD est troué
+                        /* Vérifier si le mur NORD est troué
                         if ((fltZCamera <= fltLimiteNord) && objScene3D.tabObjets3D[OBJ3D_MURS].tabAUntrou[NORD]) {
                             // Vérifier s'il est devant le trou du mur NORD
                             fltLimiteOuest2 = objScene3D.tabObjets3D[OBJ3D_MURS].fltLargeur * (-1 / 2 + objScene3D.tabObjets3D[OBJ3D_MURS].tabDebutRelTrou[NORD]) + 0.1;
@@ -473,7 +519,7 @@
                         // Il est dans un tunnel, baisser le volume
                         if (binAucuneCollision)
                             objSons.sonVent.volume = 0.25;
-                    }
+                    */}
                     else // Il n'est pas dans un tunnel, monter le volume
                         objSons.sonVent.volume = 1.00;
 
@@ -515,6 +561,9 @@
                             setPositionCameraZ(getPositionCameraZ(camera) + fltZPrime, camera);
                         }
                     }
+                    console.log(getPositionCameraX(camera));
+                    console.log(getPositionCameraY(camera));
+                    console.log(getPositionCameraZ(camera));
                 }
         }
 

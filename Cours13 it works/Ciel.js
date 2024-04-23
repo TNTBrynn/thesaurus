@@ -1,10 +1,11 @@
 // Ciel.js
 
-function creerObj3DCiel(objgl, obj3DMurs, obj3DCreneaux, intNoTexture) {
+function creerObj3DCiel(objgl, obj3DMurs, intNoTexture) {
     const obj3DCiel = new Object();
     obj3DCiel.fltProfondeur = obj3DMurs.fltProfondeur * 2;
     obj3DCiel.fltLargeur = obj3DMurs.fltLargeur * 2;
     obj3DCiel.fltHauteur = 0;
+    obj3DCiel.binVisible = true;
     
     obj3DCiel.vertex = creerVertexCiel(objgl, obj3DCiel.fltLargeur, obj3DCiel.fltProfondeur);
     obj3DCiel.couleurs = creerCouleursCiel(objgl, [1, 1, 1, 1]);
@@ -12,7 +13,7 @@ function creerObj3DCiel(objgl, obj3DMurs, obj3DCreneaux, intNoTexture) {
 	obj3DCiel.maillage = creerMaillageCiel(objgl);
 	
     obj3DCiel.transformations = creerTransformations();
-	setPositionY(obj3DMurs.fltHauteur + obj3DCreneaux.fltHauteur, obj3DCiel.transformations);
+	setPositionY(obj3DMurs.fltHauteur, obj3DCiel.transformations);
     return obj3DCiel;
 }
 

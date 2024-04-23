@@ -19,12 +19,11 @@
     <script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
     <script type="text/javascript" src="Transformations.js"></script>
     <script type="text/javascript" src="Camera.js"></script>
-    <script type="text/javascript" src="SolAvecNiveaux.js"></script>
-    <script type="text/javascript" src="MursTrouésAvecNiveaux.js"></script>
+    <script type="text/javascript" src="Sol.js"></script>
+    <script type="text/javascript" src="Murs.js"></script>
     <script type="text/javascript" src="Creneaux.js"></script>
     <script type="text/javascript" src="Tunnels.js"></script>
     <script type="text/javascript" src="Ciel.js"></script>
-    <script type="text/javascript" src="NextLevel.js"></script>
     <script type="text/javascript" src="Textures.js"></script>
     <script type="text/javascript" src="Fleche.js"></script>
     <script type="text/javascript" src="Tresor.js"></script>
@@ -40,25 +39,18 @@
         comme pour les flèches*/
         const OBJ3D_SOL = 0;
         const OBJ3D_MURS = 1;
-        const OBJ3D_CRENEAUX = 2;
-        // const OBJ3D_TUNNELS = 3;
-        const OBJ3D_CIEL = 3;
-        const OBJ3D_TRESOR = 4;
-        const OBJ3D_FLECHE = 5;
-        // const OBJ3D_TORNADE = 6;
+        const OBJ3D_CIEL = 2;
+        const OBJ3D_FLECHE = 3;
 
-        const tabImages = ['Sol.jpg', 'Mur.jpg', 'Ciel.jpg', 'Fleche.jpg', 'assets/TresorTextureGaucheDroite.jpg', 'assets/TresorTextureFace.jpg', 'assets/TresorTexturePanneauFaceHaut.jpg'];
-        // const TEX_TRANSPARENT = 0;
+        const tabImages = ['Sol.jpg', 'Mur.jpg', 'Ciel.jpg', 'fleche.jpg'];
         const TEX_SOL = 0;
         const TEX_MUR = 1;
         const TEX_CIEL = 2;
         const TEX_FLECHE = 3;
-        const TEX_TRESORGAUCHEDROITE = 4;
-        const TEX_TRESORFACE = 5;
-        const TEX_TRESORFACEHAUT = 6
-        //const TEX_NEXTLEVEL = 4;
 
-        const intTempsRestant = 60; // 60 secondes pour trouver le trésor
+        let isRestrictKeysActive = false;
+        let previousCameraPosition = null;
+        let previousCameraDirection = null;
 
         // Le niveau actuel du jeu
         let intNiveau = 0;
@@ -70,7 +62,7 @@
             const objCanvas = document.getElementById('monCanvas');
             objgl = initWebGL(objCanvas);  // Initialise le contexte WebGL
             objProgShaders = initShaders(objgl);
-            objSons = initSons();
+            // objSons = initSons();
             objScene3D = initScene3D(objgl); // Créer la scène
 
             effacerCanevas(objgl);
@@ -121,12 +113,12 @@
             const obj3DMurs = creerObj3DMurs(objgl, obj3DSol, TEX_MUR, intNiveau);
             tabObjets3D.push(obj3DMurs);
 
-            // Créer les créneaux
-            const obj3DCreneaux = creerObj3DCreneaux(objgl, obj3DMurs, TEX_MUR);
-            tabObjets3D.push(obj3DCreneaux);
+             // Créer les créneaux
+/*             const obj3DCreneaux = creerObj3DCreneaux(objgl, obj3DMurs, TEX_MUR);
+            tabObjets3D.push(obj3DCreneaux);  */
 
             // Créer le ciel
-            const obj3DCiel = creerObj3DCiel(objgl, obj3DMurs, obj3DCreneaux, TEX_CIEL);
+            const obj3DCiel = creerObj3DCiel(objgl, obj3DMurs, TEX_CIEL);
             tabObjets3D.push(obj3DCiel);
 
             //Créer Trésor
@@ -134,7 +126,7 @@
             tabObjets3D.push(obj3DTresor);
 
             // //Créer Flèche
-            for (let i = 0; i < nbFleches; i++) {
+            for(let i = 0; i < nbFleches; i++){
                 const obj3DFleche = creerObj3DFleche(objgl, TEX_FLECHE);
                 tabObjets3D.push(obj3DFleche);
                 setPositionFleche(0.5, 14, obj3DFleche);
@@ -155,23 +147,6 @@
                 const obj3DFleche = objScene3D.tabObjets3D[OBJ3D_FLECHE + i];
                 trouverCoffre(obj3DFleche, obj3DTresor);
             }
-
-            // Arrêter le son Next Level (si le son joue)
-            if (!objSons.sonNextLevel.paused) {
-                objSons.sonNextLevel.pause();
-                objSons.sonNextLevel.currentTime = 0.0;
-            }
-
-            // Arrêter le son de la tornade (si le son joue)
-            if (!objSons.sonTornade.paused) {
-                objSons.sonTornade.pause();
-                objSons.sonTornade.currentTime = 0.0;
-            }
-
-            // Faire jouer le son du vent au début du niveau
-            objSons.sonVent.volume = 1.0;
-            objSons.sonVent.play();
-
             return objScene3D;
         }
 
@@ -240,8 +215,11 @@
                         objgl.uniform1i(objProgShaders.noTexture, texels[j].intNoTexture);
                         objgl.uniform1f(objProgShaders.pcCouleurTexel, texels[j].pcCouleurTexel);
 
-                        // Dessiner
-                        objgl.drawArrays(vertex[j].typeDessin, 0, intNbVertex);
+                        // Dessiner le ciel ou pas en se basant sur binVisible dans Ciel.js
+                        if (i != OBJ3D_CIEL || objScene3D.tabObjets3D[i].binVisible == true) {
+                            // Dessiner
+                            objgl.drawArrays(vertex[j].typeDessin, 0, intNbVertex);
+                        }
                     }
                 else { // Dessiner le maillage
 
@@ -268,10 +246,13 @@
                     // Sélectionner le maillage qu'on va utiliser pour les triangles et les droites
                     objgl.bindBuffer(objgl.ELEMENT_ARRAY_BUFFER, maillage);
 
-                    // Dessiner les triangles
-                    objgl.drawElements(objgl.TRIANGLES, maillage.intNbTriangles * 3, objgl.UNSIGNED_SHORT, 0);
-                    // Dessiner les droites à la suite des triangles
-                    objgl.drawElements(objgl.LINES, maillage.intNbDroites * 2, objgl.UNSIGNED_SHORT, maillage.intNbTriangles * 2 * 3);
+                    // Dessiner le ciel ou pas en se basant sur binVisible dans Ciel.js
+                    if (i != OBJ3D_CIEL || objScene3D.tabObjets3D[i].binVisible == true) {
+                        // Dessiner les triangles
+                        objgl.drawElements(objgl.TRIANGLES, maillage.intNbTriangles * 3, objgl.UNSIGNED_SHORT, 0);
+                        // Dessiner les droites à la suite des triangles
+                        objgl.drawElements(objgl.LINES, maillage.intNbDroites * 2, objgl.UNSIGNED_SHORT, maillage.intNbTriangles * 2 * 3);
+                    }
                 }
             }
         }
@@ -283,31 +264,44 @@
             objgl.clear(objgl.COLOR_BUFFER_BIT | objgl.DEPTH_BUFFER_BIT);
         }
 
-        function initSons() {
-            const objSons = new Object();
+        /*  function initSons() {
+             const objSons = new Object();
+ 
+             // Ce son joue tout au long du jeu
+             let objSon = document.createElement('audio');
+             objSon.setAttribute('src', 'SonVent.mp3');
+             objSon.load();
+             objSon.loop = true;
+             objSons.sonVent = objSon;
+ 
+             // Ce son joue lorsque le joueur passe au prochain niveau
+             objSon = document.createElement('audio');
+             objSon.setAttribute('src', 'SonNextLevel.mp3');
+             objSon.load();
+             objSon.loop = true;
+             objSons.sonNextLevel = objSon;
+ 
+             // Ce son joue lorsque le joueur est dans la tornade
+             objSon = document.createElement('audio');
+             objSon.setAttribute('src', 'SonTornade.mp3');
+             objSon.load();
+             objSon.loop = true;
+             objSons.sonTornade = objSon;
+ 
+             return objSons;
+         }
+  */
+        //NOTE: Si le joueur appui sur PageUp, puis PageDown, et ensuite bouge,
+        //il se reteleportera à l'endroit sauver s'il rappui sur PageDown
+        function restrictKeys(event) {
+            // Key codes: CTRL = 17, SHIFT = 16, SPACE = 32
+            var allowedKeys = [17, 16, 32];
 
-            // Ce son joue tout au long du jeu
-            let objSon = document.createElement('audio');
-            objSon.setAttribute('src', 'SonVent.mp3');
-            objSon.load();
-            objSon.loop = true;
-            objSons.sonVent = objSon;
-
-            // Ce son joue lorsque le joueur passe au prochain niveau
-            objSon = document.createElement('audio');
-            objSon.setAttribute('src', 'SonNextLevel.mp3');
-            objSon.load();
-            objSon.loop = true;
-            objSons.sonNextLevel = objSon;
-
-            // Ce son joue lorsque le joueur est dans la tornade
-            objSon = document.createElement('audio');
-            objSon.setAttribute('src', 'SonTornade.mp3');
-            objSon.load();
-            objSon.loop = true;
-            objSons.sonTornade = objSon;
-
-            return objSons;
+            if (event.keyCode === 34) { // PageDown
+                // Restaurer le contrôle des touches
+                document.removeEventListener('keydown', restrictKeys);
+                isRestrictKeysActive = false;
+            }
         }
 
         //Permet de faire tourner les objets
@@ -346,7 +340,44 @@
             let fltLimiteNord2;
             let fltLimiteSud2;
 
-            if (event.keyCode == 37 || event.keyCode == 39) {
+            if (!isRestrictKeysActive && event.keyCode == 33) { // PageUp
+                // Sauvegarder la position courante de la caméra
+                previousCameraPosition = {
+                    x: getPositionCameraX(camera),
+                    y: getPositionCameraY(camera),
+                    z: getPositionCameraZ(camera)
+                };
+                previousCameraDirection = {
+                    x: getCibleCameraX(camera),
+                    y: getCibleCameraY(camera),
+                    z: getCibleCameraZ(camera)
+                };
+
+                // Bouger la caméra au millieu en haut
+                setPositionCameraX(0, camera);
+                setPositionCameraY(40, camera);
+                setPositionCameraZ(0, camera);
+                setCibleCameraX(0.001, camera);
+                setCibleCameraY(0, camera); //La caméra regarde le bas
+                setCibleCameraZ(0, camera);
+                objScene3D.tabObjets3D[OBJ3D_CIEL].binVisible = false; //Cacher le ciel
+
+                //Restreindre le mouvement
+                document.addEventListener('keydown', restrictKeys);
+                isRestrictKeysActive = true;
+            } else if (isRestrictKeysActive && event.keyCode == 34) { // PageDown
+                // Restaurer la position de la caméra
+                if (previousCameraPosition && previousCameraDirection) {
+                    setPositionCameraX(previousCameraPosition.x, camera);
+                    setPositionCameraY(previousCameraPosition.y, camera);
+                    setPositionCameraZ(previousCameraPosition.z, camera);
+                    setCibleCameraX(previousCameraDirection.x, camera);
+                    setCibleCameraY(previousCameraDirection.y, camera);
+                    setCibleCameraZ(previousCameraDirection.z, camera);
+                    objScene3D.tabObjets3D[OBJ3D_CIEL].binVisible = true; //Afficher le ciel
+                }
+            }
+            if (!isRestrictKeysActive && (event.keyCode == 37 || event.keyCode == 39)) {
                 // 37:  Flèche-à-gauche; 39:Flèche-à-droite
                 fltX = getCibleCameraX(camera) - getPositionCameraX(camera);
                 fltZ = getCibleCameraZ(camera) - getPositionCameraZ(camera);
@@ -358,7 +389,7 @@
                 setCibleCameraZ(getPositionCameraZ(camera) + fltZPrime, camera);
             }
             else
-                if (event.keyCode == 38 || event.keyCode == 40) {
+                if (!isRestrictKeysActive && (event.keyCode == 38 || event.keyCode == 40)) {
                     // 38:  Flèche-en-haut; 40:Flèche-en-bas
                     fltX = getCibleCameraX(camera) - getPositionCameraX(camera);
                     fltZ = getCibleCameraZ(camera) - getPositionCameraZ(camera);
@@ -382,62 +413,7 @@
                         (fltZCamera > fltLimiteNord) && (fltZCamera < fltLimiteSud);
                     let binFondTunnel = false;
 
-                    if (!binAucuneCollision) {
-                        // Vérifier si le mur NORD est troué
-                        if ((fltZCamera <= fltLimiteNord) && objScene3D.tabObjets3D[OBJ3D_MURS].tabAUntrou[NORD]) {
-                            // Vérifier s'il est devant le trou du mur NORD
-                            fltLimiteOuest2 = objScene3D.tabObjets3D[OBJ3D_MURS].fltLargeur * (-1 / 2 + objScene3D.tabObjets3D[OBJ3D_MURS].tabDebutRelTrou[NORD]) + 0.1;
-                            fltLimiteEst2 = fltLimiteOuest2 + objScene3D.tabObjets3D[OBJ3D_MURS].fltLargeurTrou - 0.2;
-                            binAucuneCollision = (fltXCamera > fltLimiteOuest2) && (fltXCamera < fltLimiteEst2);
-                            // Vérifier s'il est au fond du tunnel
-                            binFondTunnel = fltZCamera <= fltLimiteNord - objScene3D.tabObjets3D[OBJ3D_TUNNELS].fltProfondeur;
-                        }
-                        // Vérifier si le mur SUD est troué
-                        else if ((fltZCamera >= fltLimiteSud) && objScene3D.tabObjets3D[OBJ3D_MURS].tabAUntrou[SUD]) {
-                            // Vérifier s'il est devant le trou du mur SUD
-                            fltLimiteEst2 = objScene3D.tabObjets3D[OBJ3D_MURS].fltLargeur * (1 / 2 - objScene3D.tabObjets3D[OBJ3D_MURS].tabDebutRelTrou[SUD]) - 0.1;
-                            fltLimiteOuest2 = fltLimiteEst2 - objScene3D.tabObjets3D[OBJ3D_MURS].fltLargeurTrou + 0.2;
-                            binAucuneCollision = (fltXCamera > fltLimiteOuest2) && (fltXCamera < fltLimiteEst2);
-                            // Vérifier s'il est au fond du tunnel
-                            binFondTunnel = fltZCamera >= fltLimiteSud + objScene3D.tabObjets3D[OBJ3D_TUNNELS].fltProfondeur;
-                        }
-                        // Vérifier si le mur EST est troué
-                        else if ((fltXCamera >= fltLimiteEst) && objScene3D.tabObjets3D[OBJ3D_MURS].tabAUntrou[EST]) {
-                            // Vérifier s'il est devant le trou du mur EST
-                            fltLimiteNord2 = objScene3D.tabObjets3D[OBJ3D_MURS].fltProfondeur * (-1 / 2 + objScene3D.tabObjets3D[OBJ3D_MURS].tabDebutRelTrou[EST]) + 0.1;
-                            fltLimiteSud2 = fltLimiteNord2 + objScene3D.tabObjets3D[OBJ3D_MURS].fltLargeurTrou - 0.2;
-                            binAucuneCollision = (fltZCamera > fltLimiteNord2) && (fltZCamera < fltLimiteSud2);
-                            // Vérifier s'il est au fond du tunnel
-                            binFondTunnel = fltXCamera >= fltLimiteEst + objScene3D.tabObjets3D[OBJ3D_TUNNELS].fltProfondeur;
-                        }
-                        // Vérifier si le mur OUEST est troué
-                        else if ((fltXCamera <= fltLimiteOuest) && objScene3D.tabObjets3D[OBJ3D_MURS].tabAUntrou[OUEST]) {
-                            // Vérifier s'il est devant le trou du mur OUEST
-                            fltLimiteSud2 = objScene3D.tabObjets3D[OBJ3D_MURS].fltProfondeur * (1 / 2 - objScene3D.tabObjets3D[OBJ3D_MURS].tabDebutRelTrou[OUEST]) - 0.1;
-                            fltLimiteNord2 = fltLimiteSud2 - objScene3D.tabObjets3D[OBJ3D_MURS].fltLargeurTrou + 0.2;
-                            binAucuneCollision = (fltZCamera > fltLimiteNord2) && (fltZCamera < fltLimiteSud2);
-                            // Vérifier s'il est au fond du tunnel
-                            binFondTunnel = fltXCamera <= fltLimiteOuest - objScene3D.tabObjets3D[OBJ3D_TUNNELS].fltProfondeur;
-                        }
-
-                        // Il est dans un tunnel, baisser le volume
-                        if (binAucuneCollision)
-                            objSons.sonVent.volume = 0.25;
-                    }
-                    else // Il n'est pas dans un tunnel, monter le volume
-                        objSons.sonVent.volume = 1.00;
-
-                    if (binFondTunnel) { // Passer à un autre niveau
-                        // Arrêter le son du vent
-                        objSons.sonVent.pause();
-                        objSons.sonVent.currentTime = 0.0;
-
-                        // Jouer le son du prochain niveau
-                        objSons.sonNextLevel.play();
-
-                        intNiveau++; objScene3D = initScene3D(objgl);
-                    }
-                    else if (binAucuneCollision) { // Déplacer la caméra
+                    if (binAucuneCollision) { // Déplacer la caméra
                         setCibleCameraX(getCibleCameraX(camera) + fltXPrime, camera);
                         setCibleCameraZ(getCibleCameraZ(camera) + fltZPrime, camera);
                         setPositionCameraX(getPositionCameraX(camera) + fltXPrime, camera);
