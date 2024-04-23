@@ -5,6 +5,7 @@ function creerObj3DCiel(objgl, obj3DMurs, obj3DCreneaux, intNoTexture) {
     obj3DCiel.fltProfondeur = obj3DMurs.fltProfondeur * 2;
     obj3DCiel.fltLargeur = obj3DMurs.fltLargeur * 2;
     obj3DCiel.fltHauteur = 0;
+    obj3DCiel.binVisible = true;
     
     obj3DCiel.vertex = creerVertexCiel(objgl, obj3DCiel.fltLargeur, obj3DCiel.fltProfondeur);
     obj3DCiel.couleurs = creerCouleursCiel(objgl, [1, 1, 1, 1]);
