@@ -216,18 +216,26 @@ function creerTexelsTresor(objgl, tabIntNoTexture) {
         1.0, 1.0,
         1.0, 0.0
     ];
-    tabTexels[1] = tabTexels[0]; //face arrière
+    tabTexels[1] = tabTexels[0] //face arrière
     tabTexels[2] = tabTexels[0]; //face du dessus
     tabTexels[3] = tabTexels[0]; //face du dessous
     tabTexels[4] = [
+        /* 0.5, 0.5,  // center
+        0.5, 0.0,  // bottom center
+        0.293, 0.293,  // bottom-left
+        0.0, 0.5,  // left center
+        0.293, 0.707,  // top-left
+        0.5, 1.0,  // top center
+        0.707, 0.707,  // top-right
+        1.0, 0.5,  // right center
+        0.707, 0.293,  // bottom-right
+        0.5, 0.0, */
         0.5, 0.5,
         1.0, 0.0,
         0.0, 0.0,
         0.0, 1.0,
         1.0, 1.0,
-        1.0, 0.0,
-        0.0, 0.0,
-        0.0, 1.0
+        1.0, 0.0
     ];
 
     tabTexels[5] = tabTexels[0]; //face gauche
@@ -244,6 +252,12 @@ function creerTexelsTresor(objgl, tabIntNoTexture) {
         if (i == 0) { //face avant
             tabTexelsTresor[i].intNoTexture = tabIntNoTexture[1]; tabTexelsTresor[i].pcCouleurTexel = 1;
         }
+        else if (i == 1) { //face arrière
+            tabTexelsTresor[i].intNoTexture = tabIntNoTexture[4]; tabTexelsTresor[i].pcCouleurTexel = 1;
+        }
+        else if (i == 2) { //face du dessus
+
+        }
         else if (i == 4) { //droite
             tabTexelsTresor[i].intNoTexture = tabIntNoTexture[0]; tabTexelsTresor[i].pcCouleurTexel = 1;
         }
@@ -252,6 +266,15 @@ function creerTexelsTresor(objgl, tabIntNoTexture) {
         }
         else if (i == 6) { //face avant haute
             tabTexelsTresor[i].intNoTexture = tabIntNoTexture[2]; tabTexelsTresor[i].pcCouleurTexel = 1;
+        }
+        else if (i == 7) { //face avant basse
+            tabTexelsTresor[i].intNoTexture = tabIntNoTexture[3]; tabTexelsTresor[i].pcCouleurTexel = 1;
+        }
+        else if (i == 8) { //face arrière haute
+            tabTexelsTresor[i].intNoTexture = tabIntNoTexture[3]; tabTexelsTresor[i].pcCouleurTexel = 1;
+        }
+        else if (i == 9) { //face arrière basse
+            tabTexelsTresor[i].intNoTexture = tabIntNoTexture[3]; tabTexelsTresor[i].pcCouleurTexel = 1;
         }
         else {
             tabTexelsTresor[i].intNoTexture = 0; tabTexelsTresor[i].pcCouleurTexel = 0;

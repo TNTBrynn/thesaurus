@@ -40,13 +40,21 @@
         const OBJ3D_SOL = 0;
         const OBJ3D_MURS = 1;
         const OBJ3D_CIEL = 2;
-        const OBJ3D_FLECHE = 3;
+        const OBJ3D_TRESOR = 3;
+        const OBJ3D_FLECHE = 4;
 
-        const tabImages = ['Sol.jpg', 'Mur.jpg', 'Ciel.jpg', 'fleche.jpg'];
+        const tabImages = ['Sol.jpg', 'Mur.jpg', 'Ciel.jpg', 'Fleche.jpg', 
+        'assets/TresorTextureGaucheDroite.jpg', 'assets/TresorTextureFace.jpg', 'assets/TresorTexturePanneauFaceHaut.jpg', 'assets/TresorTextureFaceArriereBas.jpg', 'assets/TresorTextureArriere.jpg'];
         const TEX_SOL = 0;
         const TEX_MUR = 1;
         const TEX_CIEL = 2;
         const TEX_FLECHE = 3;
+        const TEX_TRESORGAUCHEDROITE = 4;
+        const TEX_TRESORFACE = 5;
+        const TEX_TRESORFACEHAUT = 6
+        const TEX_TRESORFACEARRIEREBAS = 7;
+        const TEX_TRESORARRIERE = 8;
+        const TEX_TRESORARRIEREHAUT = 9;
 
         let isRestrictKeysActive = false;
         let previousCameraPosition = null;
@@ -113,20 +121,20 @@
             const obj3DMurs = creerObj3DMurs(objgl, obj3DSol, TEX_MUR, intNiveau);
             tabObjets3D.push(obj3DMurs);
 
-             // Créer les créneaux
-/*             const obj3DCreneaux = creerObj3DCreneaux(objgl, obj3DMurs, TEX_MUR);
-            tabObjets3D.push(obj3DCreneaux);  */
+            // Créer les créneaux
+            /*             const obj3DCreneaux = creerObj3DCreneaux(objgl, obj3DMurs, TEX_MUR);
+                        tabObjets3D.push(obj3DCreneaux);  */
 
             // Créer le ciel
             const obj3DCiel = creerObj3DCiel(objgl, obj3DMurs, TEX_CIEL);
             tabObjets3D.push(obj3DCiel);
 
             //Créer Trésor
-            const obj3DTresor = creerObj3DTresor(objgl, [TEX_TRESORGAUCHEDROITE, TEX_TRESORFACE, TEX_TRESORFACEHAUT])
+            const obj3DTresor = creerObj3DTresor(objgl, [TEX_TRESORGAUCHEDROITE, TEX_TRESORFACE, TEX_TRESORFACEHAUT, TEX_TRESORFACEARRIEREBAS, TEX_TRESORARRIERE, TEX_TRESORARRIEREHAUT])
             tabObjets3D.push(obj3DTresor);
 
             // //Créer Flèche
-            for(let i = 0; i < nbFleches; i++){
+            for (let i = 0; i < nbFleches; i++) {
                 const obj3DFleche = creerObj3DFleche(objgl, TEX_FLECHE);
                 tabObjets3D.push(obj3DFleche);
                 setPositionFleche(0.5, 14, obj3DFleche);
@@ -443,9 +451,6 @@
                     }
                 }
         }
-
-
-
     </script>
 </head>
 
