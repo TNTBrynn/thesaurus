@@ -15,12 +15,27 @@ function creerObj3DSol(objgl, intNoTexture, intNiveau) {
     return obj3DSol;
 }
 
-function creerVertexSol(objgl, fltLargeur, fltProfondeur) {
+/* function creerVertexSol(objgl, fltLargeur, fltProfondeur) {
     const tabVertex = [
              -fltLargeur / 2, 0.0, -fltProfondeur / 2,
              fltLargeur / 2, 0.0, -fltProfondeur / 2,
              -fltLargeur / 2, 0.0, fltProfondeur / 2,
              fltLargeur / 2, 0.0, fltProfondeur / 2
+        ];
+    
+    const objSol = objgl.createBuffer();
+    objgl.bindBuffer(objgl.ARRAY_BUFFER, objSol);
+    objgl.bufferData(objgl.ARRAY_BUFFER, new Float32Array(tabVertex), objgl.STATIC_DRAW);
+
+    return objSol;
+} */
+
+function creerVertexSol(objgl, fltLargeur, fltProfondeur) {
+    const tabVertex = [
+             0.0, 0.0, 0.0, // Top left corner
+             fltLargeur, 0.0, 0.0, // Top right corner
+             0.0, 0.0, fltProfondeur, // Bottom left corner
+             fltLargeur, 0.0, fltProfondeur // Bottom right corner
         ];
     
     const objSol = objgl.createBuffer();

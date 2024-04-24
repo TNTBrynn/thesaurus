@@ -30,9 +30,9 @@ function creerObj3DMurs(objgl, obj3DSol, intNoTexture, intNiveau) {
     return obj3DMurs;
 }
 
-function creerVertexMurs(objgl, fltLargeur, fltProfondeur, fltHauteur, tabAUntrou, tabDebutRelTrou, fltLargeurTrou, fltHauteurTrou) {
+/* function creerVertexMurs(objgl, fltLargeur, fltProfondeur, fltHauteur, tabAUntrou, tabDebutRelTrou, fltLargeurTrou, fltHauteurTrou) {
     // Mur nord
-    let tabVertex = [	          
+     let tabVertex = [	          
              -fltLargeur / 2, fltHauteur, -fltProfondeur / 2,
              -fltLargeur / 2 + fltLargeur * tabDebutRelTrou[NORD], fltHauteur, -fltProfondeur / 2,
              -fltLargeur / 2 + fltLargeur * tabDebutRelTrou[NORD] + fltLargeurTrou, fltHauteur, -fltProfondeur / 2,
@@ -42,7 +42,7 @@ function creerVertexMurs(objgl, fltLargeur, fltProfondeur, fltHauteur, tabAUntro
              -fltLargeur / 2 + fltLargeur * tabDebutRelTrou[NORD], 0, -fltProfondeur / 2,
              -fltLargeur / 2 + fltLargeur * tabDebutRelTrou[NORD] + fltLargeurTrou, 0, -fltProfondeur / 2,
              fltLargeur / 2, 0, -fltProfondeur / 2
-    ];
+    ]; 
     
     if (tabAUntrou[NORD]) 
         tabVertex = tabVertex.concat([
@@ -134,6 +134,110 @@ function creerVertexMurs(objgl, fltLargeur, fltProfondeur, fltHauteur, tabAUntro
 
         ]);
 		
+    const objMurs = objgl.createBuffer();
+    objgl.bindBuffer(objgl.ARRAY_BUFFER, objMurs);
+    objgl.bufferData(objgl.ARRAY_BUFFER, new Float32Array(tabVertex), objgl.STATIC_DRAW);
+   
+    return objMurs;
+} */
+
+function creerVertexMurs(objgl, fltLargeur, fltProfondeur, fltHauteur, tabAUntrou, tabDebutRelTrou, fltLargeurTrou, fltHauteurTrou) {
+    // Mur nord
+    let tabVertex = [	          
+        0, fltHauteur, 0,
+        fltLargeur * tabDebutRelTrou[NORD], fltHauteur, 0,
+        fltLargeur * tabDebutRelTrou[NORD] + fltLargeurTrou, fltHauteur, 0,
+        fltLargeur, fltHauteur, 0,
+
+        0, 0, 0,
+        fltLargeur * tabDebutRelTrou[NORD], 0, 0,
+        fltLargeur * tabDebutRelTrou[NORD] + fltLargeurTrou, 0, 0,
+        fltLargeur, 0, 0
+    ];
+    
+    if (tabAUntrou[NORD]) 
+        tabVertex = tabVertex.concat([
+             fltLargeur * tabDebutRelTrou[NORD], fltHauteurTrou, 0,
+             fltLargeur * tabDebutRelTrou[NORD] + fltLargeurTrou, fltHauteurTrou, 0
+        ]);
+    else
+        tabVertex = tabVertex.concat([
+              fltLargeur * tabDebutRelTrou[NORD], 0, 0,
+              fltLargeur * tabDebutRelTrou[NORD] + fltLargeurTrou, 0, 0
+        ]);
+
+    // Mur sud
+    tabVertex = tabVertex.concat([
+        fltLargeur, fltHauteur, fltProfondeur,
+        fltLargeur - fltLargeur * tabDebutRelTrou[SUD], fltHauteur, fltProfondeur,
+        fltLargeur - fltLargeur * tabDebutRelTrou[SUD] - fltLargeurTrou, fltHauteur, fltProfondeur,
+        0, fltHauteur, fltProfondeur,
+
+        fltLargeur, 0, fltProfondeur,
+        fltLargeur - fltLargeur * tabDebutRelTrou[SUD], 0, fltProfondeur,
+        fltLargeur - fltLargeur * tabDebutRelTrou[SUD] - fltLargeurTrou, 0, fltProfondeur,
+        0, 0, fltProfondeur
+    ]);
+
+    if (tabAUntrou[SUD])
+        tabVertex = tabVertex.concat([
+             fltLargeur - fltLargeur * tabDebutRelTrou[SUD], fltHauteurTrou, fltProfondeur,
+             fltLargeur - fltLargeur * tabDebutRelTrou[SUD] - fltLargeurTrou, fltHauteurTrou, fltProfondeur
+        ]);
+    else
+        tabVertex = tabVertex.concat([
+              fltLargeur - fltLargeur * tabDebutRelTrou[SUD], 0, fltProfondeur,
+              fltLargeur - fltLargeur * tabDebutRelTrou[SUD] - fltLargeurTrou, 0, fltProfondeur
+        ]);
+
+    // Mur est
+    tabVertex = tabVertex.concat([
+        fltLargeur, fltHauteur, 0,
+        fltLargeur, fltHauteur, fltProfondeur * tabDebutRelTrou[EST],
+        fltLargeur, fltHauteur, fltProfondeur * tabDebutRelTrou[EST] + fltLargeurTrou,
+        fltLargeur, fltHauteur, fltProfondeur,
+
+        fltLargeur, 0, 0,
+        fltLargeur, 0, fltProfondeur * tabDebutRelTrou[EST],
+        fltLargeur, 0, fltProfondeur * tabDebutRelTrou[EST] + fltLargeurTrou,
+        fltLargeur, 0, fltProfondeur
+    ]);
+
+    if (tabAUntrou[EST])
+        tabVertex = tabVertex.concat([
+             fltLargeur, fltHauteurTrou, fltProfondeur * tabDebutRelTrou[EST],
+             fltLargeur, fltHauteurTrou, fltProfondeur * tabDebutRelTrou[EST] + fltLargeurTrou,
+        ]);
+    else
+        tabVertex = tabVertex.concat([
+             fltLargeur, 0, fltProfondeur * tabDebutRelTrou[EST],
+             fltLargeur, 0, fltProfondeur * tabDebutRelTrou[EST] + fltLargeurTrou,
+        ]);
+
+    // Mur ouest
+    tabVertex = tabVertex.concat([
+        0, fltHauteur, fltProfondeur,
+        0, fltHauteur, fltProfondeur - fltProfondeur * tabDebutRelTrou[OUEST],
+        0, fltHauteur, fltProfondeur - fltProfondeur * tabDebutRelTrou[OUEST] - fltLargeurTrou,
+        0, fltHauteur, 0,
+
+        0, 0, fltProfondeur,
+        0, 0, fltProfondeur - fltProfondeur * tabDebutRelTrou[OUEST],
+        0, 0, fltProfondeur - fltProfondeur * tabDebutRelTrou[OUEST] - fltLargeurTrou,
+        0, 0, 0
+    ]);
+
+    if (tabAUntrou[OUEST])
+        tabVertex = tabVertex.concat([
+             0, fltHauteurTrou, fltProfondeur - fltProfondeur * tabDebutRelTrou[OUEST],
+             0, fltHauteurTrou, fltProfondeur - fltProfondeur * tabDebutRelTrou[OUEST] - fltLargeurTrou,
+        ]);
+    else
+        tabVertex = tabVertex.concat([
+             0, 0, fltProfondeur - fltProfondeur * tabDebutRelTrou[OUEST],
+             0, 0, fltProfondeur - fltProfondeur * tabDebutRelTrou[OUEST] - fltLargeurTrou,
+        ]);
+    
     const objMurs = objgl.createBuffer();
     objgl.bindBuffer(objgl.ARRAY_BUFFER, objMurs);
     objgl.bufferData(objgl.ARRAY_BUFFER, new Float32Array(tabVertex), objgl.STATIC_DRAW);

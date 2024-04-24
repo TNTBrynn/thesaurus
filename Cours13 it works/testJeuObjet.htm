@@ -134,7 +134,7 @@
             for (let i = 0; i < nbFleches; i++) {
                 const obj3DFleche = creerObj3DFleche(objgl, TEX_FLECHE);
                 tabObjets3D.push(obj3DFleche);
-                setPositionFleche(0.5, 14, obj3DFleche);
+                positionnementFleche(1, 1, obj3DFleche);
             }
 
             // Mettre les objets 3D sur la scène
@@ -142,8 +142,8 @@
 
             // La caméra
             const camera = creerCamera();
-            setPositionsCameraXYZ([0, 0.5, obj3DMurs.fltProfondeur / 2 - 0.1], camera);
-            setCiblesCameraXYZ([0, 0.5, 0], camera);
+            setPositionsCameraXYZ([15.5, 0.5, 15.5], camera);
+            setCiblesCameraXYZ([16.5, 0.5, 15.5], camera);
             setOrientationsXYZ([0, 1, 0], camera);
             objScene3D.camera = camera;
 
@@ -296,8 +296,8 @@
              return objSons;
          }
   */
-        //NOTE: Si le joueur appui sur PageUp, puis PageDown, et ensuite bouge,
-        //il se reteleportera à l'endroit sauver s'il rappui sur PageDown
+        //Cette fonction traque la validité des touches appuyées
+        // À MODIFIER: ajouter la possibilité de triche pour voir les objets
         function restrictKeys(event) {
             // Key codes: CTRL = 17, SHIFT = 16, SPACE = 32
             var allowedKeys = [17, 16, 32];
@@ -359,12 +359,12 @@
                 };
 
                 // Bouger la caméra au millieu en haut
-                setPositionCameraX(0, camera);
+                setPositionCameraX(15.5, camera);
                 setPositionCameraY(40, camera);
-                setPositionCameraZ(0, camera);
-                setCibleCameraX(0.001, camera);
+                setPositionCameraZ(15.1, camera);
+                setCibleCameraX(15.5, camera);
                 setCibleCameraY(0, camera); //La caméra regarde le bas
-                setCibleCameraZ(0, camera);
+                setCibleCameraZ(15.5, camera);
                 objScene3D.tabObjets3D[OBJ3D_CIEL].binVisible = false; //Cacher le ciel
 
                 //Restreindre le mouvement
@@ -409,10 +409,10 @@
                     let fltZCamera = getPositionZ(camera) + fltZPrime;
 
                     // Limites du mur
-                    const fltLimiteOuest = -objScene3D.tabObjets3D[OBJ3D_MURS].fltLargeur / 2 + 0.1;
-                    const fltLimiteEst = objScene3D.tabObjets3D[OBJ3D_MURS].fltLargeur / 2 - 0.1;
-                    const fltLimiteNord = -objScene3D.tabObjets3D[OBJ3D_MURS].fltProfondeur / 2 + 0.1;
-                    const fltLimiteSud = objScene3D.tabObjets3D[OBJ3D_MURS].fltProfondeur / 2 - 0.1;
+                    const fltLimiteOuest = 0.1;
+                    const fltLimiteEst = objScene3D.tabObjets3D[OBJ3D_MURS].fltLargeur - 0.1;
+                    const fltLimiteNord = 0.1;
+                    const fltLimiteSud = objScene3D.tabObjets3D[OBJ3D_MURS].fltProfondeur - 0.1;
 
                     binAucuneCollision = (fltXCamera > fltLimiteOuest) && (fltXCamera < fltLimiteEst) &&
                         (fltZCamera > fltLimiteNord) && (fltZCamera < fltLimiteSud);
