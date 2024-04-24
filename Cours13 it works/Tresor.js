@@ -11,7 +11,7 @@ function creerObj3DTresor(objgl, tabIntNoTexture) {
     //hauteur et échelle statique
     setPositionY(0.2, transformations);
     setEchellesXYZ([0.2, 0.2, 0.2], transformations);
-    setPositionCoffre(0, 10, obj3DTresor)
+    setPositionCoffre(17, 15.5, obj3DTresor)
     return obj3DTresor;
 }
 
@@ -19,6 +19,9 @@ function setPositionCoffre(posX, posZ, obj3DTresor) {
     const transformations = obj3DTresor.transformations
     setPositionX(posX, transformations);
     setPositionZ(posZ, transformations);
+}
+function setOrientationCoffre(angle, obj3DTresor) {
+    setAngleX(angle, obj3DTresor.transformations);
 }
 
 function creerTresor(objgl) {
