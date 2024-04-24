@@ -8,8 +8,22 @@
     <style>
         p {
             color: black;
-            font-family: Arial;
+            font-weight: bold;
+            font-family: Georgia;
             font-size: 16pt;
+            text-align: center;
+            width: 640px;
+        }
+
+        .padding {
+            padding: 10px 15px 10px 15px;
+        }
+
+        .titre {
+            color: black;
+            font-weight: bold;
+            font-family: Georgia;
+            font-size: 28pt;
             text-align: center;
             width: 640px;
         }
@@ -31,7 +45,7 @@
         let objgl = null;
         let objProgShaders = null;
         let objScene3D = null;
-        let tabObjFleche = null;;
+        let tabObjFleche = null;
 
         /*Cette section est utilisé pour pouvoir itérer sur les objets 3D avec leur nom et, s'il y
         en a plusieurs, pouvoir utiliser une boucle avec le nombre connu d'objets 3D de ce type
@@ -56,6 +70,9 @@
 
         // Le nombre de flèches : 18 - (intNiveau *2)
         let nbFleches = 1;
+
+        let tabElementsNiveau;
+        const csvURL = 'niveau1.csv';
 
         function demarrer() {
             const objCanvas = document.getElementById('monCanvas');
@@ -285,6 +302,44 @@
              return objSons;
          }
   */
+
+        // Cette fonction sert à séparer le contenu en paramètre
+        function separeFichier(csvContent) {
+            const tabResultat = [];
+            //On commence par séparer le document par lignes
+            const tabLignes = csvContent.trim().split('\n'); // tabLignes est un tableau qui contient toute les lignes du document (1 élém du tab = 1 ligne)
+
+            // Chaque ligne est split aux virgules et insérer dans tabColonnes, on insere ensuite le resultat dans tabResultat
+            for (let i = 0; i < tabLignes.length; i++) {
+                const tabColonnes = tabLignes[i].trim().split(','); // Trim to remove leading/trailing whitespace
+                tabResultat.push(tabColonnes);
+            }
+
+            return tabResultat;
+        }
+
+        // Cette fonction sert à fetch le fichier et l'envoie à la fonction separeFichier pour séparer son contenu
+        async function fetchCSV(url) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch CSV file');
+                }
+                const csvContent = await response.text();
+                tabElementsNiveau = separeFichier(csvContent); //renvoie à la fonction separeFichier() et insère nos données dans la variable globale tabElementsNiveau
+                return tabElementsNiveau;
+            } catch (error) {
+                throw new Error('Error fetching CSV file: ' + error.message);
+            }
+        }
+
+        fetchCSV(csvURL) // appel à la fonction fetchCSV(), c'est avec cet appel que la variable globale est remplie
+            .catch(error => {
+                console.error(error.message);
+            });
+
+
+
         //Cette fonction traque la validité des touches appuyées
         // À MODIFIER: ajouter la possibilité de triche pour voir les objets
         function restrictKeys(event) {
@@ -422,10 +477,16 @@
 </head>
 
 <body onload="demarrer()">
-    <p> Tornade Niveau: <span id="lblNiveau">1</span></p>
+    <p class="titre"> Thesaurus Niveau: <span id="lblNiveau">1</span></p>
     <canvas id="monCanvas" width="640" height="640" tabIndex="1" onkeydown="deplacerCamera(); return false">
         Votre navigateur ne supporte pas la balise canvas
     </canvas>
+    <p>
+        <span class="padding">Score : <span id="lblScore">300</span></span>
+        <span class="padding">Ouvreurs de murs : <span id="lblOuvreursMurs">5</span></span>
+        <span class="padding">Temps : <span id="lblTemps">00:00</span></span>
+    </p>
+
 </body>
 
 </html>
