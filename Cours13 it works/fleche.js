@@ -129,25 +129,25 @@ function creerTexelsFleche(objgl, intNoTexture) {
     objTexelsFleche.intNoTexture = intNoTexture; objTexelsFleche.pcCouleurTexel = 1.00;
     return objTexelsFleche;
 }
-function positionnementFleche(posX, posZ, obj3DFleche) {
+function setPositionFleche(posX, posZ, obj3DFleche) {
     const transformations = obj3DFleche.transformations
     setPositionX(posX, transformations);
     setPositionZ(posZ, transformations);
 }
-function directionFleche(angle, obj3DFleche) {
+function setDirectionFleche(angle, obj3DFleche) {
     const transformations = obj3DFleche.transformations
     setAngleX(270, transformations);
     setAngleZ(angle, transformations);
 }
-//experimental avec la camera
 //Trouver et pointe vers le coffre
-function trouverCoffre(obj3DFleche, camera){
+function trouverCoffre(obj3DFleche, tresor){
     const transformations = obj3DFleche.transformations
-    let posCameraX = getPositionCameraX(camera);
-    let posCameraZ = getPositionCameraZ(camera);
+    const transformationsTresor = tresor.transformations
+    let posTresorX = getPositionX(transformationsTresor);
+    let posTresorZ = getPositionZ(transformationsTresor);
     let posFlecheX = getPositionX(transformations)
     let posFlecheZ = getPositionZ(transformations)
 
-    let angle = Math.atan2(posFlecheX - posCameraX, posFlecheZ - posCameraZ) * 180 / Math.PI;
-    directionFleche(angle, obj3DFleche)
+    let angle = Math.atan2(posFlecheX - posTresorX, posFlecheZ - posTresorZ) * 180 / Math.PI;
+    setDirectionFleche(angle, obj3DFleche)
 }

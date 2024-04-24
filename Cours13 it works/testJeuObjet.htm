@@ -4,7 +4,7 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>16-14 Le jeu complet</title>
+    <title>Test objet</title>
     <style>
         p {
             color: black;
@@ -25,7 +25,8 @@
     <script type="text/javascript" src="Tunnels.js"></script>
     <script type="text/javascript" src="Ciel.js"></script>
     <script type="text/javascript" src="Textures.js"></script>
-    <script type="text/javascript" src="fleche.js"></script>
+    <script type="text/javascript" src="Fleche.js"></script>
+    <script type="text/javascript" src="Tresor.js"></script>
     <script type="text/javascript">
 
         let objgl = null;
@@ -39,17 +40,25 @@
         const OBJ3D_SOL = 0;
         const OBJ3D_MURS = 1;
         const OBJ3D_CIEL = 2;
-        const OBJ3D_FLECHE = 3;
+        const OBJ3D_TRESOR = 3;
+        const OBJ3D_FLECHE = 4;
 
-        let isRestrictKeysActive = false;
-        let previousCameraPosition = null;
-        let previousCameraDirection = null;
-
-        const tabImages = ['Sol.jpg', 'Mur.jpg', 'Ciel.jpg', 'fleche.jpg'];
+        const tabImages = ['Sol.jpg', 'Mur.jpg', 'Ciel.jpg', 'Fleche.jpg',
+            'assets/TresorTextureGaucheDroite.jpg', 'assets/TresorTextureFace.jpg', 'assets/TresorTexturePanneauFaceHaut.jpg', 'assets/TresorTextureFaceArriereBas.jpg', 'assets/TresorTextureArriere.jpg', 'assets/TresorTextureDessus.jpg'];
         const TEX_SOL = 0;
         const TEX_MUR = 1;
         const TEX_CIEL = 2;
         const TEX_FLECHE = 3;
+        const TEX_TRESORGAUCHEDROITE = 4;
+        const TEX_TRESORFACE = 5;
+        const TEX_TRESORFACEHAUT = 6
+        const TEX_TRESORFACEARRIEREBAS = 7;
+        const TEX_TRESORARRIERE = 8;
+        const TEX_TRESORDESSUS = 9;
+
+        let isRestrictKeysActive = false;
+        let previousCameraPosition = null;
+        let previousCameraDirection = null;
 
         // Le niveau actuel du jeu
         let intNiveau = 0;
@@ -112,19 +121,20 @@
             const obj3DMurs = creerObj3DMurs(objgl, obj3DSol, TEX_MUR, intNiveau);
             tabObjets3D.push(obj3DMurs);
 
-            // Créer les créneaux
-            /*             const obj3DCreneaux = creerObj3DCreneaux(objgl, obj3DMurs, TEX_MUR);
-                        tabObjets3D.push(obj3DCreneaux);  */
-
             // Créer le ciel
             const obj3DCiel = creerObj3DCiel(objgl, obj3DMurs, TEX_CIEL);
             tabObjets3D.push(obj3DCiel);
 
-            //Créer Flèche
+            //Créer Trésor
+            const obj3DTresor = creerObj3DTresor(objgl, [TEX_TRESORGAUCHEDROITE, TEX_TRESORFACE, TEX_TRESORFACEHAUT,
+                TEX_TRESORFACEARRIEREBAS, TEX_TRESORARRIERE, TEX_TRESORDESSUS])
+            tabObjets3D.push(obj3DTresor);
+
+            // //Créer Flèche
             for (let i = 0; i < nbFleches; i++) {
                 const obj3DFleche = creerObj3DFleche(objgl, TEX_FLECHE);
                 tabObjets3D.push(obj3DFleche);
-                positionnementFleche(1, 1, obj3DFleche);
+                setPositionFleche(1, 1, obj3DFleche);
             }
 
             // Mettre les objets 3D sur la scène
@@ -137,9 +147,10 @@
             setOrientationsXYZ([0, 1, 0], camera);
             objScene3D.camera = camera;
 
+            //Oriente les flèches vers le trésor
             for (let i = 0; i < nbFleches; i++) {
                 const obj3DFleche = objScene3D.tabObjets3D[OBJ3D_FLECHE + i];
-                trouverCoffre(obj3DFleche, camera);
+                trouverCoffre(obj3DFleche, obj3DTresor);
             }
             return objScene3D;
         }
@@ -298,9 +309,31 @@
             }
         }
 
+        //Permet de faire tourner les objets
+        //Pour changer l'objet à tourner, changer OBJ3D_TRESOR ↓↓↓ pour l'objet désiré
+        function tournerObjet() {
+            const transformations = objScene3D.tabObjets3D[OBJ3D_TRESOR].transformations;
+
+            if (event.keyCode == 100 || event.keyCode == 102) {
+                // 100:  Flèche-à-gauche NumPad; 102:Flèche-à-droite NumPad
+                const intDirection = (event.keyCode == 102) ? -1 : 1;
+                setAngleY(getAngleY(transformations) + 2 * intDirection, transformations);
+
+
+            }
+            else if (event.keyCode == 104 || event.keyCode == 98) {
+                // 104:  Flèche-en-haut NumPad; 98:Flèche-en-bas NumPad
+                const intDirection = (event.keyCode == 98) ? 1 : -1;
+                setAngleX(getAngleX(transformations) + 2 * intDirection, transformations);
+            }
+
+            effacerCanevas(objgl);
+            dessiner(objgl, objProgShaders, objScene3D);
+        }
+
         function deplacerCamera() {
             const camera = objScene3D.camera;
-
+            tournerObjet();
             let fltX;
             let fltZ;
             let intDirection;
@@ -383,13 +416,17 @@
 
                     binAucuneCollision = (fltXCamera > fltLimiteOuest) && (fltXCamera < fltLimiteEst) &&
                         (fltZCamera > fltLimiteNord) && (fltZCamera < fltLimiteSud);
+
                     let binFondTunnel = false;
 
                     if (binAucuneCollision) { // Déplacer la caméra
-                        setCibleCameraX(getCibleCameraX(camera) + fltXPrime, camera);
-                        setCibleCameraZ(getCibleCameraZ(camera) + fltZPrime, camera);
-                        setPositionCameraX(getPositionCameraX(camera) + fltXPrime, camera);
-                        setPositionCameraZ(getPositionCameraZ(camera) + fltZPrime, camera);
+                        //si la caméra touche le trésor il ne peut plus avancer dans cette direction et on passe au prochain niveau
+                        if(!collisionTresor(objScene3D.tabObjets3D[OBJ3D_TRESOR], intDirection, camera)){
+                            setCibleCameraX(getCibleCameraX(camera) + fltXPrime, camera);
+                            setCibleCameraZ(getCibleCameraZ(camera) + fltZPrime, camera);
+                            setPositionCameraX(getPositionCameraX(camera) + fltXPrime, camera);
+                            setPositionCameraZ(getPositionCameraZ(camera) + fltZPrime, camera);
+                        }
                     }
                     else { // Pour longer les murs s'il y a une collision
                         if (fltXCamera <= fltLimiteOuest || fltXCamera >= fltLimiteEst) {
@@ -415,9 +452,6 @@
                     }
                 }
         }
-
-
-
     </script>
 </head>
 
