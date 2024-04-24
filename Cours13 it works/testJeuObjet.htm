@@ -43,8 +43,8 @@
         const OBJ3D_TRESOR = 3;
         const OBJ3D_FLECHE = 4;
 
-        const tabImages = ['Sol.jpg', 'Mur.jpg', 'Ciel.jpg', 'Fleche.jpg', 
-        'assets/TresorTextureGaucheDroite.jpg', 'assets/TresorTextureFace.jpg', 'assets/TresorTexturePanneauFaceHaut.jpg', 'assets/TresorTextureFaceArriereBas.jpg', 'assets/TresorTextureArriere.jpg'];
+        const tabImages = ['Sol.jpg', 'Mur.jpg', 'Ciel.jpg', 'Fleche.jpg',
+            'assets/TresorTextureGaucheDroite.jpg', 'assets/TresorTextureFace.jpg', 'assets/TresorTexturePanneauFaceHaut.jpg', 'assets/TresorTextureFaceArriereBas.jpg', 'assets/TresorTextureArriere.jpg', 'assets/TresorTextureDessus.jpg'];
         const TEX_SOL = 0;
         const TEX_MUR = 1;
         const TEX_CIEL = 2;
@@ -54,7 +54,7 @@
         const TEX_TRESORFACEHAUT = 6
         const TEX_TRESORFACEARRIEREBAS = 7;
         const TEX_TRESORARRIERE = 8;
-        const TEX_TRESORARRIEREHAUT = 9;
+        const TEX_TRESORDESSUS = 9;
 
         let isRestrictKeysActive = false;
         let previousCameraPosition = null;
@@ -121,16 +121,13 @@
             const obj3DMurs = creerObj3DMurs(objgl, obj3DSol, TEX_MUR, intNiveau);
             tabObjets3D.push(obj3DMurs);
 
-            // Créer les créneaux
-            /*             const obj3DCreneaux = creerObj3DCreneaux(objgl, obj3DMurs, TEX_MUR);
-                        tabObjets3D.push(obj3DCreneaux);  */
-
             // Créer le ciel
             const obj3DCiel = creerObj3DCiel(objgl, obj3DMurs, TEX_CIEL);
             tabObjets3D.push(obj3DCiel);
 
             //Créer Trésor
-            const obj3DTresor = creerObj3DTresor(objgl, [TEX_TRESORGAUCHEDROITE, TEX_TRESORFACE, TEX_TRESORFACEHAUT, TEX_TRESORFACEARRIEREBAS, TEX_TRESORARRIERE, TEX_TRESORARRIEREHAUT])
+            const obj3DTresor = creerObj3DTresor(objgl, [TEX_TRESORGAUCHEDROITE, TEX_TRESORFACE, TEX_TRESORFACEHAUT,
+                TEX_TRESORFACEARRIEREBAS, TEX_TRESORARRIERE, TEX_TRESORDESSUS])
             tabObjets3D.push(obj3DTresor);
 
             // //Créer Flèche
@@ -419,13 +416,17 @@
 
                     binAucuneCollision = (fltXCamera > fltLimiteOuest) && (fltXCamera < fltLimiteEst) &&
                         (fltZCamera > fltLimiteNord) && (fltZCamera < fltLimiteSud);
+
                     let binFondTunnel = false;
 
                     if (binAucuneCollision) { // Déplacer la caméra
-                        setCibleCameraX(getCibleCameraX(camera) + fltXPrime, camera);
-                        setCibleCameraZ(getCibleCameraZ(camera) + fltZPrime, camera);
-                        setPositionCameraX(getPositionCameraX(camera) + fltXPrime, camera);
-                        setPositionCameraZ(getPositionCameraZ(camera) + fltZPrime, camera);
+                        //si la caméra touche le trésor il ne peut plus avancer dans cette direction et on passe au prochain niveau
+                        if(!collisionTresor(objScene3D.tabObjets3D[OBJ3D_TRESOR], intDirection, camera)){
+                            setCibleCameraX(getCibleCameraX(camera) + fltXPrime, camera);
+                            setCibleCameraZ(getCibleCameraZ(camera) + fltZPrime, camera);
+                            setPositionCameraX(getPositionCameraX(camera) + fltXPrime, camera);
+                            setPositionCameraZ(getPositionCameraZ(camera) + fltZPrime, camera);
+                        }
                     }
                     else { // Pour longer les murs s'il y a une collision
                         if (fltXCamera <= fltLimiteOuest || fltXCamera >= fltLimiteEst) {

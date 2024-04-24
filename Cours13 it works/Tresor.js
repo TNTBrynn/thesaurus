@@ -5,11 +5,13 @@ function creerObj3DTresor(objgl, tabIntNoTexture) {
     obj3DTresor.maillage = null
     obj3DTresor.texels = creerTexelsTresor(objgl, tabIntNoTexture)
     obj3DTresor.transformations = creerTransformations();
+    obj3DTresor.fltX = 1 * 0.2;
+    obj3DTresor.fltZ = 1 * 0.2;
     const transformations = obj3DTresor.transformations
     //hauteur et échelle statique
     setPositionY(0.2, transformations);
     setEchellesXYZ([0.2, 0.2, 0.2], transformations);
-    setPositionCoffre(0, 14, obj3DTresor)
+    setPositionCoffre(0, 10, obj3DTresor)
     return obj3DTresor;
 }
 
@@ -220,16 +222,6 @@ function creerTexelsTresor(objgl, tabIntNoTexture) {
     tabTexels[2] = tabTexels[0]; //face du dessus
     tabTexels[3] = tabTexels[0]; //face du dessous
     tabTexels[4] = [
-        /* 0.5, 0.5,  // center
-        0.5, 0.0,  // bottom center
-        0.293, 0.293,  // bottom-left
-        0.0, 0.5,  // left center
-        0.293, 0.707,  // top-left
-        0.5, 1.0,  // top center
-        0.707, 0.707,  // top-right
-        1.0, 0.5,  // right center
-        0.707, 0.293,  // bottom-right
-        0.5, 0.0, */
         0.5, 0.5,
         1.0, 0.0,
         0.0, 0.0,
@@ -256,7 +248,7 @@ function creerTexelsTresor(objgl, tabIntNoTexture) {
             tabTexelsTresor[i].intNoTexture = tabIntNoTexture[4]; tabTexelsTresor[i].pcCouleurTexel = 1;
         }
         else if (i == 2) { //face du dessus
-
+            tabTexelsTresor[i].intNoTexture = tabIntNoTexture[5]; tabTexelsTresor[i].pcCouleurTexel = 1;
         }
         else if (i == 4) { //droite
             tabTexelsTresor[i].intNoTexture = tabIntNoTexture[0]; tabTexelsTresor[i].pcCouleurTexel = 1;
@@ -282,4 +274,27 @@ function creerTexelsTresor(objgl, tabIntNoTexture) {
     }
 
     return tabTexelsTresor;
+}
+//quand la caméra entre en collision avec le trésor on change de niveau
+function collisionTresor(obj3DTresor, intDirection, camera) {
+    const fltPositionXTresor = getPositionX(obj3DTresor.transformations);
+    const fltPositionZTresor = getPositionZ(obj3DTresor.transformations);
+    fltX = getCibleCameraX(camera) - getPositionCameraX(camera);
+    fltZ = getCibleCameraZ(camera) - getPositionCameraZ(camera);
+    const fltRayon = Math.sqrt(fltX * fltX + fltZ * fltZ);
+
+    fltXPrime = intDirection * 0.2 * Math.cos(Math.acos(fltX / fltRayon));
+    fltZPrime = intDirection * 0.2 * Math.sin(Math.asin(fltZ / fltRayon));
+
+    // Positions de la caméra
+    let fltXCamera = getPositionX(camera) + fltXPrime;
+    let fltZCamera = getPositionZ(camera) + fltZPrime;
+
+    const fltTresorWidth = obj3DTresor.fltX;
+    const fltTresorDepth = obj3DTresor.fltZ;
+
+    const binCollisionX = (fltXCamera > fltPositionXTresor - fltTresorWidth) && (fltXCamera < fltPositionXTresor + fltTresorWidth);
+    const binCollisionZ = (fltZCamera > fltPositionZTresor - fltTresorDepth) && (fltZCamera < fltPositionZTresor + fltTresorDepth);
+
+    return binCollisionX && binCollisionZ;
 }
