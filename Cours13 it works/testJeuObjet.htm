@@ -41,6 +41,7 @@
     <script type="text/javascript" src="Textures.js"></script>
     <script type="text/javascript" src="Fleche.js"></script>
     <script type="text/javascript" src="Tresor.js"></script>
+    <script type="text/javascript" src="Joueur.js"></script>
     <script type="text/javascript">
 
         let objgl = null;
@@ -56,9 +57,10 @@
         const OBJ3D_CIEL = 2;
         const OBJ3D_TRESOR = 3;
         const OBJ3D_FLECHE = 4;
+        const OBJ3D_JOUEUR = 5;
 
         const tabImages = ['Sol.jpg', 'Mur.jpg', 'Ciel.jpg', 'Fleche.jpg',
-            'assets/TresorTextureGaucheDroite.jpg', 'assets/TresorTextureFace.jpg', 'assets/TresorTexturePanneauFaceHaut.jpg', 'assets/TresorTextureFaceArriereBas.jpg', 'assets/TresorTextureArriere.jpg', 'assets/TresorTextureDessus.jpg'];
+            'assets/TresorTextureGaucheDroite.jpg', 'assets/TresorTextureFace.jpg', 'assets/TresorTexturePanneauFaceHaut.jpg', 'assets/TresorTextureFaceArriereBas.jpg', 'assets/TresorTextureArriere.jpg', 'assets/TresorTextureDessus.jpg', 'assets/Joueur.png'];
         const TEX_SOL = 0;
         const TEX_MUR = 1;
         const TEX_CIEL = 2;
@@ -69,6 +71,9 @@
         const TEX_TRESORFACEARRIEREBAS = 7;
         const TEX_TRESORARRIERE = 8;
         const TEX_TRESORDESSUS = 9;
+        const TEX_JOUEUR = 10;
+
+
 
         let isRestrictKeysActive = false;
         let previousCameraPosition = null;
@@ -156,6 +161,10 @@
                 tabObjets3D.push(obj3DFleche);
                 setPositionFleche(1, 1, obj3DFleche);
             }
+
+            //Créer Joueur (la flèche sur la carte)
+            const obj3DJoueur = creerObj3DJoueur(objgl, TEX_JOUEUR);
+            tabObjets3D.push(obj3DJoueur);
 
             // Mettre les objets 3D sur la scène
             objScene3D.tabObjets3D = tabObjets3D;
@@ -413,8 +422,14 @@
                 previousCameraDirection = {
                     x: getCibleCameraX(camera),
                     y: getCibleCameraY(camera),
-                    z: getCibleCameraZ(camera)
+                    z: getCibleCameraZ(camera),
                 };
+
+                
+                //Set la position de Joueur
+                setPositionJoueur(previousCameraPosition.x,previousCameraPosition.z, objScene3D.tabObjets3D[OBJ3D_JOUEUR]);
+                //Set l'orientation de Joueur
+                setCibleJoueur(previousCameraDirection.x, previousCameraDirection.z, objScene3D.tabObjets3D[OBJ3D_JOUEUR]);
 
                 // Bouger la caméra au millieu en haut
                 setPositionCameraX(15.5, camera);
@@ -424,6 +439,7 @@
                 setCibleCameraY(0, camera); //La caméra regarde le bas
                 setCibleCameraZ(15.5, camera);
                 objScene3D.tabObjets3D[OBJ3D_CIEL].binVisible = false; //Cacher le ciel
+
 
                 //Restreindre le mouvement
                 document.addEventListener('keydown', restrictKeys);
@@ -490,7 +506,7 @@
                     }
                     else if (binAucuneCollision) { // Déplacer la caméra
                         //si la caméra touche le trésor il ne peut plus avancer dans cette direction et on passe au prochain niveau
-                        if(!collisionTresor(objScene3D.tabObjets3D[OBJ3D_TRESOR], intDirection, camera)){
+                        if (!collisionTresor(objScene3D.tabObjets3D[OBJ3D_TRESOR], intDirection, camera)) {
                             setCibleCameraX(getCibleCameraX(camera) + fltXPrime, camera);
                             setCibleCameraZ(getCibleCameraZ(camera) + fltZPrime, camera);
                             setPositionCameraX(getPositionCameraX(camera) + fltXPrime, camera);
@@ -521,6 +537,41 @@
                     }
                 }
         }
+
+        function startTimer() {
+            let minutes = 60;
+            let seconds = 0;
+
+            const timerInterval = setInterval(() => {
+                seconds--;
+                if (seconds < 0) {
+                    seconds = 59;
+                    minutes--;
+                }
+
+                if (minutes < 0) {
+                    clearInterval(timerInterval);
+                    if (minutes === 0 && seconds === 0) {
+                        // Le joueur est retourné au milieu du dédale
+                        setPositionCameraX(15.5, objScene3D.camera);
+                        setPositionCameraY(0.5, objScene3D.camera);
+                        setPositionCameraZ(15.5, objScene3D.camera);
+                        // La caméra regarde vers le nord
+                        setCibleCameraX(15.5, objScene3D.camera);
+                        setCibleCameraY(0.5, objScene3D.camera);
+                        setCibleCameraZ(16.5, objScene3D.camera);
+                        // Le mur de l'enclos est réouvert
+
+                    }
+                } else {
+                    const formattedMinutes = minutes.toString().padStart(2, '0');
+                    const formattedSeconds = seconds.toString().padStart(2, '0');
+                    document.getElementById('lblTemps').textContent = `${formattedMinutes}:${formattedSeconds}`;
+                }
+            }, 1000);
+        }
+
+        startTimer();
     </script>
 </head>
 
@@ -532,7 +583,7 @@
     <p>
         <span class="padding">Score : <span id="lblScore">300</span></span>
         <span class="padding">Ouvreurs de murs : <span id="lblOuvreursMurs">5</span></span>
-        <span class="padding">Temps : <span id="lblTemps">00:00</span></span>
+        <span class="padding">Temps : <span id="lblTemps">60:00</span></span>
     </p>
 
 </body>

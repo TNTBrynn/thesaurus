@@ -11,7 +11,6 @@ function creerObj3DCiel(objgl, longueurLargeurCarte, intNoTexture) {
     obj3DCiel.couleurs = creerCouleursCiel(objgl, [1, 1, 1, 1]);
     obj3DCiel.texels = creerTexelsCiel(objgl, intNoTexture);
     obj3DCiel.maillage = creerMaillageCiel(objgl);
-
     obj3DCiel.transformations = creerTransformations();
     setPositionY(obj3DCiel.fltHauteur, obj3DCiel.transformations);
     return obj3DCiel;
