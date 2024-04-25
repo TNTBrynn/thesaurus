@@ -41,24 +41,75 @@
     <script type="text/javascript" src="Textures.js"></script>
     <script type="text/javascript" src="Fleche.js"></script>
     <script type="text/javascript" src="Tresor.js"></script>
+    <script type="text/javascript" src="Rectangle.js"></script>
     <script type="text/javascript">
 
         let objgl = null;
         let objProgShaders = null;
         let objScene3D = null;
-        let tabObjFleche = null;
+        const m = 'm';
+        const v = 'v';
+        const d = 'd';
+        const c = 'c';
+        const j = 'j';
+        const s = 's';
+        const tabCarte = [
+            [m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m],
+            [m, v, v, v, v, v, v, v, v, v, v, v, v, v, v, d, v, v, v, v, v, v, v, v, v, v, v, v, v, v, m],
+            [m, v, d, d, d, d, d, d, v, d, d, d, d, d, v, d, v, d, d, d, d, d, v, d, d, d, d, d, d, v, m],
+            [m, v, v, v, v, v, v, v, v, d, v, v, v, d, v, d, v, d, v, v, v, d, v, v, v, v, v, v, v, v, m],
+            [m, d, d, d, d, d, d, d, v, d, d, v, d, d, v, d, v, d, d, v, d, d, v, d, d, d, d, d, d, d, m],
+            [m, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, m],
+            [m, d, d, d, v, d, d, d, v, d, v, d, d, d, v, d, v, d, d, d, v, d, v, d, d, d, v, d, d, d, m],
+            [m, v, v, v, v, v, v, v, v, d, v, d, v, d, v, d, v, d, v, d, v, d, v, v, v, v, v, v, v, v, m],
+            [m, d, d, d, v, d, d, d, v, d, v, d, v, d, v, d, v, d, v, d, v, d, v, d, d, d, v, d, d, d, m],
+            [m, v, v, v, v, v, v, v, v, d, v, d, v, d, v, d, v, d, v, d, v, d, v, v, v, v, v, v, v, v, m],
+            [m, v, d, d, d, d, d, d, v, d, v, d, v, d, v, d, v, d, v, d, v, d, v, d, d, d, d, d, d, v, m],
+            [m, v, v, v, v, v, v, d, v, d, d, d, v, d, v, d, v, d, v, d, d, d, v, d, v, v, v, v, v, v, m],
+            [m, d, d, d, d, d, v, d, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, d, v, d, d, d, d, d, m],
+            [m, v, v, v, v, v, v, d, v, d, d, d, v, c, c, s, c, c, v, d, d, d, v, d, v, v, v, v, v, v, m],
+            [m, v, d, d, d, d, d, d, v, d, v, d, v, c, j, j, j, c, v, d, v, d, v, d, d, d, d, d, d, v, m],
+            [m, v, v, v, v, v, v, v, v, d, v, d, v, c, j, j, j, c, v, d, v, d, v, v, v, v, v, v, v, v, m],
+            [m, d, d, d, d, d, d, d, v, d, v, d, v, c, j, j, j, c, v, d, v, d, v, d, d, d, d, d, d, d, m],
+            [m, v, v, v, v, v, v, v, v, d, v, d, v, c, c, c, c, c, v, d, v, d, v, v, v, v, v, v, v, v, m],
+            [m, v, d, d, d, d, d, d, v, d, v, d, v, v, v, v, v, v, v, d, v, d, v, d, d, d, d, d, d, v, m],
+            [m, v, d, v, v, v, v, v, v, d, v, d, d, d, d, v, d, d, d, d, v, d, v, v, v, v, v, v, d, v, m],
+            [m, v, d, v, d, d, d, d, v, d, v, v, v, v, d, v, d, v, v, v, v, d, v, d, d, d, d, v, d, v, m],
+            [m, v, d, v, d, v, v, v, v, d, v, d, v, v, d, v, d, v, v, d, v, d, v, v, v, v, d, v, d, v, m],
+            [m, v, d, v, d, d, d, d, v, d, v, d, v, d, d, v, d, d, v, d, v, d, v, d, d, d, d, v, d, v, m],
+            [m, v, v, v, v, v, v, d, v, d, v, v, v, d, v, v, v, d, v, v, v, d, v, d, v, v, v, v, v, v, m],
+            [m, v, d, d, d, d, v, d, v, d, v, d, d, d, v, d, v, d, d, d, v, d, v, d, v, d, d, d, d, v, m],
+            [m, v, v, v, v, v, v, d, v, v, v, d, v, v, v, v, v, v, v, d, v, v, v, d, v, v, v, v, v, v, m],
+            [m, v, d, v, d, d, v, d, v, d, d, d, v, d, d, v, d, d, v, d, d, d, v, d, v, d, d, v, d, v, m],
+            [m, v, d, v, d, v, v, d, v, d, v, v, v, d, v, v, v, d, v, v, v, d, v, d, v, v, d, v, d, v, m],
+            [m, d, d, v, d, d, d, d, v, d, v, d, d, d, d, d, d, d, d, d, v, d, v, d, d, d, d, v, d, d, m],
+            [m, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, m],
+            [m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m]
+        ];
+
+        const nbMur = 265;
+
+        // Le nombre de flèches : 18 - (intNiveau *2)
+        let nbFleches = 1;
 
         /*Cette section est utilisé pour pouvoir itérer sur les objets 3D avec leur nom et, s'il y
         en a plusieurs, pouvoir utiliser une boucle avec le nombre connu d'objets 3D de ce type
         comme pour les flèches*/
         const OBJ3D_SOL = 0;
-        const OBJ3D_MURS = 1;
+        const OBJ3D_MURSEXTERIEUR = 1;
         const OBJ3D_CIEL = 2;
         const OBJ3D_TRESOR = 3;
         const OBJ3D_FLECHE = 4;
+        const OBJ3D_MURSINTERIEUR = 5;
 
-        const tabImages = ['Sol.jpg', 'Mur.jpg', 'Ciel.jpg', 'Fleche.jpg',
-            'assets/TresorTextureGaucheDroite.jpg', 'assets/TresorTextureFace.jpg', 'assets/TresorTexturePanneauFaceHaut.jpg', 'assets/TresorTextureFaceArriereBas.jpg', 'assets/TresorTextureArriere.jpg', 'assets/TresorTextureDessus.jpg'];
+        const tabImages = ['assets/Sol64.jpg', 'Mur.jpg', 'Ciel.jpg', 'Fleche.jpg',
+            'assets/TresorTextureGaucheDroite.jpg', 'assets/TresorTextureFace.jpg', 'assets/TresorTexturePanneauFaceHaut.jpg', 'assets/TresorTextureFaceArriereBas.jpg',
+            'assets/TresorTextureArriere.jpg', 'assets/TresorTextureDessus.jpg',
+            'assets/TextureMurMilieuFace64.jpg',
+            'assets/TextureMurMilieuCote64.jpg',
+            'assets/TextureMurDedaleFace64.jpg',
+            'assets/TextureMurDedaleCote64.jpg'
+        ];
         const TEX_SOL = 0;
         const TEX_MUR = 1;
         const TEX_CIEL = 2;
@@ -69,6 +120,10 @@
         const TEX_TRESORFACEARRIEREBAS = 7;
         const TEX_TRESORARRIERE = 8;
         const TEX_TRESORDESSUS = 9;
+        const TEX_MURMILIEUFACE = 10;
+        const TEX_MURMILIEUCOTE = 11;
+        const TEX_MURDEDALEFACE = 12;
+        const TEX_MURDEDALECOTE = 13;
 
         let isRestrictKeysActive = false;
         let previousCameraPosition = null;
@@ -79,9 +134,6 @@
 
         // Le niveau actuel du jeu
         let intNiveau = 0;
-
-        // Le nombre de flèches : 18 - (intNiveau *2)
-        let nbFleches = 1;
 
         let tabElementsNiveau;
         const csvURL = 'niveau1.csv';
@@ -117,8 +169,8 @@
             }
         }
 
-        function tournerFleche(intNoTornade) {
-            const obj3DFleche = objScene3D.tabObjets3D[OBJ3D_FLECHE + intNoTornade];
+        function tournerFleche(intNoFleche) {
+            const obj3DFleche = objScene3D.tabObjets3D[OBJ3D_FLECHE + intNoFleche];
             let fltAngleY = getAngleY(obj3DFleche.transformations) + 0.5;
             if (fltAngleY > 360) fltAngleY -= 360;
             setAngleY(fltAngleY, obj3DFleche.transformations);
@@ -150,11 +202,28 @@
                 TEX_TRESORFACEARRIEREBAS, TEX_TRESORARRIERE, TEX_TRESORDESSUS])
             tabObjets3D.push(obj3DTresor);
 
-            // //Créer Flèche
+            //Créer Flèche
             for (let i = 0; i < nbFleches; i++) {
                 const obj3DFleche = creerObj3DFleche(objgl, TEX_FLECHE);
                 tabObjets3D.push(obj3DFleche);
                 setPositionFleche(1, 1, obj3DFleche);
+            }
+
+            //Créer Mur du milieu
+            // lire les données du tableau de la carte
+            for (let i = 0; i < tabCarte.length; i++) {
+                for (let j = 0; j < tabCarte[i].length; j++) {
+                    if (tabCarte[i][j] == c) {
+                        const obj3DMurMilieu = creerObj3DRectangle(objgl, false, [TEX_MURMILIEUFACE, TEX_MURMILIEUCOTE]);
+                        tabObjets3D.push(obj3DMurMilieu);
+                        setPositionRectangle(i, j, obj3DMurMilieu)
+                    }
+                    else if (tabCarte[i][j] == d) {
+                        const obj3DMurDale = creerObj3DRectangle(objgl, false, [TEX_MURDEDALEFACE, TEX_MURDEDALECOTE]);
+                        tabObjets3D.push(obj3DMurDale);
+                        setPositionRectangle(i, j, obj3DMurDale)
+                    }
+                }
             }
 
             // Mettre les objets 3D sur la scène
@@ -182,7 +251,7 @@
             // Matrice de projection
             const matProjection = mat4.create();
             const fltRapportCanevas = objgl.drawingBufferWidth / objgl.drawingBufferHeight;
-            mat4.perspective(45, fltRapportCanevas, 0.01, 100, matProjection);
+            mat4.perspective(55, fltRapportCanevas, 0.01, 50, matProjection);
 
             // Relier la matrice aux shaders
             objgl.uniformMatrix4fv(objProgShaders.matProjection, false, matProjection);
@@ -316,44 +385,6 @@
              return objSons;
          }
   */
-
-        // Cette fonction sert à séparer le contenu en paramètre
-        function separeFichier(csvContent) {
-            const tabResultat = [];
-            //On commence par séparer le document par lignes
-            const tabLignes = csvContent.trim().split('\n'); // tabLignes est un tableau qui contient toute les lignes du document (1 élém du tab = 1 ligne)
-
-            // Chaque ligne est split aux virgules et insérer dans tabColonnes, on insere ensuite le resultat dans tabResultat
-            for (let i = 0; i < tabLignes.length; i++) {
-                const tabColonnes = tabLignes[i].trim().split(','); // Trim to remove leading/trailing whitespace
-                tabResultat.push(tabColonnes);
-            }
-
-            return tabResultat;
-        }
-
-        // Cette fonction sert à fetch le fichier et l'envoie à la fonction separeFichier pour séparer son contenu
-        async function fetchCSV(url) {
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch CSV file');
-                }
-                const csvContent = await response.text();
-                tabElementsNiveau = separeFichier(csvContent); //renvoie à la fonction separeFichier() et insère nos données dans la variable globale tabElementsNiveau
-                return tabElementsNiveau;
-            } catch (error) {
-                throw new Error('Error fetching CSV file: ' + error.message);
-            }
-        }
-
-        fetchCSV(csvURL) // appel à la fonction fetchCSV(), c'est avec cet appel que la variable globale est remplie
-            .catch(error => {
-                console.error(error.message);
-            });
-
-
-
         //Cette fonction traque la validité des touches appuyées
         // À MODIFIER: ajouter la possibilité de triche pour voir les objets
         function restrictKeys(event) {
@@ -369,8 +400,8 @@
 
         //Permet de faire tourner les objets
         //Pour changer l'objet à tourner, changer OBJ3D_TRESOR ↓↓↓ pour l'objet désiré
-        function tournerObjet() {
-            const transformations = objScene3D.tabObjets3D[OBJ3D_TRESOR].transformations;
+        function tournerObjet(obj3D) {
+            const transformations = objScene3D.tabObjets3D[obj3D].transformations;
 
             if (event.keyCode == 100 || event.keyCode == 102) {
                 // 100:  Flèche-à-gauche NumPad; 102:Flèche-à-droite NumPad
@@ -391,7 +422,8 @@
 
         function deplacerCamera() {
             const camera = objScene3D.camera;
-            tournerObjet();
+            // tournerObjet(OBJ3D_MURSINTERIEUR);
+            tournerObjet(OBJ3D_TRESOR);
             let fltX;
             let fltZ;
             let intDirection;
@@ -418,7 +450,7 @@
 
                 // Bouger la caméra au millieu en haut
                 setPositionCameraX(15.5, camera);
-                setPositionCameraY(40, camera);
+                setPositionCameraY(32, camera);
                 setPositionCameraZ(15.1, camera);
                 setCibleCameraX(15.5, camera);
                 setCibleCameraY(0, camera); //La caméra regarde le bas
@@ -468,14 +500,13 @@
 
                     // Limites du mur
                     const fltLimiteOuest = 0.1;
-                    const fltLimiteEst = objScene3D.tabObjets3D[OBJ3D_MURS].fltLargeur - 0.1;
+                    const fltLimiteEst = objScene3D.tabObjets3D[OBJ3D_MURSEXTERIEUR].fltLargeur - 0.1;
                     const fltLimiteNord = 0.1;
-                    const fltLimiteSud = objScene3D.tabObjets3D[OBJ3D_MURS].fltProfondeur - 0.1;
+                    const fltLimiteSud = objScene3D.tabObjets3D[OBJ3D_MURSEXTERIEUR].fltProfondeur - 0.1;
 
                     binAucuneCollision = (fltXCamera > fltLimiteOuest) && (fltXCamera < fltLimiteEst) &&
                         (fltZCamera > fltLimiteNord) && (fltZCamera < fltLimiteSud);
 
-                    let binFondTunnel = false;
 
                     if (collisionTresor(objScene3D.tabObjets3D[OBJ3D_TRESOR], intDirection, camera)) { // Passer à un autre niveau
                         // Arrêter le son du vent
@@ -489,8 +520,17 @@
                         objScene3D = initScene3D(objgl);
                     }
                     else if (binAucuneCollision) { // Déplacer la caméra
-                        //si la caméra touche le trésor il ne peut plus avancer dans cette direction et on passe au prochain niveau
-                        if(!collisionTresor(objScene3D.tabObjets3D[OBJ3D_TRESOR], intDirection, camera)){
+                        var binAucuneCollisionMur = true;
+                        for (let i = 0; i < nbMur; i++) {
+                            binAucuneCollisionMur = !collisionRectangle(objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i], intDirection, camera);
+                            //si la caméra touche un mur, elle ne peut plus avancer dans cette direction
+                            console.log(binAucuneCollisionMur);
+                            if (binAucuneCollisionMur == false) {
+                                break;
+                            }
+                            //si la caméra touche le trésor il ne peut plus avancer dans cette direction et on passe au prochain niveau
+                        }
+                        if (!collisionTresor(objScene3D.tabObjets3D[OBJ3D_TRESOR], intDirection, camera) && binAucuneCollisionMur) {
                             setCibleCameraX(getCibleCameraX(camera) + fltXPrime, camera);
                             setCibleCameraZ(getCibleCameraZ(camera) + fltZPrime, camera);
                             setPositionCameraX(getPositionCameraX(camera) + fltXPrime, camera);

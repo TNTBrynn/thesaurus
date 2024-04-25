@@ -1,6 +1,6 @@
 function creerObj3DTresor(objgl, tabIntNoTexture) {
     const obj3DTresor = new Object();
-    obj3DTresor.vertex = creerTresor(objgl);
+    obj3DTresor.vertex = creerVertexTresor(objgl);
     obj3DTresor.couleurs = creerCouleursTresor(objgl);
     obj3DTresor.maillage = null
     obj3DTresor.texels = creerTexelsTresor(objgl, tabIntNoTexture)
@@ -11,7 +11,7 @@ function creerObj3DTresor(objgl, tabIntNoTexture) {
     //hauteur et échelle statique
     setPositionY(0.2, transformations);
     setEchellesXYZ([0.2, 0.2, 0.2], transformations);
-    setPositionCoffre(17, 15.5, obj3DTresor)
+    setPositionCoffre(10, 10, obj3DTresor)
     return obj3DTresor;
 }
 
@@ -24,7 +24,7 @@ function setOrientationCoffre(angle, obj3DTresor) {
     setAngleX(angle, obj3DTresor.transformations);
 }
 
-function creerTresor(objgl) {
+function creerVertexTresor(objgl) {
     var tabVertex = new Array();
 
     // Face avant pleine
@@ -299,5 +299,6 @@ function collisionTresor(obj3DTresor, intDirection, camera) {
     const binCollisionX = (fltXCamera > fltPositionXTresor - fltTresorWidth) && (fltXCamera < fltPositionXTresor + fltTresorWidth);
     const binCollisionZ = (fltZCamera > fltPositionZTresor - fltTresorDepth) && (fltZCamera < fltPositionZTresor + fltTresorDepth);
 
+//aucune collision retourn false
     return binCollisionX && binCollisionZ;
 }
