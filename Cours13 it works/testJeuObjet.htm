@@ -74,6 +74,9 @@
         let previousCameraPosition = null;
         let previousCameraDirection = null;
 
+        //Longueur et largeur du niveau
+        let longueurLargeurCarte = 31;
+
         // Le niveau actuel du jeu
         let intNiveau = 0;
 
@@ -131,15 +134,15 @@
             objScene3D.textures = creerTextures(objgl, tabImages);
 
             // Créer le sol
-            const obj3DSol = creerObj3DSol(objgl, TEX_SOL, intNiveau);
+            const obj3DSol = creerObj3DSol(objgl, longueurLargeurCarte, TEX_SOL, intNiveau);
             tabObjets3D.push(obj3DSol);
 
             // Créer les murs
-            const obj3DMurs = creerObj3DMurs(objgl, obj3DSol, TEX_MUR, intNiveau);
+            const obj3DMurs = creerObj3DMurs(objgl, longueurLargeurCarte, TEX_MUR, intNiveau);
             tabObjets3D.push(obj3DMurs);
 
             // Créer le ciel
-            const obj3DCiel = creerObj3DCiel(objgl, obj3DMurs, TEX_CIEL);
+            const obj3DCiel = creerObj3DCiel(objgl, longueurLargeurCarte, TEX_CIEL);
             tabObjets3D.push(obj3DCiel);
 
             //Créer Trésor
@@ -474,7 +477,18 @@
 
                     let binFondTunnel = false;
 
-                    if (binAucuneCollision) { // Déplacer la caméra
+                    if (collisionTresor(objScene3D.tabObjets3D[OBJ3D_TRESOR], intDirection, camera)) { // Passer à un autre niveau
+                        // Arrêter le son du vent
+                        // objSons.sonVent.pause();
+                        // objSons.sonVent.currentTime = 0.0;
+
+                        // Jouer le son du prochain niveau
+                        // objSons.sonNextLevel.play();
+
+                        intNiveau++;
+                        objScene3D = initScene3D(objgl);
+                    }
+                    else if (binAucuneCollision) { // Déplacer la caméra
                         //si la caméra touche le trésor il ne peut plus avancer dans cette direction et on passe au prochain niveau
                         if(!collisionTresor(objScene3D.tabObjets3D[OBJ3D_TRESOR], intDirection, camera)){
                             setCibleCameraX(getCibleCameraX(camera) + fltXPrime, camera);

@@ -1,9 +1,9 @@
 
-function creerObj3DSol(objgl, intNoTexture, intNiveau) {
+function creerObj3DSol(objgl, longueurLargeurCarte, intNoTexture, intNiveau) {
 	
     const obj3DSol = new Object();
-    obj3DSol.fltProfondeur = 31;
-    obj3DSol.fltLargeur = 31;
+    obj3DSol.fltProfondeur = longueurLargeurCarte;
+    obj3DSol.fltLargeur = longueurLargeurCarte;
     obj3DSol.fltHauteur = 0;
     
     obj3DSol.vertex = creerVertexSol(objgl, obj3DSol.fltLargeur, obj3DSol.fltProfondeur);

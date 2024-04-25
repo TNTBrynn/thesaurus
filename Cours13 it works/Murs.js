@@ -3,10 +3,10 @@ let SUD = 1;
 let EST = 2;
 let OUEST = 3;
 
-function creerObj3DMurs(objgl, obj3DSol, intNoTexture, intNiveau) {
+function creerObj3DMurs(objgl, longueurLargeurCarte, intNoTexture, intNiveau) {
     const obj3DMurs = new Object();
-    obj3DMurs.fltProfondeur = obj3DSol.fltProfondeur;
-    obj3DMurs.fltLargeur = obj3DSol.fltLargeur;
+    obj3DMurs.fltProfondeur = longueurLargeurCarte;
+    obj3DMurs.fltLargeur = longueurLargeurCarte;
     obj3DMurs.fltHauteur = 3;
 
     // Les trous
