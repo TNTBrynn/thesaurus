@@ -40,6 +40,7 @@
     <script type="text/javascript" src="Ciel.js"></script>
     <script type="text/javascript" src="Textures.js"></script>
     <script type="text/javascript" src="Fleche.js"></script>
+    <script type="text/javascript" src="FlecheJoueur.js"></script>
     <script type="text/javascript" src="Tresor.js"></script>
     <script type="text/javascript">
 
@@ -79,6 +80,7 @@
 
         // Le niveau actuel du jeu
         let intNiveau = 0;
+        let intNbOuvreur = 4;
 
         // Le nombre de flèches : 18 - (intNiveau *2)
         let nbFleches = 1;
@@ -150,7 +152,7 @@
                 TEX_TRESORFACEARRIEREBAS, TEX_TRESORARRIERE, TEX_TRESORDESSUS])
             tabObjets3D.push(obj3DTresor);
 
-            // //Créer Flèche
+            //Créer Flèche
             for (let i = 0; i < nbFleches; i++) {
                 const obj3DFleche = creerObj3DFleche(objgl, TEX_FLECHE);
                 tabObjets3D.push(obj3DFleche);
@@ -352,8 +354,6 @@
                 console.error(error.message);
             });
 
-
-
         //Cette fonction traque la validité des touches appuyées
         // À MODIFIER: ajouter la possibilité de triche pour voir les objets
         function restrictKeys(event) {
@@ -490,7 +490,7 @@
                     }
                     else if (binAucuneCollision) { // Déplacer la caméra
                         //si la caméra touche le trésor il ne peut plus avancer dans cette direction et on passe au prochain niveau
-                        if(!collisionTresor(objScene3D.tabObjets3D[OBJ3D_TRESOR], intDirection, camera)){
+                        if (!collisionTresor(objScene3D.tabObjets3D[OBJ3D_TRESOR], intDirection, camera)) {
                             setCibleCameraX(getCibleCameraX(camera) + fltXPrime, camera);
                             setCibleCameraZ(getCibleCameraZ(camera) + fltZPrime, camera);
                             setPositionCameraX(getPositionCameraX(camera) + fltXPrime, camera);
@@ -519,6 +519,32 @@
                             setPositionCameraZ(getPositionCameraZ(camera) + fltZPrime, camera);
                         }
                     }
+                }
+                else if (!isRestrictKeysActive && (event.keyCode == 32)) {
+                    // 32 : espace
+                    //prendre la position du joueur, prendre la position du mur devant lui / vérifier l'objet devant lui
+                    //vérifier si ce mur est destructible, si oui on brise (enlève du tableau?) et on enlève un ouvreur de mur
+                    //sinon on fait rien
+
+                    //nord c'est x positif
+                    //est c'est z positif
+
+                    fltX = getCibleCameraX(camera) - getPositionCameraX(camera);
+                    fltZ = getCibleCameraZ(camera) - getPositionCameraZ(camera);
+                    const fltRayon = Math.sqrt(fltX * fltX + fltZ * fltZ);
+                    intDirection = (event.keyCode == 38) ? 1 : -1;
+
+                    fltXPrime = intDirection * 0.2 * Math.cos(Math.acos(fltX / fltRayon));
+                    fltZPrime = intDirection * 0.2 * Math.sin(Math.asin(fltZ / fltRayon));
+
+                    // Positions de la caméra
+                    let fltXCamera = getPositionX(camera) + fltXPrime;
+                    let fltZCamera = getPositionZ(camera) + fltZPrime;
+
+                    console.log('X ' + getCibleCameraX(camera));
+                    console.log('Z' + getCibleCameraZ(camera));
+                    console.log('X math floor ' + Math.floor(getCibleCameraX(camera) + 1));
+                    console.log('Z math floor' + Math.floor(getCibleCameraZ(camera) + 1));
                 }
         }
     </script>
