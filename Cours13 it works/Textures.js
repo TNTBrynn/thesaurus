@@ -39,8 +39,8 @@ function creerTextures(objgl, tabImages) {
                 objgl.UNSIGNED_BYTE, objImage);
 
             // La paramétrer
-            objgl.texParameteri(objgl.TEXTURE_2D, objgl.TEXTURE_MAG_FILTER, objgl.NEAREST);
-            objgl.texParameteri(objgl.TEXTURE_2D, objgl.TEXTURE_MIN_FILTER, objgl.NEAREST);
+            objgl.texParameteri(objgl.TEXTURE_2D, objgl.TEXTURE_MAG_FILTER, objgl.NEAREST_MIPMAP_LINEAR);
+            objgl.texParameteri(objgl.TEXTURE_2D, objgl.TEXTURE_MIN_FILTER, objgl.NEAREST_MIPMAP_LINEAR);
             objgl.generateMipmap(objgl.TEXTURE_2D); // Pour créer le mipmap
             objgl.texParameteri(objgl.TEXTURE_2D, objgl.TEXTURE_WRAP_S, objgl.REPEAT);
             objgl.texParameteri(objgl.TEXTURE_2D, objgl.TEXTURE_WRAP_T, objgl.REPEAT);
