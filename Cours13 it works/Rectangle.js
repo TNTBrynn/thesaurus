@@ -16,6 +16,14 @@ function creerObj3DRectangle(objgl, binDestructible, tabIntNoTexture) {
 
     return obj3DRectangle;
 }
+function ouvrirMur(obj3DRectangle){
+    setPositionY(-1, obj3DRectangle.transformations);
+}
+
+function fermerMur(obj3DRectangle){
+    setPositionY(1, obj3DRectangle.transformations);
+}
+
 function setPositionRectangle(posX, posZ, obj3DRectangle) {
     const transformations = obj3DRectangle.transformations
     setPositionX(posX, transformations);

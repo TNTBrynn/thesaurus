@@ -143,6 +143,9 @@
         // Le nombre de flèches : 18 - (intNiveau *2)
         let nbFleches;
 
+        //Les murs ouverts. Leur Y est négatif pour les cacher. Nous n'aurons qu'à remettre leur Y original à la fin du niveau
+        let tabMursOuverts = [];
+
         let tabElementsNiveau;
         const csvURL = 'niveau1.csv';
 
@@ -616,6 +619,15 @@
                         setCibleCameraY(0.5, objScene3D.camera);
                         setCibleCameraZ(16.5, objScene3D.camera);
                         // Le mur de l'enclos est réouvert
+
+                        //Les murs ouverts sont fermés
+                        for (let i = 0; i < tabMursOuverts.length; i++) {
+                            fermerMur(tabMursOuverts[i]);
+                        }
+                        //Le tableau de murs ouverts est vidé
+                        tabMursOuverts.length = 0;
+                        //Le nombre d'ouvreurs de murs est réinitialisé
+                        nbOuvreurs = 5;
 
                     }
                 } else {
