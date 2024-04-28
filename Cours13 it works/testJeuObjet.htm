@@ -48,6 +48,7 @@
         let objgl = null;
         let objProgShaders = null;
         let objScene3D = null;
+        //Pour vérifier savoir si une case est vide ou non, au moment d'ajouté un objet sur une case vide la valeur de cette case passera de 'v' à 'V'
         const m = 'm';
         const v = 'v';
         const d = 'd';
@@ -97,9 +98,10 @@
         const OBJ3D_MURSEXTERIEUR = 1;
         const OBJ3D_CIEL = 2;
         const OBJ3D_TRESOR = 3;
-        const OBJ3D_FLECHE = 4;
-        const OBJ3D_MURSINTERIEUR = 5;
-        const OBJ3D_JOUEUR = 6;
+        const OBJ3D_JOUEUR = 4;
+        const OBJ3D_FLECHE = 5;
+        const OBJ3D_MURSINTERIEUR = 6;
+        const OBJ3D_MURSDEDALE = 7;
 
         const tabImages = ['assets/Sol64.jpg', 'Mur.jpg', 'Ciel.jpg', 'Fleche.jpg',
             'assets/TresorTextureGaucheDroite.jpg', 'assets/TresorTextureFace.jpg', 'assets/TresorTexturePanneauFaceHaut.jpg', 'assets/TresorTextureFaceArriereBas.jpg',
@@ -132,11 +134,17 @@
         //Longueur et largeur du niveau
         let longueurLargeurCarte = 31;
 
+        //Le nombre d'ouvreurs de murs
+        let nbOuvreurs = 5;        
+
         // Le niveau actuel du jeu
         let intNiveau = 0;
-
+        
         // Le nombre de flèches : 18 - (intNiveau *2)
-        let nbFleches = 18 - intNiveau * 2;
+        let nbFleches;
+
+        //Les murs ouverts. Leur Y est négatif pour les cacher. Nous n'aurons qu'à remettre leur Y original à la fin du niveau
+        let tabMursOuverts = [];
 
         let tabElementsNiveau;
         const csvURL = 'niveau1.csv';
@@ -181,6 +189,8 @@
 
         function initScene3D(objgl) {
             document.getElementById('lblNiveau').innerHTML = intNiveau + 1
+            document.getElementById('lblOuvreursMurs').innerHTML = nbOuvreurs;
+            nbFleches = 18 - (intNiveau * 2);
 
             const objScene3D = new Object();
             const tabObjets3D = new Array();
@@ -204,13 +214,18 @@
             const obj3DTresor = creerObj3DTresor(objgl, [TEX_TRESORGAUCHEDROITE, TEX_TRESORFACE, TEX_TRESORFACEHAUT,
                 TEX_TRESORFACEARRIEREBAS, TEX_TRESORARRIERE, TEX_TRESORDESSUS])
             tabObjets3D.push(obj3DTresor);
+            randomisationPositionTresor(obj3DTresor, tabCarte);
+
+            //Créer Joueur (la flèche sur la carte)
+            const obj3DJoueur = creerObj3DJoueur(objgl, TEX_JOUEUR);
+            tabObjets3D.push(obj3DJoueur);
+
 
             //Créer Flèche
             for (let i = 0; i < nbFleches; i++) {
                 const obj3DFleche = creerObj3DFleche(objgl, TEX_FLECHE);
                 tabObjets3D.push(obj3DFleche);
                 randomisationPositionFleche(obj3DFleche, tabCarte);
-                // setPositionFleche(1, 1, obj3DFleche);
             }
 
             //Créer Mur du milieu
@@ -229,10 +244,6 @@
                     }
                 }
             }
-
-            //Créer Joueur (la flèche sur la carte)
-            const obj3DJoueur = creerObj3DJoueur(objgl, TEX_JOUEUR);
-            tabObjets3D.push(obj3DJoueur);
 
             // Mettre les objets 3D sur la scène
             objScene3D.tabObjets3D = tabObjets3D;
@@ -261,12 +272,14 @@
             const matProjection = mat4.create();
             const fltRapportCanevas = objgl.drawingBufferWidth / objgl.drawingBufferHeight;
             if (isRestrictKeysActive) {
-                mat4.ortho(-16, 16, -16, 16, -40, 40, matProjection);
+                mat4.ortho(-16, 16, -16, 16, -41, 41, matProjection);
             }
             else {
                 mat4.perspective(55, fltRapportCanevas, 0.01, 50, matProjection);
             }
+            // mat4.perspective(55, fltRapportCanevas, 0.01, 50, matProjection);
 
+            
             // Relier la matrice aux shaders
             objgl.uniformMatrix4fv(objProgShaders.matProjection, false, matProjection);
 
@@ -498,7 +511,7 @@
                 fltX = getCibleCameraX(camera) - getPositionCameraX(camera);
                 fltZ = getCibleCameraZ(camera) - getPositionCameraZ(camera);
                 intDirection = (event.keyCode == 37) ? -1 : 1;
-                const fltAngle = intDirection * Math.PI / 90; // Tourner 2 degrés
+                const fltAngle = intDirection * Math.PI / 18; // Tourner 10 degrés
                 fltXPrime = fltX * Math.cos(fltAngle) - fltZ * Math.sin(fltAngle);
                 fltZPrime = fltX * Math.sin(fltAngle) + fltZ * Math.cos(fltAngle);
                 setCibleCameraX(getPositionCameraX(camera) + fltXPrime, camera);
@@ -606,6 +619,15 @@
                         setCibleCameraY(0.5, objScene3D.camera);
                         setCibleCameraZ(16.5, objScene3D.camera);
                         // Le mur de l'enclos est réouvert
+
+                        //Les murs ouverts sont fermés
+                        for (let i = 0; i < tabMursOuverts.length; i++) {
+                            fermerMur(tabMursOuverts[i]);
+                        }
+                        //Le tableau de murs ouverts est vidé
+                        tabMursOuverts.length = 0;
+                        //Le nombre d'ouvreurs de murs est réinitialisé
+                        nbOuvreurs = 5;
 
                     }
                 } else {

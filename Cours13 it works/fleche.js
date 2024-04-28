@@ -10,7 +10,7 @@ function creerObj3DFleche(objgl, intNoTexture) {
     obj3DFleche.transformations = creerTransformations();
     const transformations = obj3DFleche.transformations
     //hauteur, orientation en x, et echelle statique
-    setPositionY(0.5, transformations);
+    setPositionY(1, transformations);
     // setAngleX(90, transformations);
     setEchellesXYZ([0.1, 0.1, 0.1], transformations);
 
@@ -161,4 +161,6 @@ function randomisationPositionFleche(obj3DFleche, tabCarte) {
     } while (tabCarte[ranX][ranZ] != 'v');
     //Appliquer cette position dans setPositionFleche()
     setPositionFleche(ranX, ranZ, obj3DFleche);
+    //Modifier la valeur de la case vide de 'v' à 'V'
+    tabCarte[ranX][ranZ] = 'V';
 }
