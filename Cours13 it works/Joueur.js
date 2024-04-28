@@ -1,13 +1,13 @@
-function creerObj3DJoueur(objgl, tabIntNoTexture) {
+function creerObj3DJoueur(objgl, intNoTexture) {
     const obj3DJoueur = new Object();
     obj3DJoueur.vertex = creerVertexJoueur(objgl);
     obj3DJoueur.couleurs = creerCouleursJoueur(objgl, [1, 1, 1, 1]);
     obj3DJoueur.maillage = null
-    obj3DJoueur.texels = creerTexelsJoueur(objgl, tabIntNoTexture)
+    obj3DJoueur.texels = creerTexelsJoueur(objgl, intNoTexture)
     obj3DJoueur.maillage = creerMaillageJoueur(objgl);
     obj3DJoueur.transformations = creerTransformations();
-    obj3DJoueur.fltX = 1 * 0.2;
-    obj3DJoueur.fltZ = 1 * 0.2;
+    obj3DJoueur.fltX = 1 * 0.4;
+    obj3DJoueur.fltZ = 1 * 0.4;
     const transformations = obj3DJoueur.transformations
     //hauteur et échelle statique
     setPositionY(0.2, transformations);

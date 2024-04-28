@@ -128,8 +128,6 @@
         const TEX_MURDEDALEFACE = 13;
         const TEX_MURDEDALECOTE = 14;
 
-
-
         let isRestrictKeysActive = false;
         let previousCameraPosition = null;
         let previousCameraDirection = null;
@@ -240,8 +238,9 @@
 
             // La caméra
             const camera = creerCamera();
-            setPositionsCameraXYZ([15.5, 0.5, 15.5], camera);
-            setCiblesCameraXYZ([16.5, 0.5, 15.5], camera);
+            //POUR QUE LA COLLISION FONTIONNE IL FAUT QUE LA CAMERA COOMMENCE AVEC UN ORIENTATION LÉGÈREMENT DÉCALÉE PAE RAPPORT AU MUR
+            setPositionsCameraXYZ([15, 0.5, 15], camera);
+            setCiblesCameraXYZ([-16, 0.5, 16], camera);
             setOrientationsXYZ([0, 1, 0], camera);
             objScene3D.camera = camera;
 
@@ -457,9 +456,9 @@
                     z: getCibleCameraZ(camera),
                 };
 
-                
+
                 //Set la position de Joueur
-                setPositionJoueur(previousCameraPosition.x,previousCameraPosition.z, objScene3D.tabObjets3D[OBJ3D_JOUEUR]);
+                setPositionJoueur(previousCameraPosition.x, previousCameraPosition.z, objScene3D.tabObjets3D[OBJ3D_JOUEUR]);
                 //Set l'orientation de Joueur
                 setCibleJoueur(previousCameraDirection.x, previousCameraDirection.z, objScene3D.tabObjets3D[OBJ3D_JOUEUR]);
 

@@ -153,7 +153,7 @@ function creerTexelsRectangle(objgl, tabIntNoTexture) {
     tabTexels[4] = tabTexels[0]; //face gauche
 
     const tabTexelsRectangle = new Array();
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 5; i++) {
         tabTexelsRectangle[i] = objgl.createBuffer();
         objgl.bindBuffer(objgl.ARRAY_BUFFER, tabTexelsRectangle[i]);
         objgl.bufferData(objgl.ARRAY_BUFFER, new Float32Array(tabTexels[i]), objgl.STATIC_DRAW);
@@ -184,9 +184,10 @@ function collisionRectangle(obj3DRectangle, intDirection, camera) {
         const fltRectangleWidth = obj3DRectangle.fltX;
         const fltRectangleDepth = obj3DRectangle.fltZ;
 
-        console.log(fltXCamera, '>', fltPositionXRectangle - fltRectangleWidth)
         const binCollisionX = (fltXCamera > fltPositionXRectangle - fltRectangleWidth) && (fltXCamera < fltPositionXRectangle + fltRectangleWidth);
         const binCollisionZ = (fltZCamera > fltPositionZRectangle - fltRectangleDepth) && (fltZCamera < fltPositionZRectangle + fltRectangleDepth);
+        console.log(fltXCamera, '>', fltPositionXRectangle - fltRectangleWidth, fltXCamera, '<', fltPositionXRectangle + fltRectangleWidth, binCollisionX)
+        console.log(fltZCamera, '>', fltPositionZRectangle - fltRectangleDepth, fltZCamera, '<', fltPositionZRectangle + fltRectangleDepth, binCollisionZ)
         //aucune collision retourne false;
         return binCollisionX && binCollisionZ;
 }
