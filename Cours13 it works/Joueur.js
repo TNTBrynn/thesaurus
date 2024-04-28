@@ -6,6 +6,7 @@ function creerObj3DJoueur(objgl, intNoTexture) {
     obj3DJoueur.texels = creerTexelsJoueur(objgl, intNoTexture)
     obj3DJoueur.maillage = creerMaillageJoueur(objgl);
     obj3DJoueur.transformations = creerTransformations();
+    obj3DJoueur.binVisible = true;
     obj3DJoueur.fltX = 1 * 0.2;
     obj3DJoueur.fltZ = 1 * 0.2;
     const transformations = obj3DJoueur.transformations

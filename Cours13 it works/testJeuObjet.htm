@@ -97,8 +97,8 @@
         const OBJ3D_SOL = 0;
         const OBJ3D_MURSEXTERIEUR = 1;
         const OBJ3D_CIEL = 2;
-        const OBJ3D_TRESOR = 3;
-        const OBJ3D_JOUEUR = 4;
+        const OBJ3D_JOUEUR = 3;
+        const OBJ3D_TRESOR = 4;
         const OBJ3D_FLECHE = 5;
         const OBJ3D_MURSINTERIEUR = 6;
         const OBJ3D_MURSDEDALE = 7;
@@ -135,11 +135,11 @@
         let longueurLargeurCarte = 31;
 
         //Le nombre d'ouvreurs de murs
-        let nbOuvreurs = 5;        
+        let nbOuvreurs = 5;
 
         // Le niveau actuel du jeu
         let intNiveau = 0;
-        
+
         // Le nombre de flèches : 18 - (intNiveau *2)
         let nbFleches;
 
@@ -155,6 +155,8 @@
             objProgShaders = initShaders(objgl);
             // objSons = initSons();
             objScene3D = initScene3D(objgl); // Créer la scène
+
+            document.addEventListener('keydown', startTimer);
 
             effacerCanevas(objgl);
             dessiner(objgl, objProgShaders, objScene3D);
@@ -210,16 +212,15 @@
             const obj3DCiel = creerObj3DCiel(objgl, longueurLargeurCarte, TEX_CIEL);
             tabObjets3D.push(obj3DCiel);
 
+            //Créer Joueur (la flèche sur la carte)
+            const obj3DJoueur = creerObj3DJoueur(objgl, TEX_JOUEUR);
+            tabObjets3D.push(obj3DJoueur);
+
             //Créer Trésor
             const obj3DTresor = creerObj3DTresor(objgl, [TEX_TRESORGAUCHEDROITE, TEX_TRESORFACE, TEX_TRESORFACEHAUT,
                 TEX_TRESORFACEARRIEREBAS, TEX_TRESORARRIERE, TEX_TRESORDESSUS])
             tabObjets3D.push(obj3DTresor);
             randomisationPositionTresor(obj3DTresor, tabCarte);
-
-            //Créer Joueur (la flèche sur la carte)
-            const obj3DJoueur = creerObj3DJoueur(objgl, TEX_JOUEUR);
-            tabObjets3D.push(obj3DJoueur);
-
 
             //Créer Flèche
             for (let i = 0; i < nbFleches; i++) {
@@ -279,7 +280,7 @@
             }
             // mat4.perspective(55, fltRapportCanevas, 0.01, 50, matProjection);
 
-            
+
             // Relier la matrice aux shaders
             objgl.uniformMatrix4fv(objProgShaders.matProjection, false, matProjection);
 
@@ -337,7 +338,7 @@
                         objgl.uniform1f(objProgShaders.pcCouleurTexel, texels[j].pcCouleurTexel);
 
                         // Dessiner le ciel ou pas en se basant sur binVisible dans Ciel.js
-                        if (i != OBJ3D_CIEL || objScene3D.tabObjets3D[i].binVisible == true) {
+                        if (objScene3D.tabObjets3D[i].binVisible == true) {
                             // Dessiner
                             objgl.drawArrays(vertex[j].typeDessin, 0, intNbVertex);
                         }
@@ -368,7 +369,7 @@
                     objgl.bindBuffer(objgl.ELEMENT_ARRAY_BUFFER, maillage);
 
                     // Dessiner le ciel ou pas en se basant sur binVisible dans Ciel.js
-                    if (i != OBJ3D_CIEL || objScene3D.tabObjets3D[i].binVisible == true) {
+                    if (objScene3D.tabObjets3D[i].binVisible == true) {
                         // Dessiner les triangles
                         objgl.drawElements(objgl.TRIANGLES, maillage.intNbTriangles * 3, objgl.UNSIGNED_SHORT, 0);
                         // Dessiner les droites à la suite des triangles
@@ -417,6 +418,19 @@
         function restrictKeys(event) {
             // Key codes: CTRL = 17, SHIFT = 16, SPACE = 32
             var allowedKeys = [17, 16, 32];
+
+            //Pour la triche
+            if (event.ctrlKey && event.shiftKey && event.keyCode == 32) {
+
+                binVisibleVueCarte = !objScene3D.tabObjets3D[OBJ3D_TRESOR].binVisible;
+                
+                //pour afficher les flèches
+                for (let i = 0; i < nbFleches; i++) {
+                    objScene3D.tabObjets3D[OBJ3D_FLECHE + i].binVisible = binVisibleVueCarte;
+                }
+                objScene3D.tabObjets3D[OBJ3D_TRESOR].binVisible = binVisibleVueCarte;
+                console.log("triche")
+            }
 
             if (event.keyCode === 34) { // PageDown
                 // Restaurer le contrôle des touches
@@ -489,6 +503,11 @@
                 setCibleCameraY(0, camera); //La caméra regarde le bas
                 setCibleCameraZ(15.5, camera);
                 objScene3D.tabObjets3D[OBJ3D_CIEL].binVisible = false; //Cacher le ciel
+                objScene3D.tabObjets3D[OBJ3D_CIEL].binVisible = false; //Afficher le ciel
+                for (let i = 0; i < nbFleches; i++) {
+                    objScene3D.tabObjets3D[OBJ3D_FLECHE + i].binVisible = false;
+                }
+                objScene3D.tabObjets3D[OBJ3D_TRESOR].binVisible = false;
 
 
                 //Restreindre le mouvement
@@ -504,6 +523,10 @@
                     setCibleCameraY(previousCameraDirection.y, camera);
                     setCibleCameraZ(previousCameraDirection.z, camera);
                     objScene3D.tabObjets3D[OBJ3D_CIEL].binVisible = true; //Afficher le ciel
+                    for (let i = 0; i < nbFleches; i++) {
+                        objScene3D.tabObjets3D[OBJ3D_FLECHE + i].binVisible = true;
+                    }
+                    objScene3D.tabObjets3D[OBJ3D_TRESOR].binVisible = true;
                 }
             }
             if (!isRestrictKeysActive && (event.keyCode == 37 || event.keyCode == 39)) {
@@ -597,7 +620,8 @@
         }
 
         function startTimer() {
-            let minutes = 60;
+            document.removeEventListener('keydown', startTimer);
+            let minutes = 1;
             let seconds = 0;
 
             const timerInterval = setInterval(() => {
@@ -606,18 +630,15 @@
                     seconds = 59;
                     minutes--;
                 }
+                console.log(minutes, seconds)
 
                 if (minutes < 0) {
                     clearInterval(timerInterval);
-                    if (minutes === 0 && seconds === 0) {
+                    if (minutes < 0) {
                         // Le joueur est retourné au milieu du dédale
-                        setPositionCameraX(15.5, objScene3D.camera);
-                        setPositionCameraY(0.5, objScene3D.camera);
-                        setPositionCameraZ(15.5, objScene3D.camera);
-                        // La caméra regarde vers le nord
-                        setCibleCameraX(15.5, objScene3D.camera);
-                        setCibleCameraY(0.5, objScene3D.camera);
-                        setCibleCameraZ(16.5, objScene3D.camera);
+                        setPositionsCameraXYZ([15, 0.5, 15], objScene3D.camera);
+                        // La caméra regarde vers le sud
+                        setCiblesCameraXYZ([-16, 0.5, 16], objScene3D.camera);
                         // Le mur de l'enclos est réouvert
 
                         //Les murs ouverts sont fermés
@@ -629,6 +650,14 @@
                         //Le nombre d'ouvreurs de murs est réinitialisé
                         nbOuvreurs = 5;
 
+                        minutes = 1;
+                        seconds = 0;
+                        const formattedMinutes = minutes.toString().padStart(2, '0');
+                        const formattedSeconds = seconds.toString().padStart(2, '0');
+                        document.getElementById('lblTemps').textContent = `${formattedMinutes}:${formattedSeconds}`;
+
+                        //attendre que le joueur appuie sur une touche pour recommencer
+                        document.addEventListener('keydown', startTimer);
                     }
                 } else {
                     const formattedMinutes = minutes.toString().padStart(2, '0');
@@ -638,7 +667,7 @@
             }, 1000);
         }
 
-        startTimer();
+        // startTimer();
     </script>
 </head>
 
@@ -650,7 +679,7 @@
     <p>
         <span class="padding">Score : <span id="lblScore">300</span></span>
         <span class="padding">Ouvreurs de murs : <span id="lblOuvreursMurs">5</span></span>
-        <span class="padding">Temps : <span id="lblTemps">60:00</span></span>
+        <span class="padding">Temps : <span id="lblTemps">01:00</span></span>
     </p>
 
 </body>

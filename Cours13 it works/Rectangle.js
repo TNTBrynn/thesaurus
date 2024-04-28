@@ -5,6 +5,7 @@ function creerObj3DRectangle(objgl, binDestructible, tabIntNoTexture) {
     obj3DRectangle.maillage = null;
     obj3DRectangle.texels = creerTexelsRectangle(objgl, tabIntNoTexture);
     obj3DRectangle.binDestructible = binDestructible; // Indique si l'objet peut être détruit par les ouvreurs de mur
+    obj3DRectangle.binVisible = true;
     obj3DRectangle.transformations = creerTransformations();
     obj3DRectangle.fltX = 1 * 0.5;
     obj3DRectangle.fltZ = 1 * 0.5;

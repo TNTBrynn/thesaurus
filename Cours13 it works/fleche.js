@@ -8,6 +8,7 @@ function creerObj3DFleche(objgl, intNoTexture) {
     obj3DFleche.maillage = creerMaillageFleche(objgl);
     obj3DFleche.texels = creerTexelsFleche(objgl, intNoTexture);
     obj3DFleche.transformations = creerTransformations();
+    obj3DFleche.binVisible = true;
     const transformations = obj3DFleche.transformations
     //hauteur, orientation en x, et echelle statique
     setPositionY(1, transformations);

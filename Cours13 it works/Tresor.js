@@ -7,6 +7,7 @@ function creerObj3DTresor(objgl, tabIntNoTexture) {
     obj3DTresor.transformations = creerTransformations();
     obj3DTresor.fltX = 1 * 0.2;
     obj3DTresor.fltZ = 1 * 0.2;
+    obj3DTresor.binVisible = true;
     const transformations = obj3DTresor.transformations
     //hauteur et échelle statique
     setPositionY(0.2, transformations);
