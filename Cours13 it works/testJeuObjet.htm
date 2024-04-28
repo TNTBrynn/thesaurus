@@ -423,7 +423,7 @@
             if (event.ctrlKey && event.shiftKey && event.keyCode == 32) {
 
                 binVisibleVueCarte = !objScene3D.tabObjets3D[OBJ3D_TRESOR].binVisible;
-                
+
                 //pour afficher les flèches
                 for (let i = 0; i < nbFleches; i++) {
                     objScene3D.tabObjets3D[OBJ3D_FLECHE + i].binVisible = binVisibleVueCarte;
@@ -621,6 +621,7 @@
 
         function startTimer() {
             document.removeEventListener('keydown', startTimer);
+            let camera = objScene3D.camera
             let minutes = 1;
             let seconds = 0;
 
@@ -636,9 +637,9 @@
                     clearInterval(timerInterval);
                     if (minutes < 0) {
                         // Le joueur est retourné au milieu du dédale
-                        setPositionsCameraXYZ([15, 0.5, 15], objScene3D.camera);
+                        setPositionsCameraXYZ([15, 0.5, 15], camera);
                         // La caméra regarde vers le sud
-                        setCiblesCameraXYZ([-16, 0.5, 16], objScene3D.camera);
+                        setCiblesCameraXYZ([-16, 0.5, 16], camera);
                         // Le mur de l'enclos est réouvert
 
                         //Les murs ouverts sont fermés
@@ -655,6 +656,22 @@
                         const formattedMinutes = minutes.toString().padStart(2, '0');
                         const formattedSeconds = seconds.toString().padStart(2, '0');
                         document.getElementById('lblTemps').textContent = `${formattedMinutes}:${formattedSeconds}`;
+
+                        // Restaurer la position de la caméra
+                        isRestrictKeysActive = false;
+                        if (previousCameraPosition && previousCameraDirection) {
+                            setPositionCameraX(previousCameraPosition.x, camera);
+                            setPositionCameraY(previousCameraPosition.y, camera);
+                            setPositionCameraZ(previousCameraPosition.z, camera);
+                            setCibleCameraX(previousCameraDirection.x, camera);
+                            setCibleCameraY(previousCameraDirection.y, camera);
+                            setCibleCameraZ(previousCameraDirection.z, camera);
+                            objScene3D.tabObjets3D[OBJ3D_CIEL].binVisible = true; //Afficher le ciel
+                            for (let i = 0; i < nbFleches; i++) {
+                                objScene3D.tabObjets3D[OBJ3D_FLECHE + i].binVisible = true;
+                            }
+                            objScene3D.tabObjets3D[OBJ3D_TRESOR].binVisible = true;
+                        }
 
                         //attendre que le joueur appuie sur une touche pour recommencer
                         document.addEventListener('keydown', startTimer);
