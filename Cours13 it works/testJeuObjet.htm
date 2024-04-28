@@ -90,9 +90,6 @@
 
         const nbMur = 265;
 
-        // Le nombre de flèches : 18 - (intNiveau *2)
-        let nbFleches = 1;
-
         /*Cette section est utilisé pour pouvoir itérer sur les objets 3D avec leur nom et, s'il y
         en a plusieurs, pouvoir utiliser une boucle avec le nombre connu d'objets 3D de ce type
         comme pour les flèches*/
@@ -137,6 +134,9 @@
 
         // Le niveau actuel du jeu
         let intNiveau = 0;
+
+        // Le nombre de flèches : 18 - (intNiveau *2)
+        let nbFleches = 18 - intNiveau * 2;
 
         let tabElementsNiveau;
         const csvURL = 'niveau1.csv';
@@ -209,7 +209,8 @@
             for (let i = 0; i < nbFleches; i++) {
                 const obj3DFleche = creerObj3DFleche(objgl, TEX_FLECHE);
                 tabObjets3D.push(obj3DFleche);
-                setPositionFleche(1, 1, obj3DFleche);
+                randomisationPositionFleche(obj3DFleche, tabCarte);
+                // setPositionFleche(1, 1, obj3DFleche);
             }
 
             //Créer Mur du milieu
@@ -222,7 +223,7 @@
                         setPositionRectangle(i, j, obj3DMurMilieu)
                     }
                     else if (tabCarte[i][j] == d) {
-                        const obj3DMurDale = creerObj3DRectangle(objgl, false, [TEX_MURDEDALEFACE, TEX_MURDEDALECOTE]);
+                        const obj3DMurDale = creerObj3DRectangle(objgl, true, [TEX_MURDEDALEFACE, TEX_MURDEDALECOTE]);
                         tabObjets3D.push(obj3DMurDale);
                         setPositionRectangle(i, j, obj3DMurDale)
                     }
@@ -259,7 +260,12 @@
             // Matrice de projection
             const matProjection = mat4.create();
             const fltRapportCanevas = objgl.drawingBufferWidth / objgl.drawingBufferHeight;
-            mat4.perspective(55, fltRapportCanevas, 0.01, 50, matProjection);
+            if (isRestrictKeysActive) {
+                mat4.ortho(-16, 16, -16, 16, -40, 40, matProjection);
+            }
+            else {
+                mat4.perspective(55, fltRapportCanevas, 0.01, 50, matProjection);
+            }
 
             // Relier la matrice aux shaders
             objgl.uniformMatrix4fv(objProgShaders.matProjection, false, matProjection);
