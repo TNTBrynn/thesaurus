@@ -11,16 +11,16 @@ function creerObj3DTresor(objgl, tabIntNoTexture) {
     //hauteur et échelle statique
     setPositionY(0.2, transformations);
     setEchellesXYZ([0.2, 0.2, 0.2], transformations);
-    setPositionCoffre(10, 10, obj3DTresor)
+    setPositionTresor(10, 10, obj3DTresor)
     return obj3DTresor;
 }
 
-function setPositionCoffre(posX, posZ, obj3DTresor) {
+function setPositionTresor(posX, posZ, obj3DTresor) {
     const transformations = obj3DTresor.transformations
     setPositionX(posX, transformations);
     setPositionZ(posZ, transformations);
 }
-function setOrientationCoffre(angle, obj3DTresor) {
+function setOrientationTresor(angle, obj3DTresor) {
     setAngleX(angle, obj3DTresor.transformations);
 }
 
@@ -299,6 +299,17 @@ function collisionTresor(obj3DTresor, intDirection, camera) {
     const binCollisionX = (fltXCamera > fltPositionXTresor - fltTresorWidth) && (fltXCamera < fltPositionXTresor + fltTresorWidth);
     const binCollisionZ = (fltZCamera > fltPositionZTresor - fltTresorDepth) && (fltZCamera < fltPositionZTresor + fltTresorDepth);
 
-//aucune collision retourn false
+    //aucune collision retourn false
     return binCollisionX && binCollisionZ;
+}
+
+function randomisationPositionTresor(obj3DTresor, tabCarte) {
+    do {
+        //Créer une position (x,z) entre (1-30, 1-30)
+        ranX = Math.floor(Math.random() * 30) + 1;
+        ranZ = Math.floor(Math.random() * 30) + 1;
+        //Vérifier si la position est dans le vide
+    } while (tabCarte[ranX][ranZ] != 'v');
+    //Appliquer cette position dans setPositionTresor()
+    setPositionTresor(ranX, ranZ, obj3DTresor);
 }
