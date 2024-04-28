@@ -312,4 +312,6 @@ function randomisationPositionTresor(obj3DTresor, tabCarte) {
     } while (tabCarte[ranX][ranZ] != 'v');
     //Appliquer cette position dans setPositionTresor()
     setPositionTresor(ranX, ranZ, obj3DTresor);
+    //Modifier la valeur de la case vide de 'v' à 'V'
+    tabCarte[ranX][ranZ] = 'V';
 }

@@ -161,4 +161,6 @@ function randomisationPositionFleche(obj3DFleche, tabCarte) {
     } while (tabCarte[ranX][ranZ] != 'v');
     //Appliquer cette position dans setPositionFleche()
     setPositionFleche(ranX, ranZ, obj3DFleche);
+    //Modifier la valeur de la case vide de 'v' à 'V'
+    tabCarte[ranX][ranZ] = 'V';
 }

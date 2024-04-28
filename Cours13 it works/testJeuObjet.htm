@@ -48,6 +48,7 @@
         let objgl = null;
         let objProgShaders = null;
         let objScene3D = null;
+        //Pour vérifier savoir si une case est vide ou non, au moment d'ajouté un objet sur une case vide la valeur de cette case passera de 'v' à 'V'
         const m = 'm';
         const v = 'v';
         const d = 'd';
@@ -133,7 +134,9 @@
         //Longueur et largeur du niveau
         let longueurLargeurCarte = 31;
 
-        
+        //Le nombre d'ouvreurs de murs
+        let nbOuvreurs = 5;        
+
         // Le niveau actuel du jeu
         let intNiveau = 0;
         
@@ -183,6 +186,7 @@
 
         function initScene3D(objgl) {
             document.getElementById('lblNiveau').innerHTML = intNiveau + 1
+            document.getElementById('lblOuvreursMurs').innerHTML = nbOuvreurs;
             nbFleches = 18 - (intNiveau * 2);
 
             const objScene3D = new Object();
@@ -264,13 +268,13 @@
             // Matrice de projection
             const matProjection = mat4.create();
             const fltRapportCanevas = objgl.drawingBufferWidth / objgl.drawingBufferHeight;
-            // if (isRestrictKeysActive) {
-            //     mat4.ortho(-16, 16, -16, 16, -41, 41, matProjection);
-            // }
-            // else {
-            //     mat4.perspective(55, fltRapportCanevas, 0.01, 50, matProjection);
-            // }
-            mat4.perspective(55, fltRapportCanevas, 0.01, 50, matProjection);
+            if (isRestrictKeysActive) {
+                mat4.ortho(-16, 16, -16, 16, -41, 41, matProjection);
+            }
+            else {
+                mat4.perspective(55, fltRapportCanevas, 0.01, 50, matProjection);
+            }
+            // mat4.perspective(55, fltRapportCanevas, 0.01, 50, matProjection);
 
             
             // Relier la matrice aux shaders
@@ -504,7 +508,7 @@
                 fltX = getCibleCameraX(camera) - getPositionCameraX(camera);
                 fltZ = getCibleCameraZ(camera) - getPositionCameraZ(camera);
                 intDirection = (event.keyCode == 37) ? -1 : 1;
-                const fltAngle = intDirection * Math.PI / 90; // Tourner 2 degrés
+                const fltAngle = intDirection * Math.PI / 18; // Tourner 10 degrés
                 fltXPrime = fltX * Math.cos(fltAngle) - fltZ * Math.sin(fltAngle);
                 fltZPrime = fltX * Math.sin(fltAngle) + fltZ * Math.cos(fltAngle);
                 setCibleCameraX(getPositionCameraX(camera) + fltXPrime, camera);
