@@ -131,17 +131,23 @@
         let previousCameraPosition = null;
         let previousCameraDirection = null;
 
+        //Score
+        let intScore = 300
+
         //Longueur et largeur du niveau
-        let longueurLargeurCarte = 31;
+        let longueurLargeurCarte = 30;
 
         //Le nombre d'ouvreurs de murs : 4 (- 1 à chaque 2 niveaux)
-        let nbOuvreurs;
+        let nbOuvreurs = 4;
 
         // Le niveau actuel du jeu
         let intNiveau = 0;
 
         // Le nombre de flèches : 18 - (intNiveau *2)
         let nbFleches;
+
+        let minutes = 1;
+        let seconds = 0;
 
         //Les murs ouverts. Leur Y est négatif pour les cacher. Nous n'aurons qu'à remettre leur Y original à la fin du niveau
         let tabMursOuverts = [];
@@ -177,6 +183,7 @@
         // Pour mettre à jour l'animation
         function mettreAjourAnimation() {
             document.getElementById('lblOuvreursMurs').innerHTML = nbOuvreurs;
+            document.getElementById('lblScore').innerHTML = intScore;-
 
             for (let i = 0; i < nbFleches; i++) {
                 const obj3DFleche = objScene3D.tabObjets3D[OBJ3D_FLECHE + i];
@@ -492,6 +499,7 @@
                     z: getCibleCameraZ(camera),
                 };
 
+                //perte de points quad utilise pageup
 
                 //Set la position de Joueur
                 setPositionJoueur(previousCameraPosition.x, previousCameraPosition.z, objScene3D.tabObjets3D[OBJ3D_JOUEUR]);
@@ -580,6 +588,7 @@
                         } else {
 
                         }
+                        intScore += 10*intSecondes;
                         intNiveau++;
                         objScene3D = initScene3D(objgl);
                     }
@@ -632,11 +641,11 @@
                         }
                     }
                 }
-                else if (!isRestrictKeysActive && (event.keyCode == 32)) {
+                else if (!isRestrictKeysActive && (event.keyCode == 32)) {//utilise ouvreur de murs
                     // 32 : espace
                     /* Trouve la direction dans laquelle le joueur regarde afin de briser le mur qui est toujours en face du joueur
                     Trouve la position du mur dans le tableau d'objet de murs et si c'est celui devant le joueur, on baisse le y de celui-ci */
-
+                    intScore -= 50;
                     if (nbOuvreurs > 0) {
                         const directionRegard = determinerDirectionRegard(camera);
                         console.log('Direction de la caméra : ' + directionRegard);
@@ -709,8 +718,6 @@
         function startTimer() {
             document.removeEventListener('keydown', startTimer);
             let camera = objScene3D.camera
-            let minutes = 1;
-            let seconds = 0;
 
             const timerInterval = setInterval(() => {
                 seconds--;
@@ -723,6 +730,7 @@
                 if (minutes < 0) {
                     clearInterval(timerInterval);
                     if (minutes < 0) {
+                        intScore -= 200;
                         // Le joueur est retourné au milieu du dédale
                         setPositionsCameraXYZ([15, 0.5, 15], camera);
                         // La caméra regarde vers le sud
