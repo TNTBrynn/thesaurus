@@ -1,30 +1,31 @@
 function creerObj3DTresor(objgl, tabIntNoTexture) {
     const obj3DTresor = new Object();
-    obj3DTresor.vertex = creerTresor(objgl);
+    obj3DTresor.vertex = creerVertexTresor(objgl);
     obj3DTresor.couleurs = creerCouleursTresor(objgl);
     obj3DTresor.maillage = null
     obj3DTresor.texels = creerTexelsTresor(objgl, tabIntNoTexture)
     obj3DTresor.transformations = creerTransformations();
     obj3DTresor.fltX = 1 * 0.2;
     obj3DTresor.fltZ = 1 * 0.2;
+    obj3DTresor.binVisible = true;
     const transformations = obj3DTresor.transformations
     //hauteur et échelle statique
     setPositionY(0.2, transformations);
     setEchellesXYZ([0.2, 0.2, 0.2], transformations);
-    setPositionCoffre(17, 15.5, obj3DTresor)
+    setPositionTresor(10, 10, obj3DTresor)
     return obj3DTresor;
 }
 
-function setPositionCoffre(posX, posZ, obj3DTresor) {
+function setPositionTresor(posX, posZ, obj3DTresor) {
     const transformations = obj3DTresor.transformations
     setPositionX(posX, transformations);
     setPositionZ(posZ, transformations);
 }
-function setOrientationCoffre(angle, obj3DTresor) {
+function setOrientationTresor(angle, obj3DTresor) {
     setAngleX(angle, obj3DTresor.transformations);
 }
 
-function creerTresor(objgl) {
+function creerVertexTresor(objgl) {
     var tabVertex = new Array();
 
     // Face avant pleine
@@ -299,5 +300,19 @@ function collisionTresor(obj3DTresor, intDirection, camera) {
     const binCollisionX = (fltXCamera > fltPositionXTresor - fltTresorWidth) && (fltXCamera < fltPositionXTresor + fltTresorWidth);
     const binCollisionZ = (fltZCamera > fltPositionZTresor - fltTresorDepth) && (fltZCamera < fltPositionZTresor + fltTresorDepth);
 
+    //aucune collision retourn false
     return binCollisionX && binCollisionZ;
+}
+
+function randomisationPositionTresor(obj3DTresor, tabCarte) {
+    do {
+        //Créer une position (x,z) entre (1-30, 1-30)
+        ranX = Math.floor(Math.random() * 30) + 1;
+        ranZ = Math.floor(Math.random() * 30) + 1;
+        //Vérifier si la position est dans le vide
+    } while (tabCarte[ranX][ranZ] != 'v');
+    //Appliquer cette position dans setPositionTresor()
+    setPositionTresor(ranX, ranZ, obj3DTresor);
+    //Modifier la valeur de la case vide de 'v' à 'V'
+    tabCarte[ranX][ranZ] = 'V';
 }

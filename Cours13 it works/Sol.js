@@ -10,6 +10,7 @@ function creerObj3DSol(objgl, longueurLargeurCarte, intNoTexture, intNiveau) {
     obj3DSol.couleurs = creerCouleursSol(objgl, [1, 1, 1, 1]);
 	obj3DSol.texels = creerTexelsSol(objgl, obj3DSol.fltLargeur, obj3DSol.fltProfondeur, intNoTexture);
 	obj3DSol.maillage = creerMaillageSol(objgl);
+    obj3DSol.binVisible = true;
 	
     obj3DSol.transformations = creerTransformations();
     return obj3DSol;

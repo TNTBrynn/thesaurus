@@ -8,9 +8,10 @@ function creerObj3DFleche(objgl, intNoTexture) {
     obj3DFleche.maillage = creerMaillageFleche(objgl);
     obj3DFleche.texels = creerTexelsFleche(objgl, intNoTexture);
     obj3DFleche.transformations = creerTransformations();
+    obj3DFleche.binVisible = true;
     const transformations = obj3DFleche.transformations
     //hauteur, orientation en x, et echelle statique
-    setPositionY(0.5, transformations);
+    setPositionY(1, transformations);
     // setAngleX(90, transformations);
     setEchellesXYZ([0.1, 0.1, 0.1], transformations);
 
@@ -140,7 +141,7 @@ function setDirectionFleche(angle, obj3DFleche) {
     setAngleZ(angle, transformations);
 }
 //Trouver et pointe vers le coffre
-function trouverCoffre(obj3DFleche, tresor){
+function trouverCoffre(obj3DFleche, tresor) {
     const transformations = obj3DFleche.transformations
     const transformationsTresor = tresor.transformations
     let posTresorX = getPositionX(transformationsTresor);
@@ -150,4 +151,17 @@ function trouverCoffre(obj3DFleche, tresor){
 
     let angle = Math.atan2(posFlecheX - posTresorX, posFlecheZ - posTresorZ) * 180 / Math.PI;
     setDirectionFleche(angle, obj3DFleche)
+}
+
+function randomisationPositionFleche(obj3DFleche, tabCarte) {
+    do {
+        //Créer une position (x,z) entre (1-30, 1-30)
+        ranX = Math.floor(Math.random() * 30) + 1;
+        ranZ = Math.floor(Math.random() * 30) + 1;
+        //Vérifier si la position est dans le vide
+    } while (tabCarte[ranX][ranZ] != 'v');
+    //Appliquer cette position dans setPositionFleche()
+    setPositionFleche(ranX, ranZ, obj3DFleche);
+    //Modifier la valeur de la case vide de 'v' à 'V'
+    tabCarte[ranX][ranZ] = 'V';
 }

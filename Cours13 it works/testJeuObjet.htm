@@ -42,24 +42,76 @@
     <script type="text/javascript" src="Fleche.js"></script>
     <script type="text/javascript" src="FlecheJoueur.js"></script>
     <script type="text/javascript" src="Tresor.js"></script>
+    <script type="text/javascript" src="Rectangle.js"></script>
+    <script type="text/javascript" src="Joueur.js"></script>
     <script type="text/javascript">
 
         let objgl = null;
         let objProgShaders = null;
         let objScene3D = null;
-        let tabObjFleche = null;
+        //Pour vérifier savoir si une case est vide ou non, au moment d'ajouté un objet sur une case vide la valeur de cette case passera de 'v' à 'V'
+        const m = 'm';
+        const v = 'v';
+        const d = 'd';
+        const c = 'c';
+        const j = 'j';
+        const s = 's';
+        const tabCarte = [
+            [m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m],
+            [m, v, v, v, v, v, v, v, v, v, v, v, v, v, v, d, v, v, v, v, v, v, v, v, v, v, v, v, v, v, m],
+            [m, v, d, d, d, d, d, d, v, d, d, d, d, d, v, d, v, d, d, d, d, d, v, d, d, d, d, d, d, v, m],
+            [m, v, v, v, v, v, v, v, v, d, v, v, v, d, v, d, v, d, v, v, v, d, v, v, v, v, v, v, v, v, m],
+            [m, d, d, d, d, d, d, d, v, d, d, v, d, d, v, d, v, d, d, v, d, d, v, d, d, d, d, d, d, d, m],
+            [m, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, m],
+            [m, d, d, d, v, d, d, d, v, d, v, d, d, d, v, d, v, d, d, d, v, d, v, d, d, d, v, d, d, d, m],
+            [m, v, v, v, v, v, v, v, v, d, v, d, v, d, v, d, v, d, v, d, v, d, v, v, v, v, v, v, v, v, m],
+            [m, d, d, d, v, d, d, d, v, d, v, d, v, d, v, d, v, d, v, d, v, d, v, d, d, d, v, d, d, d, m],
+            [m, v, v, v, v, v, v, v, v, d, v, d, v, d, v, d, v, d, v, d, v, d, v, v, v, v, v, v, v, v, m],
+            [m, v, d, d, d, d, d, d, v, d, v, d, v, d, v, d, v, d, v, d, v, d, v, d, d, d, d, d, d, v, m],
+            [m, v, v, v, v, v, v, d, v, d, d, d, v, d, v, d, v, d, v, d, d, d, v, d, v, v, v, v, v, v, m],
+            [m, d, d, d, d, d, v, d, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, d, v, d, d, d, d, d, m],
+            [m, v, v, v, v, v, v, d, v, d, d, d, v, c, c, s, c, c, v, d, d, d, v, d, v, v, v, v, v, v, m],
+            [m, v, d, d, d, d, d, d, v, d, v, d, v, c, j, j, j, c, v, d, v, d, v, d, d, d, d, d, d, v, m],
+            [m, v, v, v, v, v, v, v, v, d, v, d, v, c, j, j, j, c, v, d, v, d, v, v, v, v, v, v, v, v, m],
+            [m, d, d, d, d, d, d, d, v, d, v, d, v, c, j, j, j, c, v, d, v, d, v, d, d, d, d, d, d, d, m],
+            [m, v, v, v, v, v, v, v, v, d, v, d, v, c, c, c, c, c, v, d, v, d, v, v, v, v, v, v, v, v, m],
+            [m, v, d, d, d, d, d, d, v, d, v, d, v, v, v, v, v, v, v, d, v, d, v, d, d, d, d, d, d, v, m],
+            [m, v, d, v, v, v, v, v, v, d, v, d, d, d, d, v, d, d, d, d, v, d, v, v, v, v, v, v, d, v, m],
+            [m, v, d, v, d, d, d, d, v, d, v, v, v, v, d, v, d, v, v, v, v, d, v, d, d, d, d, v, d, v, m],
+            [m, v, d, v, d, v, v, v, v, d, v, d, v, v, d, v, d, v, v, d, v, d, v, v, v, v, d, v, d, v, m],
+            [m, v, d, v, d, d, d, d, v, d, v, d, v, d, d, v, d, d, v, d, v, d, v, d, d, d, d, v, d, v, m],
+            [m, v, v, v, v, v, v, d, v, d, v, v, v, d, v, v, v, d, v, v, v, d, v, d, v, v, v, v, v, v, m],
+            [m, v, d, d, d, d, v, d, v, d, v, d, d, d, v, d, v, d, d, d, v, d, v, d, v, d, d, d, d, v, m],
+            [m, v, v, v, v, v, v, d, v, v, v, d, v, v, v, v, v, v, v, d, v, v, v, d, v, v, v, v, v, v, m],
+            [m, v, d, v, d, d, v, d, v, d, d, d, v, d, d, v, d, d, v, d, d, d, v, d, v, d, d, v, d, v, m],
+            [m, v, d, v, d, v, v, d, v, d, v, v, v, d, v, v, v, d, v, v, v, d, v, d, v, v, d, v, d, v, m],
+            [m, d, d, v, d, d, d, d, v, d, v, d, d, d, d, d, d, d, d, d, v, d, v, d, d, d, d, v, d, d, m],
+            [m, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, m],
+            [m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m]
+        ];
+
+        const nbMur = 265;
 
         /*Cette section est utilisé pour pouvoir itérer sur les objets 3D avec leur nom et, s'il y
         en a plusieurs, pouvoir utiliser une boucle avec le nombre connu d'objets 3D de ce type
         comme pour les flèches*/
         const OBJ3D_SOL = 0;
-        const OBJ3D_MURS = 1;
+        const OBJ3D_MURSEXTERIEUR = 1;
         const OBJ3D_CIEL = 2;
-        const OBJ3D_TRESOR = 3;
-        const OBJ3D_FLECHE = 4;
+        const OBJ3D_JOUEUR = 3;
+        const OBJ3D_TRESOR = 4;
+        const OBJ3D_FLECHE = 5;
+        const OBJ3D_MURSINTERIEUR = 6;
+        const OBJ3D_MURSDEDALE = 7;
 
-        const tabImages = ['Sol.jpg', 'Mur.jpg', 'Ciel.jpg', 'Fleche.jpg',
-            'assets/TresorTextureGaucheDroite.jpg', 'assets/TresorTextureFace.jpg', 'assets/TresorTexturePanneauFaceHaut.jpg', 'assets/TresorTextureFaceArriereBas.jpg', 'assets/TresorTextureArriere.jpg', 'assets/TresorTextureDessus.jpg'];
+        const tabImages = ['assets/Sol64.jpg', 'assets/Mur.jpg', 'assets/Ciel.jpg', 'assets/Fleche.jpg',
+            'assets/TresorTextureGaucheDroite.jpg', 'assets/TresorTextureFace.jpg', 'assets/TresorTexturePanneauFaceHaut.jpg', 'assets/TresorTextureFaceArriereBas.jpg',
+            'assets/TresorTextureArriere.jpg', 'assets/TresorTextureDessus.jpg', 'assets/Joueur.png',
+            'assets/TextureMurMilieuFace64.jpg',
+            'assets/TextureMurMilieuCote64.jpg',
+            'assets/TextureMurDedaleFace64.jpg',
+            'assets/TextureMurDedaleCote64.jpg'
+        ];
         const TEX_SOL = 0;
         const TEX_MUR = 1;
         const TEX_CIEL = 2;
@@ -70,6 +122,11 @@
         const TEX_TRESORFACEARRIEREBAS = 7;
         const TEX_TRESORARRIERE = 8;
         const TEX_TRESORDESSUS = 9;
+        const TEX_JOUEUR = 10;
+        const TEX_MURMILIEUFACE = 11;
+        const TEX_MURMILIEUCOTE = 12;
+        const TEX_MURDEDALEFACE = 13;
+        const TEX_MURDEDALECOTE = 14;
 
         let isRestrictKeysActive = false;
         let previousCameraPosition = null;
@@ -78,12 +135,18 @@
         //Longueur et largeur du niveau
         let longueurLargeurCarte = 31;
 
+        //Le nombre d'ouvreurs de murs
+        let nbOuvreurs = 5;
+
         // Le niveau actuel du jeu
         let intNiveau = 0;
         let intNbOuvreur = 4;
 
         // Le nombre de flèches : 18 - (intNiveau *2)
-        let nbFleches = 1;
+        let nbFleches;
+
+        //Les murs ouverts. Leur Y est négatif pour les cacher. Nous n'aurons qu'à remettre leur Y original à la fin du niveau
+        let tabMursOuverts = [];
 
         let tabElementsNiveau;
         const csvURL = 'niveau1.csv';
@@ -94,6 +157,8 @@
             objProgShaders = initShaders(objgl);
             // objSons = initSons();
             objScene3D = initScene3D(objgl); // Créer la scène
+
+            document.addEventListener('keydown', startTimer);
 
             effacerCanevas(objgl);
             dessiner(objgl, objProgShaders, objScene3D);
@@ -119,8 +184,8 @@
             }
         }
 
-        function tournerFleche(intNoTornade) {
-            const obj3DFleche = objScene3D.tabObjets3D[OBJ3D_FLECHE + intNoTornade];
+        function tournerFleche(intNoFleche) {
+            const obj3DFleche = objScene3D.tabObjets3D[OBJ3D_FLECHE + intNoFleche];
             let fltAngleY = getAngleY(obj3DFleche.transformations) + 0.5;
             if (fltAngleY > 360) fltAngleY -= 360;
             setAngleY(fltAngleY, obj3DFleche.transformations);
@@ -128,6 +193,8 @@
 
         function initScene3D(objgl) {
             document.getElementById('lblNiveau').innerHTML = intNiveau + 1
+            document.getElementById('lblOuvreursMurs').innerHTML = nbOuvreurs;
+            nbFleches = 18 - (intNiveau * 2);
 
             const objScene3D = new Object();
             const tabObjets3D = new Array();
@@ -147,16 +214,38 @@
             const obj3DCiel = creerObj3DCiel(objgl, longueurLargeurCarte, TEX_CIEL);
             tabObjets3D.push(obj3DCiel);
 
+            //Créer Joueur (la flèche sur la carte)
+            const obj3DJoueur = creerObj3DJoueur(objgl, TEX_JOUEUR);
+            tabObjets3D.push(obj3DJoueur);
+
             //Créer Trésor
             const obj3DTresor = creerObj3DTresor(objgl, [TEX_TRESORGAUCHEDROITE, TEX_TRESORFACE, TEX_TRESORFACEHAUT,
                 TEX_TRESORFACEARRIEREBAS, TEX_TRESORARRIERE, TEX_TRESORDESSUS])
             tabObjets3D.push(obj3DTresor);
+            randomisationPositionTresor(obj3DTresor, tabCarte);
 
             //Créer Flèche
             for (let i = 0; i < nbFleches; i++) {
                 const obj3DFleche = creerObj3DFleche(objgl, TEX_FLECHE);
                 tabObjets3D.push(obj3DFleche);
-                setPositionFleche(1, 1, obj3DFleche);
+                randomisationPositionFleche(obj3DFleche, tabCarte);
+            }
+
+            //Créer Mur du milieu
+            // lire les données du tableau de la carte
+            for (let i = 0; i < tabCarte.length; i++) {
+                for (let j = 0; j < tabCarte[i].length; j++) {
+                    if (tabCarte[i][j] == c) {
+                        const obj3DMurMilieu = creerObj3DRectangle(objgl, false, [TEX_MURMILIEUFACE, TEX_MURMILIEUCOTE]);
+                        tabObjets3D.push(obj3DMurMilieu);
+                        setPositionRectangle(i, j, obj3DMurMilieu)
+                    }
+                    else if (tabCarte[i][j] == d) {
+                        const obj3DMurDale = creerObj3DRectangle(objgl, true, [TEX_MURDEDALEFACE, TEX_MURDEDALECOTE]);
+                        tabObjets3D.push(obj3DMurDale);
+                        setPositionRectangle(i, j, obj3DMurDale)
+                    }
+                }
             }
 
             // Mettre les objets 3D sur la scène
@@ -164,8 +253,9 @@
 
             // La caméra
             const camera = creerCamera();
-            setPositionsCameraXYZ([15.5, 0.5, 15.5], camera);
-            setCiblesCameraXYZ([16.5, 0.5, 15.5], camera);
+            //POUR QUE LA COLLISION FONTIONNE IL FAUT QUE LA CAMERA COOMMENCE AVEC UN ORIENTATION LÉGÈREMENT DÉCALÉE PAE RAPPORT AU MUR
+            setPositionsCameraXYZ([15, 0.5, 15], camera);
+            setCiblesCameraXYZ([-16, 0.5, 16], camera);
             setOrientationsXYZ([0, 1, 0], camera);
             objScene3D.camera = camera;
 
@@ -184,7 +274,14 @@
             // Matrice de projection
             const matProjection = mat4.create();
             const fltRapportCanevas = objgl.drawingBufferWidth / objgl.drawingBufferHeight;
-            mat4.perspective(45, fltRapportCanevas, 0.01, 100, matProjection);
+            if (isRestrictKeysActive) {
+                mat4.ortho(-16, 16, -16, 16, -41, 41, matProjection);
+            }
+            else {
+                mat4.perspective(55, fltRapportCanevas, 0.01, 50, matProjection);
+            }
+            // mat4.perspective(55, fltRapportCanevas, 0.01, 50, matProjection);
+
 
             // Relier la matrice aux shaders
             objgl.uniformMatrix4fv(objProgShaders.matProjection, false, matProjection);
@@ -243,7 +340,7 @@
                         objgl.uniform1f(objProgShaders.pcCouleurTexel, texels[j].pcCouleurTexel);
 
                         // Dessiner le ciel ou pas en se basant sur binVisible dans Ciel.js
-                        if (i != OBJ3D_CIEL || objScene3D.tabObjets3D[i].binVisible == true) {
+                        if (objScene3D.tabObjets3D[i].binVisible == true) {
                             // Dessiner
                             objgl.drawArrays(vertex[j].typeDessin, 0, intNbVertex);
                         }
@@ -274,7 +371,7 @@
                     objgl.bindBuffer(objgl.ELEMENT_ARRAY_BUFFER, maillage);
 
                     // Dessiner le ciel ou pas en se basant sur binVisible dans Ciel.js
-                    if (i != OBJ3D_CIEL || objScene3D.tabObjets3D[i].binVisible == true) {
+                    if (objScene3D.tabObjets3D[i].binVisible == true) {
                         // Dessiner les triangles
                         objgl.drawElements(objgl.TRIANGLES, maillage.intNbTriangles * 3, objgl.UNSIGNED_SHORT, 0);
                         // Dessiner les droites à la suite des triangles
@@ -360,6 +457,19 @@
             // Key codes: CTRL = 17, SHIFT = 16, SPACE = 32
             var allowedKeys = [17, 16, 32];
 
+            //Pour la triche
+            if (event.ctrlKey && event.shiftKey && event.keyCode == 32) {
+
+                binVisibleVueCarte = !objScene3D.tabObjets3D[OBJ3D_TRESOR].binVisible;
+
+                //pour afficher les flèches
+                for (let i = 0; i < nbFleches; i++) {
+                    objScene3D.tabObjets3D[OBJ3D_FLECHE + i].binVisible = binVisibleVueCarte;
+                }
+                objScene3D.tabObjets3D[OBJ3D_TRESOR].binVisible = binVisibleVueCarte;
+                console.log("triche")
+            }
+
             if (event.keyCode === 34) { // PageDown
                 // Restaurer le contrôle des touches
                 document.removeEventListener('keydown', restrictKeys);
@@ -369,8 +479,8 @@
 
         //Permet de faire tourner les objets
         //Pour changer l'objet à tourner, changer OBJ3D_TRESOR ↓↓↓ pour l'objet désiré
-        function tournerObjet() {
-            const transformations = objScene3D.tabObjets3D[OBJ3D_TRESOR].transformations;
+        function tournerObjet(obj3D) {
+            const transformations = objScene3D.tabObjets3D[obj3D].transformations;
 
             if (event.keyCode == 100 || event.keyCode == 102) {
                 // 100:  Flèche-à-gauche NumPad; 102:Flèche-à-droite NumPad
@@ -391,7 +501,8 @@
 
         function deplacerCamera() {
             const camera = objScene3D.camera;
-            tournerObjet();
+            // tournerObjet(OBJ3D_MURSINTERIEUR);
+            tournerObjet(OBJ3D_TRESOR);
             let fltX;
             let fltZ;
             let intDirection;
@@ -413,17 +524,29 @@
                 previousCameraDirection = {
                     x: getCibleCameraX(camera),
                     y: getCibleCameraY(camera),
-                    z: getCibleCameraZ(camera)
+                    z: getCibleCameraZ(camera),
                 };
+
+
+                //Set la position de Joueur
+                setPositionJoueur(previousCameraPosition.x, previousCameraPosition.z, objScene3D.tabObjets3D[OBJ3D_JOUEUR]);
+                //Set l'orientation de Joueur
+                setCibleJoueur(previousCameraDirection.x, previousCameraDirection.z, objScene3D.tabObjets3D[OBJ3D_JOUEUR]);
 
                 // Bouger la caméra au millieu en haut
                 setPositionCameraX(15.5, camera);
-                setPositionCameraY(40, camera);
+                setPositionCameraY(32, camera);
                 setPositionCameraZ(15.1, camera);
                 setCibleCameraX(15.5, camera);
                 setCibleCameraY(0, camera); //La caméra regarde le bas
                 setCibleCameraZ(15.5, camera);
                 objScene3D.tabObjets3D[OBJ3D_CIEL].binVisible = false; //Cacher le ciel
+                objScene3D.tabObjets3D[OBJ3D_CIEL].binVisible = false; //Afficher le ciel
+                for (let i = 0; i < nbFleches; i++) {
+                    objScene3D.tabObjets3D[OBJ3D_FLECHE + i].binVisible = false;
+                }
+                objScene3D.tabObjets3D[OBJ3D_TRESOR].binVisible = false;
+
 
                 //Restreindre le mouvement
                 document.addEventListener('keydown', restrictKeys);
@@ -438,6 +561,10 @@
                     setCibleCameraY(previousCameraDirection.y, camera);
                     setCibleCameraZ(previousCameraDirection.z, camera);
                     objScene3D.tabObjets3D[OBJ3D_CIEL].binVisible = true; //Afficher le ciel
+                    for (let i = 0; i < nbFleches; i++) {
+                        objScene3D.tabObjets3D[OBJ3D_FLECHE + i].binVisible = true;
+                    }
+                    objScene3D.tabObjets3D[OBJ3D_TRESOR].binVisible = true;
                 }
             }
             if (!isRestrictKeysActive && (event.keyCode == 37 || event.keyCode == 39)) {
@@ -445,7 +572,7 @@
                 fltX = getCibleCameraX(camera) - getPositionCameraX(camera);
                 fltZ = getCibleCameraZ(camera) - getPositionCameraZ(camera);
                 intDirection = (event.keyCode == 37) ? -1 : 1;
-                const fltAngle = intDirection * Math.PI / 90; // Tourner 2 degrés
+                const fltAngle = intDirection * Math.PI / 18; // Tourner 10 degrés
                 fltXPrime = fltX * Math.cos(fltAngle) - fltZ * Math.sin(fltAngle);
                 fltZPrime = fltX * Math.sin(fltAngle) + fltZ * Math.cos(fltAngle);
                 setCibleCameraX(getPositionCameraX(camera) + fltXPrime, camera);
@@ -468,14 +595,13 @@
 
                     // Limites du mur
                     const fltLimiteOuest = 0.1;
-                    const fltLimiteEst = objScene3D.tabObjets3D[OBJ3D_MURS].fltLargeur - 0.1;
+                    const fltLimiteEst = objScene3D.tabObjets3D[OBJ3D_MURSEXTERIEUR].fltLargeur - 0.1;
                     const fltLimiteNord = 0.1;
-                    const fltLimiteSud = objScene3D.tabObjets3D[OBJ3D_MURS].fltProfondeur - 0.1;
+                    const fltLimiteSud = objScene3D.tabObjets3D[OBJ3D_MURSEXTERIEUR].fltProfondeur - 0.1;
 
                     binAucuneCollision = (fltXCamera > fltLimiteOuest) && (fltXCamera < fltLimiteEst) &&
                         (fltZCamera > fltLimiteNord) && (fltZCamera < fltLimiteSud);
 
-                    let binFondTunnel = false;
 
                     if (collisionTresor(objScene3D.tabObjets3D[OBJ3D_TRESOR], intDirection, camera)) { // Passer à un autre niveau
                         // Arrêter le son du vent
@@ -491,62 +617,141 @@
                     else if (binAucuneCollision) { // Déplacer la caméra
                         //si la caméra touche le trésor il ne peut plus avancer dans cette direction et on passe au prochain niveau
                         if (!collisionTresor(objScene3D.tabObjets3D[OBJ3D_TRESOR], intDirection, camera)) {
-                            setCibleCameraX(getCibleCameraX(camera) + fltXPrime, camera);
-                            setCibleCameraZ(getCibleCameraZ(camera) + fltZPrime, camera);
-                            setPositionCameraX(getPositionCameraX(camera) + fltXPrime, camera);
-                            setPositionCameraZ(getPositionCameraZ(camera) + fltZPrime, camera);
+                            var binAucuneCollisionMur = true;
+                            for (let i = 0; i < nbMur; i++) {
+                                binAucuneCollisionMur = !collisionRectangle(objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i], intDirection, camera);
+                                //si la caméra touche un mur, elle ne peut plus avancer dans cette direction
+                                console.log(binAucuneCollisionMur);
+                                if (binAucuneCollisionMur == false) {
+                                    break;
+                                }
+                                //si la caméra touche le trésor il ne peut plus avancer dans cette direction et on passe au prochain niveau
+                            }
+                            if (!collisionTresor(objScene3D.tabObjets3D[OBJ3D_TRESOR], intDirection, camera) && binAucuneCollisionMur) {
+                                setCibleCameraX(getCibleCameraX(camera) + fltXPrime, camera);
+                                setCibleCameraZ(getCibleCameraZ(camera) + fltZPrime, camera);
+                                setPositionCameraX(getPositionCameraX(camera) + fltXPrime, camera);
+                                setPositionCameraZ(getPositionCameraZ(camera) + fltZPrime, camera);
+                            }
+                        }
+                        else { // Pour longer les murs s'il y a une collision
+                            if (fltXCamera <= fltLimiteOuest || fltXCamera >= fltLimiteEst) {
+                                // On longe le mur ouest ou est 
+                                fltZPrime = 0.2 * ((fltZ < 0) ? -1 : 1); fltXPrime = 0.0;
+                            }
+                            else { // On longe le mur sud ou nord
+                                fltXPrime = 0.2 * ((fltX < 0) ? -1 : 1); fltZPrime = 0.0;
+                            }
+
+                            // Nouvelles positions de la caméra
+                            fltXCamera = getPositionX(camera) + fltXPrime;
+                            fltZCamera = getPositionZ(camera) + fltZPrime;
+                            binAucuneCollision = (fltXCamera > fltLimiteOuest) && (fltXCamera < fltLimiteEst) &&
+                                (fltZCamera > fltLimiteNord) && (fltZCamera < fltLimiteSud);
+                            // Longer le mur s'il ne rencontre pas un nouveau mur
+                            if (binAucuneCollision) {
+                                setCibleCameraX(getCibleCameraX(camera) + fltXPrime, camera);
+                                setCibleCameraZ(getCibleCameraZ(camera) + fltZPrime, camera);
+                                setPositionCameraX(getPositionCameraX(camera) + fltXPrime, camera);
+                                setPositionCameraZ(getPositionCameraZ(camera) + fltZPrime, camera);
+                            }
                         }
                     }
-                    else { // Pour longer les murs s'il y a une collision
-                        if (fltXCamera <= fltLimiteOuest || fltXCamera >= fltLimiteEst) {
-                            // On longe le mur ouest ou est 
-                            fltZPrime = 0.2 * ((fltZ < 0) ? -1 : 1); fltXPrime = 0.0;
-                        }
-                        else { // On longe le mur sud ou nord
-                            fltXPrime = 0.2 * ((fltX < 0) ? -1 : 1); fltZPrime = 0.0;
-                        }
+                    else if (!isRestrictKeysActive && (event.keyCode == 32)) {
+                        // 32 : espace
+                        //prendre la position du joueur, prendre la position du mur devant lui / vérifier l'objet devant lui
+                        //vérifier si ce mur est destructible, si oui on brise (enlève du tableau?) et on enlève un ouvreur de mur
+                        //sinon on fait rien
 
-                        // Nouvelles positions de la caméra
-                        fltXCamera = getPositionX(camera) + fltXPrime;
-                        fltZCamera = getPositionZ(camera) + fltZPrime;
-                        binAucuneCollision = (fltXCamera > fltLimiteOuest) && (fltXCamera < fltLimiteEst) &&
-                            (fltZCamera > fltLimiteNord) && (fltZCamera < fltLimiteSud);
-                        // Longer le mur s'il ne rencontre pas un nouveau mur
-                        if (binAucuneCollision) {
-                            setCibleCameraX(getCibleCameraX(camera) + fltXPrime, camera);
-                            setCibleCameraZ(getCibleCameraZ(camera) + fltZPrime, camera);
-                            setPositionCameraX(getPositionCameraX(camera) + fltXPrime, camera);
-                            setPositionCameraZ(getPositionCameraZ(camera) + fltZPrime, camera);
-                        }
+                        //nord c'est x positif
+                        //est c'est z positif
+
+                        fltX = getCibleCameraX(camera) - getPositionCameraX(camera);
+                        fltZ = getCibleCameraZ(camera) - getPositionCameraZ(camera);
+                        const fltRayon = Math.sqrt(fltX * fltX + fltZ * fltZ);
+                        intDirection = (event.keyCode == 38) ? 1 : -1;
+
+                        fltXPrime = intDirection * 0.2 * Math.cos(Math.acos(fltX / fltRayon));
+                        fltZPrime = intDirection * 0.2 * Math.sin(Math.asin(fltZ / fltRayon));
+
+                        // Positions de la caméra
+                        let fltXCamera = getPositionX(camera) + fltXPrime;
+                        let fltZCamera = getPositionZ(camera) + fltZPrime;
+
+                        console.log('X ' + getCibleCameraX(camera));
+                        console.log('Z' + getCibleCameraZ(camera));
+                        console.log('X math floor ' + Math.floor(getCibleCameraX(camera) + 1));
+                        console.log('Z math floor' + Math.floor(getCibleCameraZ(camera) + 1));
                     }
-                }
-                else if (!isRestrictKeysActive && (event.keyCode == 32)) {
-                    // 32 : espace
-                    //prendre la position du joueur, prendre la position du mur devant lui / vérifier l'objet devant lui
-                    //vérifier si ce mur est destructible, si oui on brise (enlève du tableau?) et on enlève un ouvreur de mur
-                    //sinon on fait rien
-
-                    //nord c'est x positif
-                    //est c'est z positif
-
-                    fltX = getCibleCameraX(camera) - getPositionCameraX(camera);
-                    fltZ = getCibleCameraZ(camera) - getPositionCameraZ(camera);
-                    const fltRayon = Math.sqrt(fltX * fltX + fltZ * fltZ);
-                    intDirection = (event.keyCode == 38) ? 1 : -1;
-
-                    fltXPrime = intDirection * 0.2 * Math.cos(Math.acos(fltX / fltRayon));
-                    fltZPrime = intDirection * 0.2 * Math.sin(Math.asin(fltZ / fltRayon));
-
-                    // Positions de la caméra
-                    let fltXCamera = getPositionX(camera) + fltXPrime;
-                    let fltZCamera = getPositionZ(camera) + fltZPrime;
-
-                    console.log('X ' + getCibleCameraX(camera));
-                    console.log('Z' + getCibleCameraZ(camera));
-                    console.log('X math floor ' + Math.floor(getCibleCameraX(camera) + 1));
-                    console.log('Z math floor' + Math.floor(getCibleCameraZ(camera) + 1));
                 }
         }
+        function startTimer() {
+            document.removeEventListener('keydown', startTimer);
+            let camera = objScene3D.camera
+            let minutes = 1;
+            let seconds = 0;
+
+            const timerInterval = setInterval(() => {
+                seconds--;
+                if (seconds < 0) {
+                    seconds = 59;
+                    minutes--;
+                }
+                console.log(minutes, seconds)
+
+                if (minutes < 0) {
+                    clearInterval(timerInterval);
+                    if (minutes < 0) {
+                        // Le joueur est retourné au milieu du dédale
+                        setPositionsCameraXYZ([15, 0.5, 15], camera);
+                        // La caméra regarde vers le sud
+                        setCiblesCameraXYZ([-16, 0.5, 16], camera);
+                        // Le mur de l'enclos est réouvert
+
+                        //Les murs ouverts sont fermés
+                        for (let i = 0; i < tabMursOuverts.length; i++) {
+                            fermerMur(tabMursOuverts[i]);
+                        }
+                        //Le tableau de murs ouverts est vidé
+                        tabMursOuverts.length = 0;
+                        //Le nombre d'ouvreurs de murs est réinitialisé
+                        nbOuvreurs = 5;
+
+                        minutes = 1;
+                        seconds = 0;
+                        const formattedMinutes = minutes.toString().padStart(2, '0');
+                        const formattedSeconds = seconds.toString().padStart(2, '0');
+                        document.getElementById('lblTemps').textContent = `${formattedMinutes}:${formattedSeconds}`;
+
+                        // Restaurer la position de la caméra
+                        isRestrictKeysActive = false;
+                        if (previousCameraPosition && previousCameraDirection) {
+                            setPositionCameraX(previousCameraPosition.x, camera);
+                            setPositionCameraY(previousCameraPosition.y, camera);
+                            setPositionCameraZ(previousCameraPosition.z, camera);
+                            setCibleCameraX(previousCameraDirection.x, camera);
+                            setCibleCameraY(previousCameraDirection.y, camera);
+                            setCibleCameraZ(previousCameraDirection.z, camera);
+                            objScene3D.tabObjets3D[OBJ3D_CIEL].binVisible = true; //Afficher le ciel
+                            for (let i = 0; i < nbFleches; i++) {
+                                objScene3D.tabObjets3D[OBJ3D_FLECHE + i].binVisible = true;
+                            }
+                            objScene3D.tabObjets3D[OBJ3D_TRESOR].binVisible = true;
+                        }
+
+                        //attendre que le joueur appuie sur une touche pour recommencer
+                        document.addEventListener('keydown', startTimer);
+                    }
+                } else {
+                    const formattedMinutes = minutes.toString().padStart(2, '0');
+                    const formattedSeconds = seconds.toString().padStart(2, '0');
+                    document.getElementById('lblTemps').textContent = `${formattedMinutes}:${formattedSeconds}`;
+                }
+            }, 1000);
+
+        }
+
+        // startTimer();
     </script>
 </head>
 
@@ -558,7 +763,7 @@
     <p>
         <span class="padding">Score : <span id="lblScore">300</span></span>
         <span class="padding">Ouvreurs de murs : <span id="lblOuvreursMurs">5</span></span>
-        <span class="padding">Temps : <span id="lblTemps">00:00</span></span>
+        <span class="padding">Temps : <span id="lblTemps">01:00</span></span>
     </p>
 
 </body>
