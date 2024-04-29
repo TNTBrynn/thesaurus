@@ -19,7 +19,6 @@ function creerObj3DRectangle(objgl, binDestructible, tabIntNoTexture) {
     return obj3DRectangle;
 }
 function ouvrirMur(obj3DRectangle) {
-<<<<<<< Updated upstream
     obj3DRectangle.binBriser = true;
     obj3DRectangle.binVisible = false;
 }
@@ -27,13 +26,6 @@ function ouvrirMur(obj3DRectangle) {
 function fermerMur(obj3DRectangle) {
     obj3DRectangle.binBriser = false;
     obj3DRectangle.binVisible = true;
-=======
-    setPositionY(-1, obj3DRectangle.transformations);
-}
-
-function fermerMur(obj3DRectangle) {
-    setPositionY(1, obj3DRectangle.transformations);
->>>>>>> Stashed changes
 }
 
 function setPositionRectangle(posX, posZ, obj3DRectangle) {

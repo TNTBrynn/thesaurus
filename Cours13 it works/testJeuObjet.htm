@@ -660,7 +660,7 @@
 
                         let objMurABriser;
 
-                        if (tabElementsNiveau[intXDevantCamera][intZDevantCamera] == 'd') {
+                        if (tabCarte[intXDevantCamera][intZDevantCamera] == 'd') {
                             for (let i = 0; i < nbMur; i++) {
                                 let tabXYZ = getPositionsXYZ(objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].transformations);
                                 if (tabXYZ[0] == intXDevantCamera && tabXYZ[2] == intZDevantCamera) {
@@ -668,9 +668,13 @@
                                     break;
                                 }
                             }
-                            ouvrirMur(objMurABriser);
+                            tabMursOuverts.push(objMurABriser);
                             nbOuvreurs--;
+                            ouvrirMur(objMurABriser);
+                            console.log(getPositionX(objMurABriser.transformations), getPositionZ(objMurABriser.transformations));
                         }
+
+
                     }
                 }
 
@@ -732,7 +736,7 @@
                         //Le tableau de murs ouverts est vidé
                         tabMursOuverts.length = 0;
                         //Le nombre d'ouvreurs de murs est réinitialisé
-                        nbOuvreurs = 5;
+                        nbOuvreurs = 4;
 
                         minutes = 1;
                         seconds = 0;
