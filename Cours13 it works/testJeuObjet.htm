@@ -134,8 +134,8 @@
         //Longueur et largeur du niveau
         let longueurLargeurCarte = 31;
 
-        //Le nombre d'ouvreurs de murs
-        let nbOuvreurs = 4;
+        //Le nombre d'ouvreurs de murs : 4 (- 1 à chaque 2 niveaux)
+        let nbOuvreurs;
 
         // Le niveau actuel du jeu
         let intNiveau = 0;
@@ -194,6 +194,7 @@
         function initScene3D(objgl) {
             document.getElementById('lblNiveau').innerHTML = intNiveau + 1
             nbFleches = 18 - (intNiveau * 2);
+            (intNiveau % 2 === 0) ? nbOuvreurs = 4 - (intNiveau / 2) : nbOuvreurs = 4 - ((intNiveau - 1) / 2);
 
             const objScene3D = new Object();
             const tabObjets3D = new Array();
@@ -414,41 +415,6 @@
              return objSons;
          }
   */
-
-        // Cette fonction sert à séparer le contenu en paramètre
-        function separeFichier(csvContent) {
-            const tabResultat = [];
-            //On commence par séparer le document par lignes
-            const tabLignes = csvContent.trim().split('\n'); // tabLignes est un tableau qui contient toute les lignes du document (1 élém du tab = 1 ligne)
-
-            // Chaque ligne est split aux virgules et insérer dans tabColonnes, on insere ensuite le resultat dans tabResultat
-            for (let i = 0; i < tabLignes.length; i++) {
-                const tabColonnes = tabLignes[i].trim().split(','); // Trim to remove leading/trailing whitespace
-                tabResultat.push(tabColonnes);
-            }
-
-            return tabResultat;
-        }
-
-        // Cette fonction sert à fetch le fichier et l'envoie à la fonction separeFichier pour séparer son contenu
-        async function fetchCSV(url) {
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch CSV file');
-                }
-                const csvContent = await response.text();
-                tabElementsNiveau = separeFichier(csvContent); //renvoie à la fonction separeFichier() et insère nos données dans la variable globale tabElementsNiveau
-                return tabElementsNiveau;
-            } catch (error) {
-                throw new Error('Error fetching CSV file: ' + error.message);
-            }
-        }
-
-        fetchCSV(csvURL) // appel à la fonction fetchCSV(), c'est avec cet appel que la variable globale est remplie
-            .catch(error => {
-                console.error(error.message);
-            });
 
         //Cette fonction traque la validité des touches appuyées
         // À MODIFIER: ajouter la possibilité de triche pour voir les objets
