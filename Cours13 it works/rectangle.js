@@ -6,6 +6,7 @@ function creerObj3DRectangle(objgl, binDestructible, tabIntNoTexture) {
     obj3DRectangle.texels = creerTexelsRectangle(objgl, tabIntNoTexture);
     obj3DRectangle.binDestructible = binDestructible; // Indique si l'objet peut être détruit par les ouvreurs de mur
     obj3DRectangle.binVisible = true;
+    obj3DRectangle.binBriser = false;
     obj3DRectangle.transformations = creerTransformations();
     obj3DRectangle.fltX = 1 * 0.5;
     obj3DRectangle.fltZ = 1 * 0.5;
@@ -17,12 +18,14 @@ function creerObj3DRectangle(objgl, binDestructible, tabIntNoTexture) {
 
     return obj3DRectangle;
 }
-function ouvrirMur(obj3DRectangle){
-    setPositionY(-1, obj3DRectangle.transformations);
+function ouvrirMur(obj3DRectangle) {
+    obj3DRectangle.binBriser = true;
+    obj3DRectangle.binVisible = false;
 }
 
-function fermerMur(obj3DRectangle){
-    setPositionY(1, obj3DRectangle.transformations);
+function fermerMur(obj3DRectangle) {
+    obj3DRectangle.binBriser = false;
+    obj3DRectangle.binVisible = true;
 }
 
 function setPositionRectangle(posX, posZ, obj3DRectangle) {
@@ -181,22 +184,22 @@ function collisionRectangle(obj3DRectangle, intDirection, camera) {
     const fltPositionZRectangle = getPositionZ(obj3DRectangle.transformations);
     fltX = getCibleCameraX(camera) - getPositionCameraX(camera);
     fltZ = getCibleCameraZ(camera) - getPositionCameraZ(camera);
-        const fltRayon = Math.sqrt(fltX * fltX + fltZ * fltZ);
+    const fltRayon = Math.sqrt(fltX * fltX + fltZ * fltZ);
 
-        fltXPrime = intDirection * 0.5 * Math.cos(Math.acos(fltX / fltRayon));
-        fltZPrime = intDirection * 0.5 * Math.sin(Math.asin(fltZ / fltRayon));
+    fltXPrime = intDirection * 0.5 * Math.cos(Math.acos(fltX / fltRayon));
+    fltZPrime = intDirection * 0.5 * Math.sin(Math.asin(fltZ / fltRayon));
 
-        // Positions de la caméra
-        let fltXCamera = getPositionX(camera) + fltXPrime;
-        let fltZCamera = getPositionZ(camera) + fltZPrime;
+    // Positions de la caméra
+    let fltXCamera = getPositionX(camera) + fltXPrime;
+    let fltZCamera = getPositionZ(camera) + fltZPrime;
 
-        const fltRectangleWidth = obj3DRectangle.fltX;
-        const fltRectangleDepth = obj3DRectangle.fltZ;
+    const fltRectangleWidth = obj3DRectangle.fltX;
+    const fltRectangleDepth = obj3DRectangle.fltZ;
 
-        const binCollisionX = (fltXCamera > fltPositionXRectangle - fltRectangleWidth) && (fltXCamera < fltPositionXRectangle + fltRectangleWidth);
-        const binCollisionZ = (fltZCamera > fltPositionZRectangle - fltRectangleDepth) && (fltZCamera < fltPositionZRectangle + fltRectangleDepth);
-        console.log(fltXCamera, '>', fltPositionXRectangle - fltRectangleWidth, fltXCamera, '<', fltPositionXRectangle + fltRectangleWidth, binCollisionX)
-        console.log(fltZCamera, '>', fltPositionZRectangle - fltRectangleDepth, fltZCamera, '<', fltPositionZRectangle + fltRectangleDepth, binCollisionZ)
-        //aucune collision retourne false;
-        return binCollisionX && binCollisionZ;
+    const binCollisionX = (fltXCamera > fltPositionXRectangle - fltRectangleWidth) && (fltXCamera < fltPositionXRectangle + fltRectangleWidth);
+    const binCollisionZ = (fltZCamera > fltPositionZRectangle - fltRectangleDepth) && (fltZCamera < fltPositionZRectangle + fltRectangleDepth);
+    console.log(fltXCamera, '>', fltPositionXRectangle - fltRectangleWidth, fltXCamera, '<', fltPositionXRectangle + fltRectangleWidth, binCollisionX)
+    console.log(fltZCamera, '>', fltPositionZRectangle - fltRectangleDepth, fltZCamera, '<', fltPositionZRectangle + fltRectangleDepth, binCollisionZ)
+    //aucune collision retourne false;
+    return binCollisionX && binCollisionZ;
 }
