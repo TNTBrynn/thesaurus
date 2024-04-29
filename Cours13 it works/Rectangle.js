@@ -2,7 +2,7 @@ function creerObj3DRectangle(objgl, binDestructible, tabIntNoTexture) {
     var obj3DRectangle = new Object();
     obj3DRectangle.vertex = creerVertexRectangle(objgl);
     obj3DRectangle.couleurs = creerCouleursRectangle(objgl);
-    obj3DRectangle.maillage = null;
+    obj3DRectangle.maillage = creerMaillageRectangle(objgl);
     obj3DRectangle.texels = creerTexelsRectangle(objgl, tabIntNoTexture);
     obj3DRectangle.binDestructible = binDestructible; // Indique si l'objet peut être détruit par les ouvreurs de mur
     obj3DRectangle.binVisible = true;
@@ -19,6 +19,7 @@ function creerObj3DRectangle(objgl, binDestructible, tabIntNoTexture) {
     return obj3DRectangle;
 }
 function ouvrirMur(obj3DRectangle) {
+<<<<<<< Updated upstream
     obj3DRectangle.binBriser = true;
     obj3DRectangle.binVisible = false;
 }
@@ -26,6 +27,13 @@ function ouvrirMur(obj3DRectangle) {
 function fermerMur(obj3DRectangle) {
     obj3DRectangle.binBriser = false;
     obj3DRectangle.binVisible = true;
+=======
+    setPositionY(-1, obj3DRectangle.transformations);
+}
+
+function fermerMur(obj3DRectangle) {
+    setPositionY(1, obj3DRectangle.transformations);
+>>>>>>> Stashed changes
 }
 
 function setPositionRectangle(posX, posZ, obj3DRectangle) {
@@ -33,120 +41,132 @@ function setPositionRectangle(posX, posZ, obj3DRectangle) {
     setPositionX(posX, transformations);
     setPositionZ(posZ, transformations);
 }
-function setOrientationRectangle(objgl, obj3DRectangle) {
+function setOrientationRectangle(obj3DRectangle) {
     setAngleX(angle, obj3DRectangle.transformations);
 }
+
 function creerVertexRectangle(objgl) {
-    var tabVertex = new Array();
+    const objRectangle = objgl.createBuffer();
 
-    // Face avant pleine
-    tabVertex[0] = [
-        0.0, 0.0, 1.0, // Centre du plan 
-        1.0, 2.0, 1.0,
-        -1.0, 2.0, 1.0,
-        -1.0, -2.0, 1.0,
-        1.0, -2.0, 1.0,
-        1.0, 2.0, 1.0
+    const tabVertex = [
+        // Face avant (Z=1)
+        0.0, 0.0, 1.0,   // 0: Centre
+        1.0, 2.0, 1.0,   // 1: Coin haut droit
+        1.0, -2.0, 1.0,  // 2: Coin bas droit
+        -1.0, -2.0, 1.0,  // 3: Coin bas gauche
+        -1.0, 2.0, 1.0,  // 4: Coin haut gauche
+
+        // Face arrière (Z=-1) 
+        0.0, 0.0, -1.0,   // 5: Centre
+        1.0, 2.0, -1.0,   // 6: Coin haut droit
+        1.0, -2.0, -1.0,  // 7: Coin bas droit
+        -1.0, -2.0, -1.0,  // 8: Coin bas gauche
+        -1.0, 2.0, -1.0,  // 9: Coin haut gauche
+
+        //Face droite (X=1)
+        1.0, 0.0, 0.0, // 10: Centre droit
+        //Face gauche (X=-1)
+        -1.0, 0.0, 0.0, // 11: Centre gauche
+        //Face dessus (Y=1)
+        0.0, 2.0, 0.0, // 12: Centre haut
+        //Face dessous (Y=-1)
+        // 0.0, -2.0, 0.0, // 13: Centre bas
     ];
 
-    // Face arrère pleine
-    tabVertex[1] = [
-        0.0, 0.0, -1.0, // Centre du plan
-        1.0, 2.0, -1.0,
-        -1.0, 2.0, -1.0,
-        -1.0, -2.0, -1.0,
-        1.0, -2.0, -1.0,
-        1.0, 2.0, -1.0
-    ];
+    objgl.bindBuffer(objgl.ARRAY_BUFFER, objRectangle);
+    objgl.bufferData(objgl.ARRAY_BUFFER, new Float32Array(tabVertex), objgl.STATIC_DRAW);
 
-    // Face du dessus pleine
-    tabVertex[2] = [
-        0.0, 2.0, 0.0, // Centre du plan
-        1.0, 2.0, -1.0,
-        1.0, 2.0, 1.0,
-        -1.0, 2.0, 1.0,
-        -1.0, 2.0, -1.0,
-        1.0, 2.0, -1.0
-    ];
-
-    // Face droite pleine
-    tabVertex[3] = [
-        1.0, 0.0, 0.0, // Centre du plan
-        1.0, 2.0, 1.0,
-        1.0, -2.0, 1.0,
-        1.0, -2.0, -1.0,
-        1.0, 2.0, -1.0,
-        1.0, 2.0, 1.0
-    ];
-
-    // Face gauche pleine
-    tabVertex[4] = [
-        -1.0, 0.0, 0.0, // Centre du plan
-        -1.0, 2.0, 1.0,
-        -1.0, -2.0, 1.0,
-        -1.0, -2.0, -1.0,
-        -1.0, 2.0, -1.0,
-        -1.0, 2.0, 1.0
-    ];
-
-    //la face du dessous à été retirée pour ne pas être visible et alléger le jeu
-
-    // Création des tampons
-    var tabObjCube = new Array();
-    for (var i = 0; i < 5; i++) {
-        tabObjCube[i] = objgl.createBuffer();
-        objgl.bindBuffer(objgl.ARRAY_BUFFER, tabObjCube[i]);
-        objgl.bufferData(objgl.ARRAY_BUFFER, new Float32Array(tabVertex[i]), objgl.STATIC_DRAW);
-        tabObjCube[i].typeDessin = objgl.TRIANGLE_FAN;
-    }
-
-    return tabObjCube;
+    return objRectangle;
 }
+
 function creerCouleursRectangle(objgl) {
-    var tabCouleurs = new Array();
+    const objCouleursRectangle = objgl.createBuffer();
 
-    // Couleurs face avant pleine
-    tabCouleurs[0] = [1.0, 0.0, 0.0, 1.0]; // Blanc 
-    for (var i = 1; i < 6; i++)
-        tabCouleurs[0] = tabCouleurs[0].concat([1.0, 0.0, 0.0, 1.0]); // Rouge
+    // Face avant
+    tabCouleurs = [1.0, 1.0, 1.0, 1.0]; // Blanc 
+    for (let i = 1; i <= 4; i++)
+        tabCouleurs = tabCouleurs.concat([1.0, 0.0, 0.0, 1.0]); // Rouge
 
-    // Couleurs face arrière pleine
-    tabCouleurs[1] = [0.0, 1.0, 0.0, 1.0]; // Blanc
-    for (var i = 1; i < 6; i++)
-        tabCouleurs[1] = tabCouleurs[1].concat([0.0, 1.0, 0.0, 1.0]); // Vert
+    // Face arrière
+    tabCouleurs = tabCouleurs.concat([1.0, 1.0, 1.0, 1.0]); // Blanc 
+    for (let i = 1; i <= 4; i++)
+        tabCouleurs = tabCouleurs.concat([0.0, 1.0, 0.0, 1.0]); // Vert
 
-    //Couleurs face du dessus pleine
-    tabCouleurs[2] = [0.0, 0.0, 1.0, 1.0]; // Blanc
-    for (var i = 1; i < 6; i++)
-        tabCouleurs[2] = tabCouleurs[2].concat([0.0, 0.0, 1.0, 1.0]); // Bleu
+    // Face droite
+    tabCouleurs = tabCouleurs.concat([1.0, 1.0, 1.0, 1.0]); // Blanc
+    for (let i = 1; i <= 4; i++)
+        tabCouleurs = tabCouleurs.concat([0.0, 0.0, 1.0, 1.0]); // Bleu
 
-    // //Couleurs face du dessous pleine
-    // tabCouleurs[3] = [1.0, 0.0, 1.0, 1.0]; // Blanc
-    // for (var i = 1; i < 6; i++)
-    //     tabCouleurs[3] = tabCouleurs[3].concat([1.0, 0.0, 1.0, 1.0]); // Magenta
+    // Face gauche
+    tabCouleurs = tabCouleurs.concat([1.0, 1.0, 1.0, 1.0]); // Blanc
+    for (let i = 1; i <= 4; i++)
+        tabCouleurs = tabCouleurs.concat([1.0, 1.0, 0.0, 1.0]); // Jaune
 
-    //Couleurs face droite pleine
-    tabCouleurs[3] = [1.0, 1.0, 0.0, 1.0]; // Blanc
-    for (var i = 1; i < 6; i++)
-        tabCouleurs[3] = tabCouleurs[3].concat([1.0, 1.0, 0.0, 1.0]); //Cyan 
+    // Face dessus
+    tabCouleurs = tabCouleurs.concat([1.0, 1.0, 1.0, 1.0]); // Blanc
+    for (let i = 1; i <= 4; i++)
+        tabCouleurs = tabCouleurs.concat([1.0, 0.0, 1.0, 1.0]); // Magenta
 
-    //Couleurs face gauche pleine
-    tabCouleurs[4] = [0.0, 1.0, 1.0, 1.0]; // Blanc
-    for (var i = 1; i < 6; i++)
-        tabCouleurs[4] = tabCouleurs[4].concat([0.0, 1.0, 1.0, 1.0]); // Jaune
+    //  // Face dessous
+    //  tabCouleurs = tabCouleurs.concat([1.0, 1.0, 1.0, 1.0]); // Blanc
+    //  for (let i = 1; i <= 4; i++)
+    //      tabCouleurs = tabCouleurs.concat([0.0, 1.0, 1.0, 1.0]); // Cyan
 
-    // Création des tampons
-    var tabObjCouleursCube = new Array();
-    for (var i = 0; i < 5; i++) {
-        tabObjCouleursCube[i] = objgl.createBuffer();
-        objgl.bindBuffer(objgl.ARRAY_BUFFER, tabObjCouleursCube[i]);
-        objgl.bufferData(objgl.ARRAY_BUFFER, new Float32Array(tabCouleurs[i]), objgl.STATIC_DRAW);
-    }
+    objgl.bindBuffer(objgl.ARRAY_BUFFER, objCouleursRectangle);
+    objgl.bufferData(objgl.ARRAY_BUFFER, new Float32Array(tabCouleurs), objgl.STATIC_DRAW);
 
-    return tabObjCouleursCube;
+    return objCouleursRectangle;
 }
 
+// Relier un texel à un vertex
 function creerTexelsRectangle(objgl, tabIntNoTexture) {
+    const objTexelsRectangle = objgl.createBuffer();
+
+    const tabTexelsRectangle = [
+        // Texels de la face avant
+        0.5, 0.5,  // 0: Centre
+        1.0, 0.0,  // 1: Coin haut droit
+        1.0, 1.0,  // 2: Coin bas droit
+        0.0, 1.0,  // 3: Coin bas gauche
+        0.0, 0.0,  // 4: Coin haut gauche
+
+        // Texels de la face arrière
+        0.5, 0.5,   // 5: Centre
+        0.0, 0.0,   // 6: Coin haut droit
+        0.0, 1.0,   // 7: Coin bas droit
+        1.0, 1.0,   // 8: Coin bas gauche
+        1.0, 0.0,    // 9: Coin haut gauche
+
+        // Texels de la face droite
+        0.5, 0.5,   // 10: Centre
+        // Texels de la face gauche
+        0.5, 0.5,   // 11: Centre
+        // Texels de la face dessus
+        0.5, 0.5,   // 12: Centre
+        // // Texels de la face dessous
+        // 0.5, 0.5,   // 13: Centre
+    ];
+    objgl.bindBuffer(objgl.ARRAY_BUFFER, objTexelsRectangle);
+    objgl.bufferData(objgl.ARRAY_BUFFER, new Float32Array(tabTexelsRectangle), objgl.STATIC_DRAW);
+    objTexelsRectangle.intNoTexture = tabIntNoTexture[0]; objTexelsRectangle.pcCouleurTexel = 1;
+
+
+    // for (let i = 0; i < 5; i++) {
+    //     objgl.bindBuffer(objgl.ARRAY_BUFFER, objTexelsRectangle);
+    //     objgl.bufferData(objgl.ARRAY_BUFFER, new Float32Array(tabTexelsRectangle), objgl.STATIC_DRAW);
+
+    //     if (i >= 0 && i <= 2) { //face avant, arrière, dessus, dessous
+    //         tabTexelsRectangle[i].intNoTexture = tabIntNoTexture[0]; tabTexelsRectangle[i].pcCouleurTexel = 1;
+    //     }
+    //     else { //face droite, gauche
+    //         tabTexelsRectangle[i].intNoTexture = tabIntNoTexture[1]; tabTexelsRectangle[i].pcCouleurTexel = 1;
+    //     }
+    // }
+
+    return objTexelsRectangle;
+}
+
+function creerTexelsRectangle1(objgl, tabIntNoTexture) {
     const tabTexels = new Array();
 
     // Texels de la face avant
@@ -178,6 +198,54 @@ function creerTexelsRectangle(objgl, tabIntNoTexture) {
     }
 
     return tabTexelsRectangle;
+}
+
+// Le maillage 
+function creerMaillageRectangle(objgl) {
+    const objMaillageRectangle = objgl.createBuffer();
+    // Le maillage                        
+    const tabMaillageRectangle =
+        [ // Les 4 triangles de la face avant
+            0, 1, 2,
+            0, 2, 3,
+            0, 3, 4,
+            0, 4, 1,
+            // Les 4 triangles de la face arrière
+            5, 6, 7,
+            5, 7, 8,
+            5, 8, 9,
+            5, 9, 6,
+            // Les 4 triangles de la face droite
+            1, 10, 2,
+            2, 10, 7,
+            7, 10, 6,
+            6, 10, 1,
+            // Les 4 triangles de la face gauche
+            3, 11, 4,
+            4, 11, 9,
+            9, 11, 8,
+            8, 11, 3,
+            // Les 4 triangles de la face dessus
+            1, 12, 4,
+            4, 12, 9,
+            9, 12, 6,
+            6, 12, 1,
+            // // Les 4 triangles de la face dessous
+            // 3,13,2,
+            // 2,13,7,
+            // 7,13,8,
+            // 8,13,3,
+        ];
+
+    objgl.bindBuffer(objgl.ELEMENT_ARRAY_BUFFER, objMaillageRectangle);
+    objgl.bufferData(objgl.ELEMENT_ARRAY_BUFFER, new Uint16Array(tabMaillageRectangle), objgl.STATIC_DRAW);
+
+    // Le nombre de triangles
+    objMaillageRectangle.intNbTriangles = 20;
+    // Le nombre de droites
+    objMaillageRectangle.intNbDroites = 0;
+
+    return objMaillageRectangle;
 }
 function collisionRectangle(obj3DRectangle, intDirection, camera) {
     const fltPositionXRectangle = getPositionX(obj3DRectangle.transformations);

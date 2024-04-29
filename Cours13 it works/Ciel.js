@@ -2,8 +2,8 @@
 
 function creerObj3DCiel(objgl, longueurLargeurCarte, intNoTexture) {
     const obj3DCiel = new Object();
-    obj3DCiel.fltProfondeur = longueurLargeurCarte *2;
-    obj3DCiel.fltLargeur = longueurLargeurCarte *2;
+    obj3DCiel.fltProfondeur = longueurLargeurCarte * 2;
+    obj3DCiel.fltLargeur = longueurLargeurCarte * 2;
     obj3DCiel.fltHauteur = 3;
     obj3DCiel.binVisible = true;
 
@@ -19,9 +19,9 @@ function creerObj3DCiel(objgl, longueurLargeurCarte, intNoTexture) {
 function creerVertexCiel(objgl, fltLargeur, fltProfondeur) {
     const tabVertex = [
         0.0, 0.0, 0.0, // Top left corner
-             fltLargeur, 0.0, 0.0, // Top right corner
-             0.0, 0.0, fltProfondeur, // Bottom left corner
-             fltLargeur, 0.0, fltProfondeur // Bottom right corner
+        fltLargeur, 0.0, 0.0, // Top right corner
+        0.0, 0.0, fltProfondeur, // Bottom left corner
+        fltLargeur, 0.0, fltProfondeur // Bottom right corner
     ];
 
     const objCiel = objgl.createBuffer();
