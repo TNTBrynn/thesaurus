@@ -40,7 +40,6 @@
     <script type="text/javascript" src="Ciel.js"></script>
     <script type="text/javascript" src="Textures.js"></script>
     <script type="text/javascript" src="Fleche.js"></script>
-    <script type="text/javascript" src="FlecheJoueur.js"></script>
     <script type="text/javascript" src="Tresor.js"></script>
     <script type="text/javascript" src="Rectangle.js"></script>
     <script type="text/javascript" src="Joueur.js"></script>
@@ -136,11 +135,10 @@
         let longueurLargeurCarte = 31;
 
         //Le nombre d'ouvreurs de murs
-        let nbOuvreurs = 5;
+        let nbOuvreurs = 4;
 
         // Le niveau actuel du jeu
         let intNiveau = 0;
-        let intNbOuvreur = 4;
 
         // Le nombre de flèches : 18 - (intNiveau *2)
         let nbFleches;
@@ -657,34 +655,75 @@
                             }
                         }
                     }
-                    else if (!isRestrictKeysActive && (event.keyCode == 32)) {
-                        // 32 : espace
-                        //prendre la position du joueur, prendre la position du mur devant lui / vérifier l'objet devant lui
-                        //vérifier si ce mur est destructible, si oui on brise (enlève du tableau?) et on enlève un ouvreur de mur
-                        //sinon on fait rien
+                }
+                else if (!isRestrictKeysActive && (event.keyCode == 32)) {
+                    // 32 : espace
+                    /* Trouve la direction dans laquelle le joueur regarde afin de briser le mur qui est toujours en face du joueur
+                    Trouve la position du mur dans le tableau d'objet de murs et si c'est celui devant le joueur, on baisse le y de celui-ci */
 
-                        //nord c'est x positif
-                        //est c'est z positif
+                    const directionRegard = determinerDirectionRegard(camera);
+                    console.log('Direction de la caméra : ' + directionRegard);
 
-                        fltX = getCibleCameraX(camera) - getPositionCameraX(camera);
-                        fltZ = getCibleCameraZ(camera) - getPositionCameraZ(camera);
-                        const fltRayon = Math.sqrt(fltX * fltX + fltZ * fltZ);
-                        intDirection = (event.keyCode == 38) ? 1 : -1;
+                    let intXDevantCamera;
+                    let intZDevantCamera;
 
-                        fltXPrime = intDirection * 0.2 * Math.cos(Math.acos(fltX / fltRayon));
-                        fltZPrime = intDirection * 0.2 * Math.sin(Math.asin(fltZ / fltRayon));
+                    if (directionRegard == 'nord') { // si regarde nord, x - 1
+                        intXDevantCamera = Math.floor(getPositionCameraX(camera) - 1);
+                        intZDevantCamera = Math.floor(getPositionCameraZ(camera));
+                    } else if (directionRegard == 'sud') { // si regarde sud, x + 1
+                        intXDevantCamera = Math.floor(getPositionCameraX(camera) + 1);
+                        intZDevantCamera = Math.floor(getPositionCameraZ(camera));
+                    } else if (directionRegard == 'est') { // si regarde est, z - 1
+                        intXDevantCamera = Math.floor(getPositionCameraX(camera));
+                        intZDevantCamera = Math.floor(getPositionCameraZ(camera) - 1);
+                    } else if (directionRegard == 'ouest') { // si regarde ouest, z + 1
+                        intXDevantCamera = Math.floor(getPositionCameraX(camera));
+                        intZDevantCamera = Math.floor(getPositionCameraZ(camera) + 1);
+                    }
 
-                        // Positions de la caméra
-                        let fltXCamera = getPositionX(camera) + fltXPrime;
-                        let fltZCamera = getPositionZ(camera) + fltZPrime;
+                    let objMurABriser;
 
-                        console.log('X ' + getCibleCameraX(camera));
-                        console.log('Z' + getCibleCameraZ(camera));
-                        console.log('X math floor ' + Math.floor(getCibleCameraX(camera) + 1));
-                        console.log('Z math floor' + Math.floor(getCibleCameraZ(camera) + 1));
+                    if (tabElementsNiveau[intXDevantCamera][intZDevantCamera] == 'd') {
+                        for (let i = 0; i < nbMur; i++) {
+                            let tabXYZ = getPositionsXYZ(objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].transformations);
+                            if (tabXYZ[0] == intXDevantCamera && tabXYZ[2] == intZDevantCamera) {
+                                objMurABriser = objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i];
+                                break;
+                            }
+                        }
+                        ouvrirMur(objMurABriser);
+                        nbOuvreurs--;
                     }
                 }
+
         }
+
+        // cette fonction permet de déterminer dans quelle direction le joueur regarde
+        // appelé lorsqu'on appuie sur espace
+        function determinerDirectionRegard(camera) {
+            const cibleCamera = {
+                x: getCibleCameraX(camera),
+                z: getCibleCameraZ(camera)
+            };
+
+            // Calcule l'angle entre la position de la caméra et la cible
+            const angle = Math.atan2(cibleCamera.z, cibleCamera.x) * (180 / Math.PI);
+
+            // Détermine la direction en fonction de l'angle
+            let direction = '';
+            if (angle >= -45 && angle < 45) {
+                direction = 'sud';
+            } else if (angle >= 45 && angle < 135) {
+                direction = 'ouest';
+            } else if (angle >= -135 && angle < -45) {
+                direction = 'est';
+            } else {
+                direction = 'nord';
+            }
+
+            return direction;
+        }
+
         function startTimer() {
             document.removeEventListener('keydown', startTimer);
             let camera = objScene3D.camera
@@ -697,7 +736,7 @@
                     seconds = 59;
                     minutes--;
                 }
-                console.log(minutes, seconds)
+                //console.log(minutes, seconds)
 
                 if (minutes < 0) {
                     clearInterval(timerInterval);
@@ -762,7 +801,7 @@
     </canvas>
     <p>
         <span class="padding">Score : <span id="lblScore">300</span></span>
-        <span class="padding">Ouvreurs de murs : <span id="lblOuvreursMurs">5</span></span>
+        <span class="padding">Ouvreurs de murs : <span id="lblOuvreursMurs">4</span></span>
         <span class="padding">Temps : <span id="lblTemps">01:00</span></span>
     </p>
 
