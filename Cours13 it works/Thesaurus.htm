@@ -82,6 +82,7 @@
 
         // Le niveau actuel du jeu
         let intNiveau = 0;
+        let intNbOuvreur = 4;
 
         // Le nombre de flèches : 18 - (intNiveau *2)
         let nbFleches = 1;
@@ -111,6 +112,8 @@
 
         // Pour mettre à jour l'animation
         function mettreAjourAnimation() {
+            document.getElementById('lblOuvreursMurs').innerHTML = intNbOuvreur;
+
             for (let i = 0; i < nbFleches; i++) {
                 const obj3DFleche = objScene3D.tabObjets3D[OBJ3D_FLECHE + i];
                 tournerFleche(i);
@@ -224,14 +227,6 @@
             const obj3DMurs = creerObj3DMurs(objgl, longueurLargeurCarte, TEX_MUR, intNiveau);
             tabObjets3D.push(obj3DMurs);
 
-            // Créer les créneaux
-            // const obj3DCreneaux = creerObj3DCreneaux(objgl, obj3DMurs, TEX_MUR);
-            // tabObjets3D.push(obj3DCreneaux);
-
-            // Créer les tunnels
-            //const obj3DTunnels = creerObj3DTunnels(objgl, obj3DMurs, TEX_MUR);
-            //tabObjets3D.push(obj3DTunnels);
-
             // Créer le ciel
             const obj3DCiel = creerObj3DCiel(objgl, longueurLargeurCarte, TEX_CIEL);
             tabObjets3D.push(obj3DCiel);
@@ -241,7 +236,7 @@
                 TEX_TRESORFACEARRIEREBAS, TEX_TRESORARRIERE, TEX_TRESORDESSUS])
             tabObjets3D.push(obj3DTresor);
 
-            // //Créer Flèche
+            //Créer Flèche
             for (let i = 0; i < nbFleches; i++) {
                 const obj3DFleche = creerObj3DFleche(objgl, TEX_FLECHE);
                 tabObjets3D.push(obj3DFleche);
@@ -463,11 +458,15 @@
             }
         }
 
-        fetchCSV(csvURL) // appel à la fonction fetchCSV(), c'est avec cet appel que la variable globale est remplie
+        fetchCSV(csvURL).then(
+            function (value) { console.log(tabElementsNiveau); /* code if successful */ },
+            function (error) { console.error(error.message); /* code if some error */ }
+        );
+
+        /*fetchCSV(csvURL) // appel à la fonction fetchCSV(), c'est avec cet appel que la variable globale est remplie
             .catch(error => {
                 console.error(error.message);
-            });
-
+            });*/
 
         //NOTE: Si le joueur appui sur PageUp, puis PageDown, et ensuite bouge,
         //il se reteleportera à l'endroit sauver s'il rappui sur PageDown
@@ -661,6 +660,32 @@
                     console.log(getPositionCameraY(camera));
                     console.log(getPositionCameraZ(camera));
                 }
+                else if (!isRestrictKeysActive && (event.keyCode == 32)) {
+                    // 32 : espace
+                    //prendre la position du joueur, prendre la position du mur devant lui / vérifier l'objet devant lui
+                    //vérifier si ce mur est destructible, si oui on brise (enlève du tableau?) et on enlève un ouvreur de mur
+                    //sinon on fait rien
+
+                    //nord c'est x positif
+                    //est c'est z positif
+
+                    let fltXCibleCamera = getCibleCameraX(camera);
+                    let fltZCibleCamera = getCibleCameraZ(camera);
+                    let intXDevantCamera = Math.floor(fltXCibleCamera + 1);
+                    let intZDevantCamera = Math.floor(fltZCibleCamera + 1);
+
+                    console.log('X ' + fltXCibleCamera);
+                    console.log('Z ' + fltZCibleCamera);
+
+                    console.log('X math floor ' + intXDevantCamera);
+                    console.log('Z math floor' + intZDevantCamera);
+
+                    if (tabElementsNiveau[intXDevantCamera][intZDevantCamera] == 'd') {
+                        //descend le Y pour enlever le mur
+                        //setPositionY(-5, objScene3D.tabObjets3D[OBJ3D_MURS].transformations)
+                        intNbOuvreur--;
+                    }
+                }
         }
 
 
@@ -675,7 +700,7 @@
     </canvas>
     <p>
         <span class="padding">Score : <span id="lblScore">300</span></span>
-        <span class="padding">Ouvreurs de murs : <span id="lblOuvreursMurs">5</span></span>
+        <span class="padding">Ouvreurs de murs : <span id="lblOuvreursMurs">4</span></span>
         <span class="padding">Temps : <span id="lblTemps">00:00</span></span>
     </p>
 </body>
