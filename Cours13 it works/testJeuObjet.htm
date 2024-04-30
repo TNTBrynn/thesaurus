@@ -89,7 +89,7 @@
             [m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m]
         ];
 
-        const nbMur = 363;
+        const nbMur = 364;
 
         /*Cette section est utilisé pour pouvoir itérer sur les objets 3D avec leur nom et, s'il y
         en a plusieurs, pouvoir utiliser une boucle avec le nombre connu d'objets 3D de ce type
@@ -103,13 +103,13 @@
         const OBJ3D_MURSINTERIEUR = 6;
         const OBJ3D_MURSDEDALE = 7;
 
-        const tabImages = ['assets/Sol64.jpg', 'assets/Mur.jpg', 'assets/Ciel.jpg', 'assets/Fleche.jpg',
+        const tabImages = ['assets/Sol.jpg', 'assets/Mur.jpg', 'assets/Ciel.jpg', 'assets/Fleche.jpg',
             'assets/TresorTextureGaucheDroite.jpg', 'assets/TresorTextureFace.jpg', 'assets/TresorTexturePanneauFaceHaut.jpg', 'assets/TresorTextureFaceArriereBas.jpg',
             'assets/TresorTextureArriere.jpg', 'assets/TresorTextureDessus.jpg', 'assets/Joueur.png',
-            'assets/TextureMurMilieuFace64.jpg',
-            'assets/TextureMurMilieuCote64.jpg',
-            'assets/TextureMurDedaleFace64.jpg',
-            'assets/TextureMurDedaleCote64.jpg'
+            'assets/TextureMurMilieuFace.jpg',
+            'assets/TextureMurMilieuCote.jpg',
+            'assets/TextureMurDedaleFace.jpg',
+            'assets/TextureMurDedaleCote.jpg'
         ];
         const TEX_SOL = 0;
         const TEX_MUR = 1;
@@ -130,6 +130,10 @@
         let isRestrictKeysActive = false;
         let previousCameraPosition = null;
         let previousCameraDirection = null;
+
+        let nbGameOver = 0;
+
+        let nbGagnees = 0;
 
         //Score
         let intScore = 300
@@ -252,14 +256,6 @@
                         tabObjets3D.push(obj3DMurDale);
                         setPositionRectangle(i, j, obj3DMurDale)
                     }
-                    else if (tabCarte[i][j] == s) {
-                        const obj3DPorte = creerObj3DRectangle(objgl, false, [TEX_MURMILIEUFACE, TEX_MURMILIEUCOTE]);
-                        obj3DPorte.binVisible = false;
-                        obj3DPorte.binBriser = true;
-                        obj3DPorte.lettre = 's';
-                        tabObjets3D.push(obj3DPorte);
-                        setPositionRectangle(i, j, obj3DPorte);
-                    }    
                 }
             }
 
@@ -295,8 +291,6 @@
             else {
                 mat4.perspective(55, fltRapportCanevas, 0.01, 50, matProjection);
             }
-            // mat4.perspective(55, fltRapportCanevas, 0.01, 50, matProjection);
-
 
             // Relier la matrice aux shaders
             objgl.uniformMatrix4fv(objProgShaders.matProjection, false, matProjection);
@@ -494,7 +488,10 @@
             let fltLimiteNord2;
             let fltLimiteSud2;
 
-            if (!isRestrictKeysActive && event.keyCode == 33) { // PageUp
+            if (!isRestrictKeysActive && event.keyCode == 33 && intScore > 10) { // PageUp
+                //-10 points par secondes pour regarder la carte
+                // retirePointsTimer();
+
                 // Sauvegarder la position courante de la caméra
                 previousCameraPosition = {
                     x: getPositionCameraX(camera),
@@ -532,7 +529,7 @@
                 //Restreindre le mouvement
                 document.addEventListener('keydown', restrictKeys);
                 isRestrictKeysActive = true;
-            } else if (isRestrictKeysActive && event.keyCode == 34) { // PageDown
+            } else if (isRestrictKeysActive && event.keyCode == 34 || intScore < 10) { // PageDown
                 // Restaurer la position de la caméra
                 if (previousCameraPosition && previousCameraDirection) {
                     setPositionCameraX(previousCameraPosition.x, camera);
@@ -559,21 +556,10 @@
                 setCibleCameraX(getPositionCameraX(camera) + fltXPrime, camera);
                 setCibleCameraZ(getPositionCameraZ(camera) + fltZPrime, camera);
             }
-            else
-                if (!isRestrictKeysActive && (event.keyCode == 38 || event.keyCode == 40)) {
+            else if (!isRestrictKeysActive && (event.keyCode == 38 || event.keyCode == 40)) {
                     // 38:  Flèche-en-haut; 40:Flèche-en-bas
                     fltX = getCibleCameraX(camera) - getPositionCameraX(camera);
                     fltZ = getCibleCameraZ(camera) - getPositionCameraZ(camera);
-                    console.log(getPositionCameraX(camera), getPositionCameraZ(camera));
-                    if (getPositionCameraX(camera) <= 12.5 && getPositionCameraZ(camera) <= 15.5) {
-                        console.log("mur ");
-                        for (let i = 0; i < nbMur; i++) {
-                                if (objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].lettre == 's') {
-                                    objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].binVisible = true;
-                                    objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].binBriser = false;
-                                }
-                        }
-                    }   
                     const fltRayon = Math.sqrt(fltX * fltX + fltZ * fltZ);
                     intDirection = (event.keyCode == 38) ? 1 : -1;
 
@@ -602,13 +588,15 @@
                         // Jouer le son du prochain niveau
                         // objSons.sonNextLevel.play();
                         if (intNiveau == 10) {
-
+                            nbGagnees++;
+                            document.getElementById('lblGagnees').innerHTML = nbGagnees;
+                            alert('Bravo! Vous avez gagné!');
+                            recommencerJeu();
                         } else {
-
+                            intScore += 10 * seconds;
+                            intNiveau++;
+                            objScene3D = initScene3D(objgl);
                         }
-                        intScore += 10*intSecondes;
-                        intNiveau++;
-                        objScene3D = initScene3D(objgl);
                     }
                     else if (binAucuneCollision) { // Déplacer la caméra
                         //si la caméra touche le trésor il ne peut plus avancer dans cette direction et on passe au prochain niveau
@@ -622,7 +610,7 @@
                                 }
                                 // binAucuneCollisionMur = !collisionRectangle(objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i], intDirection, camera);
                                 //si la caméra touche un mur, elle ne peut plus avancer dans cette direction
-                               // console.log(binAucuneCollisionMur);
+                                console.log(binAucuneCollisionMur);
                                 if (binAucuneCollisionMur == false) {
                                     break;
                                 }
@@ -667,44 +655,49 @@
                     if (nbOuvreurs > 0) {
                         const directionRegard = determinerDirectionRegard(camera);
                         //console.log('Direction de la caméra : ' + directionRegard);
+                    if (intScore >= 50) {
+                        intScore -= 50;
+                        if (nbOuvreurs > 0) {
+                            const directionRegard = determinerDirectionRegard(camera);
+                            console.log('Direction de la caméra : ' + directionRegard);
 
-                        let intXDevantCamera;
-                        let intZDevantCamera;
+                            let intXDevantCamera;
+                            let intZDevantCamera;
 
-                        if (directionRegard == 'nord') { // si regarde nord, x - 1
-                            intXDevantCamera = Math.floor(getPositionCameraX(camera) - 1);
-                            intZDevantCamera = Math.floor(getPositionCameraZ(camera));
-                        } else if (directionRegard == 'sud') { // si regarde sud, x + 1
-                            intXDevantCamera = Math.floor(getPositionCameraX(camera) + 1);
-                            intZDevantCamera = Math.floor(getPositionCameraZ(camera));
-                        } else if (directionRegard == 'est') { // si regarde est, z - 1
-                            intXDevantCamera = Math.floor(getPositionCameraX(camera));
-                            intZDevantCamera = Math.floor(getPositionCameraZ(camera) - 1);
-                        } else if (directionRegard == 'ouest') { // si regarde ouest, z + 1
-                            intXDevantCamera = Math.floor(getPositionCameraX(camera));
-                            intZDevantCamera = Math.floor(getPositionCameraZ(camera) + 1);
-                        }
-
-                        let objMurABriser;
-
-                        if (tabCarte[intXDevantCamera][intZDevantCamera] == 'd') {
-                            for (let i = 0; i < nbMur; i++) {
-                                let tabXYZ = getPositionsXYZ(objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].transformations);
-                                if (tabXYZ[0] == intXDevantCamera && tabXYZ[2] == intZDevantCamera) {
-                                    objMurABriser = objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i];
-                                    break;
-                                }
+                            if (directionRegard == 'nord') { // si regarde nord, x - 1
+                                intXDevantCamera = Math.floor(getPositionCameraX(camera) - 1);
+                                intZDevantCamera = Math.floor(getPositionCameraZ(camera));
+                            } else if (directionRegard == 'sud') { // si regarde sud, x + 1
+                                intXDevantCamera = Math.floor(getPositionCameraX(camera) + 1);
+                                intZDevantCamera = Math.floor(getPositionCameraZ(camera));
+                            } else if (directionRegard == 'est') { // si regarde est, z - 1
+                                intXDevantCamera = Math.floor(getPositionCameraX(camera));
+                                intZDevantCamera = Math.floor(getPositionCameraZ(camera) - 1);
+                            } else if (directionRegard == 'ouest') { // si regarde ouest, z + 1
+                                intXDevantCamera = Math.floor(getPositionCameraX(camera));
+                                intZDevantCamera = Math.floor(getPositionCameraZ(camera) + 1);
                             }
-                            tabMursOuverts.push(objMurABriser);
-                            nbOuvreurs--;
-                            ouvrirMur(objMurABriser);
-                            //console.log(getPositionX(objMurABriser.transformations), getPositionZ(objMurABriser.transformations));
+
+                            let objMurABriser;
+
+                            if (tabCarte[intXDevantCamera][intZDevantCamera] == 'd') {
+                                for (let i = 0; i < nbMur; i++) {
+                                    let tabXYZ = getPositionsXYZ(objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].transformations);
+                                    if (tabXYZ[0] == intXDevantCamera && tabXYZ[2] == intZDevantCamera) {
+                                        objMurABriser = objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i];
+                                        break;
+                                    }
+                                }
+                                tabMursOuverts.push(objMurABriser);
+                                nbOuvreurs--;
+                                ouvrirMur(objMurABriser);
+                                console.log(getPositionX(objMurABriser.transformations), getPositionZ(objMurABriser.transformations));
+                            }
+
+
                         }
-
-
                     }
                 }
-
         }
 
         // cette fonction permet de déterminer dans quelle direction le joueur regarde
@@ -733,6 +726,12 @@
             return direction;
         }
 
+        function recommencerJeu(){
+            intScore = 300;
+            intNiveau = 0;
+            objScene3D = initScene3D(objgl);
+        }
+
         function startTimer() {
             document.removeEventListener('keydown', startTimer);
             let camera = objScene3D.camera
@@ -745,49 +744,81 @@
                 }
                 //console.log(minutes, seconds)
 
+                if (isRestrictKeysActive) {
+                    intScore -= 10;
+                }
+                if (intScore < 10) {
+                    // Restaurer la position de la caméra
+                    isRestrictKeysActive = false;
+                    if (previousCameraPosition && previousCameraDirection) {
+                        setPositionCameraX(previousCameraPosition.x, camera);
+                        setPositionCameraY(previousCameraPosition.y, camera);
+                        setPositionCameraZ(previousCameraPosition.z, camera);
+                        setCibleCameraX(previousCameraDirection.x, camera);
+                        setCibleCameraY(previousCameraDirection.y, camera);
+                        setCibleCameraZ(previousCameraDirection.z, camera);
+                        objScene3D.tabObjets3D[OBJ3D_CIEL].binVisible = true; //Afficher le ciel
+                        for (let i = 0; i < nbFleches; i++) {
+                            objScene3D.tabObjets3D[OBJ3D_FLECHE + i].binVisible = true;
+                        }
+                        objScene3D.tabObjets3D[OBJ3D_TRESOR].binVisible = true;
+                    }
+                }
+
                 if (minutes < 0) {
                     clearInterval(timerInterval);
                     if (minutes < 0) {
-                        intScore -= 200;
-                        // Le joueur est retourné au milieu du dédale
-                        setPositionsCameraXYZ([15, 0.5, 15], camera);
-                        // La caméra regarde vers le sud
-                        setCiblesCameraXYZ([-16, 0.5, 16], camera);
-                        // Le mur de l'enclos est réouvert
-
-                        //Les murs ouverts sont fermés
-                        for (let i = 0; i < tabMursOuverts.length; i++) {
-                            fermerMur(tabMursOuverts[i]);
+                        //si le score est inférieur à 200 points, le joueur perd et c'est GAME OVER
+                        if (intScore < 200) {
+                            nbGameOver++;
+                            alert('Vous avez perdu! Le temps s\'est écoulé et vous aviez moins de 200 points! Vous pouvez recommencer le jeu en appuyant sur une touche.')
+                            document.getElementById('lblGameOver').innerHTML = nbGameOver;
+                            recommencerJeu();
                         }
-                        //Le tableau de murs ouverts est vidé
-                        tabMursOuverts.length = 0;
-                        //Le nombre d'ouvreurs de murs est réinitialisé
-                        nbOuvreurs = 4;
+                        else {
+                            //recommencer le niveau
+                            intScore -= 200;
+                            // Le joueur est retourné au milieu du dédale
+                            setPositionsCameraXYZ([15, 0.5, 15], camera);
+                            // La caméra regarde vers le sud
+                            setCiblesCameraXYZ([-16, 0.5, 16], camera);
+                            // Le mur de l'enclos est réouvert
 
-                        minutes = 1;
-                        seconds = 0;
-                        const formattedMinutes = minutes.toString().padStart(2, '0');
-                        const formattedSeconds = seconds.toString().padStart(2, '0');
-                        document.getElementById('lblTemps').textContent = `${formattedMinutes}:${formattedSeconds}`;
-
-                        // Restaurer la position de la caméra
-                        isRestrictKeysActive = false;
-                        if (previousCameraPosition && previousCameraDirection) {
-                            setPositionCameraX(previousCameraPosition.x, camera);
-                            setPositionCameraY(previousCameraPosition.y, camera);
-                            setPositionCameraZ(previousCameraPosition.z, camera);
-                            setCibleCameraX(previousCameraDirection.x, camera);
-                            setCibleCameraY(previousCameraDirection.y, camera);
-                            setCibleCameraZ(previousCameraDirection.z, camera);
-                            objScene3D.tabObjets3D[OBJ3D_CIEL].binVisible = true; //Afficher le ciel
-                            for (let i = 0; i < nbFleches; i++) {
-                                objScene3D.tabObjets3D[OBJ3D_FLECHE + i].binVisible = true;
+                            //Les murs ouverts sont fermés
+                            for (let i = 0; i < tabMursOuverts.length; i++) {
+                                fermerMur(tabMursOuverts[i]);
                             }
-                            objScene3D.tabObjets3D[OBJ3D_TRESOR].binVisible = true;
-                        }
+                            //Le tableau de murs ouverts est vidé
+                            tabMursOuverts.length = 0;
+                            //Le nombre d'ouvreurs de murs est réinitialisé
+                            nbOuvreurs = 4;
 
-                        //attendre que le joueur appuie sur une touche pour recommencer
-                        document.addEventListener('keydown', startTimer);
+                            //Le chrono est réaffiché comme 1 minute
+                            minutes = 1;
+                            seconds = 0;
+                            const formattedMinutes = minutes.toString().padStart(2, '0');
+                            const formattedSeconds = seconds.toString().padStart(2, '0');
+                            document.getElementById('lblTemps').textContent = `${formattedMinutes}:${formattedSeconds}`;
+
+                            // Restaurer la position de la caméra
+                            isRestrictKeysActive = false;
+                            if (previousCameraPosition && previousCameraDirection) {
+                                setPositionCameraX(previousCameraPosition.x, camera);
+                                setPositionCameraY(previousCameraPosition.y, camera);
+                                setPositionCameraZ(previousCameraPosition.z, camera);
+                                setCibleCameraX(previousCameraDirection.x, camera);
+                                setCibleCameraY(previousCameraDirection.y, camera);
+                                setCibleCameraZ(previousCameraDirection.z, camera);
+                                objScene3D.tabObjets3D[OBJ3D_CIEL].binVisible = true; //Afficher le ciel
+                                for (let i = 0; i < nbFleches; i++) {
+                                    objScene3D.tabObjets3D[OBJ3D_FLECHE + i].binVisible = true;
+                                }
+                                objScene3D.tabObjets3D[OBJ3D_TRESOR].binVisible = true;
+                            }
+
+                            //attendre que le joueur appuie sur une touche pour recommencer
+                            document.addEventListener('keydown', startTimer);
+                        }
                     }
                 } else {
                     const formattedMinutes = minutes.toString().padStart(2, '0');
@@ -797,8 +828,6 @@
             }, 1000);
 
         }
-
-        // startTimer();
     </script>
 </head>
 
@@ -811,6 +840,8 @@
         <span class="padding">Score : <span id="lblScore">300</span></span>
         <span class="padding">Ouvreurs de murs : <span id="lblOuvreursMurs">4</span></span>
         <span class="padding">Temps : <span id="lblTemps">01:00</span></span>
+        <p class="padding">Nombre de Game Over : <span id="lblGameOver">0</span></p>
+        <p class="padding">Nombre de parties gagnées : <span id="lblGagnees">0</span></p>
     </p>
 
 </body>
