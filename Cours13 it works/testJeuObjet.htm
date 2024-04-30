@@ -95,13 +95,15 @@
         en a plusieurs, pouvoir utiliser une boucle avec le nombre connu d'objets 3D de ce type
         comme pour les flèches*/
         const OBJ3D_SOL = 0;
-        const OBJ3D_MURSEXTERIEUR = 1;
-        const OBJ3D_CIEL = 2;
-        const OBJ3D_JOUEUR = 3;
-        const OBJ3D_TRESOR = 4;
-        const OBJ3D_FLECHE = 5;
-        const OBJ3D_MURSINTERIEUR = 6;
-        const OBJ3D_MURSDEDALE = 7;
+        const OBJ3D_ENCLOS = 1;
+        const OBJ3D_MURSEXTERIEUR = 2;
+        const OBJ3D_CIEL = 3;
+        const OBJ3D_JOUEUR = 4;
+        const OBJ3D_TRESOR = 5;
+        const OBJ3D_FLECHE = 6;
+        const OBJ3D_MURSINTERIEUR = 7;
+        const OBJ3D_MURSDEDALE = 8;
+        ;
 
         const tabImages = ['assets/Sol.jpg', 'assets/Mur.jpg', 'assets/Ciel.jpg', 'assets/Fleche.jpg',
             'assets/TresorTextureGaucheDroite.jpg', 'assets/TresorTextureFace.jpg', 'assets/TresorTexturePanneauFaceHaut.jpg', 'assets/TresorTextureFaceArriereBas.jpg',
@@ -109,7 +111,8 @@
             'assets/TextureMurMilieuFace.jpg',
             'assets/TextureMurMilieuCote.jpg',
             'assets/TextureMurDedaleFace.jpg',
-            'assets/TextureMurDedaleCote.jpg'
+            'assets/TextureMurDedaleCote.jpg',
+            'assets/enclos.jpg'
         ];
         const TEX_SOL = 0;
         const TEX_MUR = 1;
@@ -126,6 +129,7 @@
         const TEX_MURMILIEUCOTE = 12;
         const TEX_MURDEDALEFACE = 13;
         const TEX_MURDEDALECOTE = 14;
+        const TEX_ENCLOS = 15;
 
         let isRestrictKeysActive = false;
         let previousCameraPosition = null;
@@ -150,8 +154,11 @@
         // Le nombre de flèches : 18 - (intNiveau *2)
         let nbFleches;
 
-        let minutes = 1;
-        let seconds = 0;
+        const minutesInitiales = 0;
+        const secondsInitiales = 70;
+
+        let minutes = minutesInitiales;
+        let seconds = secondsInitiales;
 
         //Les murs ouverts. Leur Y est négatif pour les cacher. Nous n'aurons qu'à remettre leur Y original à la fin du niveau
         let tabMursOuverts = [];
@@ -160,6 +167,10 @@
         const csvURL = 'niveau1.csv';
 
         function demarrer() {
+            const formattedMinutes = minutes.toString().padStart(2, '0');
+            const formattedSeconds = seconds.toString().padStart(2, '0');
+            document.getElementById('lblTemps').textContent = `${formattedMinutes}:${formattedSeconds}`;
+
             const objCanvas = document.getElementById('monCanvas');
             objgl = initWebGL(objCanvas);  // Initialise le contexte WebGL
             objProgShaders = initShaders(objgl);
@@ -217,6 +228,13 @@
             const obj3DSol = creerObj3DSol(objgl, longueurLargeurCarte, TEX_SOL, intNiveau);
             tabObjets3D.push(obj3DSol);
 
+            // Créer le sol de l'enclos
+            const obj3DSolEnclos = creerObj3DSol(objgl, 3, TEX_ENCLOS, intNiveau);
+            obj3DSolEnclos.vertex = creerVertexSol(objgl, 3, 3,0.1);
+            setPositionX(13.5, obj3DSolEnclos.transformations);
+            setPositionZ(13.5, obj3DSolEnclos.transformations);
+            tabObjets3D.push(obj3DSolEnclos);
+
             // Créer les murs
             const obj3DMurs = creerObj3DMurs(objgl, longueurLargeurCarte, TEX_MUR, intNiveau);
             tabObjets3D.push(obj3DMurs);
@@ -263,7 +281,7 @@
                         obj3DPorte.lettre = 's';
                         tabObjets3D.push(obj3DPorte);
                         setPositionRectangle(i, j, obj3DPorte);
-                    } 
+                    }
                 }
             }
 
@@ -576,14 +594,14 @@
 
                 //PORTE SE FERME SON DE STAR WARS PORTE
                 if (getPositionCameraX(camera) <= 12.5 && getPositionCameraZ(camera) <= 15.5) {
-                        console.log("mur ");
-                        for (let i = 0; i < nbMur; i++) {
-                                if (objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].lettre == 's') {
-                                    objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].binVisible = true;
-                                    objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].binBriser = false;
-                                }
+                    console.log("mur ");
+                    for (let i = 0; i < nbMur; i++) {
+                        if (objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].lettre == 's') {
+                            objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].binVisible = true;
+                            objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].binBriser = false;
                         }
-                    }  
+                    }
+                }
 
                 // Positions de la caméra
                 let fltXCamera = getPositionX(camera) + fltXPrime;
@@ -745,9 +763,13 @@
             return direction;
         }
 
-        function resetTimer(){
-            minutes = 1;
-            seconds = 0;
+        function resetTimer() {
+
+            minutes = minutesInitiales;
+            seconds = secondsInitiales;
+            const formattedMinutes = minutes.toString().padStart(2, '0');
+            const formattedSeconds = seconds.toString().padStart(2, '0');
+            document.getElementById('lblTemps').textContent = `${formattedMinutes}:${formattedSeconds}`;
         }
 
         function recommencerJeu() {
@@ -801,6 +823,7 @@
                             recommencerJeu();
                         }
                         else {
+                            alert('Le temps s\'est écoulé! Vous pouvez recommencer le jeu en appuyant sur une touche.')
                             //recommencer le niveau
                             intScore -= 200;
                             // Le joueur est retourné au milieu du dédale
@@ -863,7 +886,9 @@
     <p>
         <span class="padding">Score : <span id="lblScore">300</span></span>
         <span class="padding">Ouvreurs de murs : <span id="lblOuvreursMurs">4</span></span>
-        <span class="padding">Temps : <span id="lblTemps">01:00</span></span>
+        <span class="padding">Temps : <span id="lblTemps">
+                <script></script>
+            </span></span>
     <p class="padding">Nombre de Game Over : <span id="lblGameOver">0</span></p>
     <p class="padding">Nombre de parties gagnées : <span id="lblGagnees">0</span></p>
     </p>

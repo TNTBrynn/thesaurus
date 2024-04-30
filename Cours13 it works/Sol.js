@@ -6,7 +6,7 @@ function creerObj3DSol(objgl, longueurLargeurCarte, intNoTexture, intNiveau) {
     obj3DSol.fltLargeur = longueurLargeurCarte;
     obj3DSol.fltHauteur = 0;
     
-    obj3DSol.vertex = creerVertexSol(objgl, obj3DSol.fltLargeur, obj3DSol.fltProfondeur);
+    obj3DSol.vertex = creerVertexSol(objgl, obj3DSol.fltLargeur, obj3DSol.fltProfondeur , obj3DSol.fltHauteur);
     obj3DSol.couleurs = creerCouleursSol(objgl, [1, 1, 1, 1]);
 	obj3DSol.texels = creerTexelsSol(objgl, obj3DSol.fltLargeur, obj3DSol.fltProfondeur, intNoTexture);
 	obj3DSol.maillage = creerMaillageSol(objgl);
@@ -31,12 +31,12 @@ function creerObj3DSol(objgl, longueurLargeurCarte, intNoTexture, intNiveau) {
     return objSol;
 } */
 
-function creerVertexSol(objgl, fltLargeur, fltProfondeur) {
+function creerVertexSol(objgl, fltLargeur, fltProfondeur, fltHauteur) {
     const tabVertex = [
-             0.0, 0.0, 0.0, // Top left corner
-             fltLargeur, 0.0, 0.0, // Top right corner
-             0.0, 0.0, fltProfondeur, // Bottom left corner
-             fltLargeur, 0.0, fltProfondeur // Bottom right corner
+             0.0, fltHauteur, 0.0, // Top left corner
+             fltLargeur, fltHauteur, 0.0, // Top right corner
+             0.0, fltHauteur, fltProfondeur, // Bottom left corner
+             fltLargeur, fltHauteur, fltProfondeur // Bottom right corner
         ];
     
     const objSol = objgl.createBuffer();
