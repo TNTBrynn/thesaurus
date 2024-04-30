@@ -146,9 +146,6 @@
         //Les murs ouverts. Leur Y est négatif pour les cacher. Nous n'aurons qu'à remettre leur Y original à la fin du niveau
         let tabMursOuverts = [];
 
-        let tabElementsNiveau;
-        const csvURL = 'niveau1.csv';
-
         function demarrer() {
             const objCanvas = document.getElementById('monCanvas');
             objgl = initWebGL(objCanvas);  // Initialise le contexte WebGL
@@ -632,7 +629,6 @@
                     // 32 : espace
                     /* Trouve la direction dans laquelle le joueur regarde afin de briser le mur qui est toujours en face du joueur
                     Trouve la position du mur dans le tableau d'objet de murs et si c'est celui devant le joueur, on baisse le y de celui-ci */
-
                     if (nbOuvreurs > 0) {
                         const directionRegard = determinerDirectionRegard(camera);
                         console.log('Direction de la caméra : ' + directionRegard);
@@ -656,7 +652,7 @@
 
                         let objMurABriser;
 
-                        if (tabElementsNiveau[intXDevantCamera][intZDevantCamera] == 'd') {
+                        if (tabCarte[intXDevantCamera][intZDevantCamera] == 'd') {
                             for (let i = 0; i < nbMur; i++) {
                                 let tabXYZ = getPositionsXYZ(objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].transformations);
                                 if (tabXYZ[0] == intXDevantCamera && tabXYZ[2] == intZDevantCamera) {
@@ -664,9 +660,14 @@
                                     break;
                                 }
                             }
-                            ouvrirMur(objMurABriser);
+                            tabMursOuverts.push(objMurABriser);
                             nbOuvreurs--;
+                            intScore -= 50;
+                            ouvrirMur(objMurABriser);
+                            console.log(getPositionX(objMurABriser.transformations), getPositionZ(objMurABriser.transformations));
                         }
+
+
                     }
                 }
 
