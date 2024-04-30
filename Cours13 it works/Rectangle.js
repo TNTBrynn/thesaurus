@@ -10,6 +10,7 @@ function creerObj3DRectangle(objgl, binDestructible, tabIntNoTexture) {
     obj3DRectangle.transformations = creerTransformations();
     obj3DRectangle.fltX = 1 * 0.5;
     obj3DRectangle.fltZ = 1 * 0.5;
+    obj3DRectangle.lettre = 'd';
     //hauteur et échelle statique
     const transformations = obj3DRectangle.transformations
     setEchellesXYZ([0.5, 0.5, 0.5], transformations);
