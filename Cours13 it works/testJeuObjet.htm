@@ -89,7 +89,7 @@
             [m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m]
         ];
 
-        const nbMur = 265;
+        const nbMur = 363;
 
         /*Cette section est utilisé pour pouvoir itérer sur les objets 3D avec leur nom et, s'il y
         en a plusieurs, pouvoir utiliser une boucle avec le nombre connu d'objets 3D de ce type
@@ -252,6 +252,14 @@
                         tabObjets3D.push(obj3DMurDale);
                         setPositionRectangle(i, j, obj3DMurDale)
                     }
+                    else if (tabCarte[i][j] == s) {
+                        const obj3DPorte = creerObj3DRectangle(objgl, false, [TEX_MURMILIEUFACE, TEX_MURMILIEUCOTE]);
+                        obj3DPorte.binVisible = false;
+                        obj3DPorte.binBriser = true;
+                        obj3DPorte.lettre = 's';
+                        tabObjets3D.push(obj3DPorte);
+                        setPositionRectangle(i, j, obj3DPorte);
+                    }    
                 }
             }
 
@@ -439,7 +447,7 @@
                     objScene3D.tabObjets3D[OBJ3D_FLECHE + i].binVisible = binVisibleVueCarte;
                 }
                 objScene3D.tabObjets3D[OBJ3D_TRESOR].binVisible = binVisibleVueCarte;
-                console.log("triche")
+                //console.log("triche")
             }
 
             if (event.keyCode === 34) { // PageDown
@@ -556,6 +564,16 @@
                     // 38:  Flèche-en-haut; 40:Flèche-en-bas
                     fltX = getCibleCameraX(camera) - getPositionCameraX(camera);
                     fltZ = getCibleCameraZ(camera) - getPositionCameraZ(camera);
+                    console.log(getPositionCameraX(camera), getPositionCameraZ(camera));
+                    if (getPositionCameraX(camera) <= 12.5 && getPositionCameraZ(camera) <= 15.5) {
+                        console.log("mur ");
+                        for (let i = 0; i < nbMur; i++) {
+                                if (objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].lettre == 's') {
+                                    objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].binVisible = true;
+                                    objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].binBriser = false;
+                                }
+                        }
+                    }   
                     const fltRayon = Math.sqrt(fltX * fltX + fltZ * fltZ);
                     intDirection = (event.keyCode == 38) ? 1 : -1;
 
@@ -604,7 +622,7 @@
                                 }
                                 // binAucuneCollisionMur = !collisionRectangle(objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i], intDirection, camera);
                                 //si la caméra touche un mur, elle ne peut plus avancer dans cette direction
-                                console.log(binAucuneCollisionMur);
+                               // console.log(binAucuneCollisionMur);
                                 if (binAucuneCollisionMur == false) {
                                     break;
                                 }
@@ -648,7 +666,7 @@
                     intScore -= 50;
                     if (nbOuvreurs > 0) {
                         const directionRegard = determinerDirectionRegard(camera);
-                        console.log('Direction de la caméra : ' + directionRegard);
+                        //console.log('Direction de la caméra : ' + directionRegard);
 
                         let intXDevantCamera;
                         let intZDevantCamera;
@@ -680,7 +698,7 @@
                             tabMursOuverts.push(objMurABriser);
                             nbOuvreurs--;
                             ouvrirMur(objMurABriser);
-                            console.log(getPositionX(objMurABriser.transformations), getPositionZ(objMurABriser.transformations));
+                            //console.log(getPositionX(objMurABriser.transformations), getPositionZ(objMurABriser.transformations));
                         }
 
 
