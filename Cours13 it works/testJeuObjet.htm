@@ -89,7 +89,7 @@
             [m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m]
         ];
 
-        const nbMur = 265;
+        const nbMur = 364;
 
         /*Cette section est utilisé pour pouvoir itérer sur les objets 3D avec leur nom et, s'il y
         en a plusieurs, pouvoir utiliser une boucle avec le nombre connu d'objets 3D de ce type
@@ -585,7 +585,7 @@
                         } else {
 
                         }
-                        intScore += 10*intSecondes;
+                        intScore += 10 * intSecondes;
                         intNiveau++;
                         objScene3D = initScene3D(objgl);
                     }
@@ -663,6 +663,7 @@
                             intZDevantCamera = Math.floor(getPositionCameraZ(camera) + 1);
                         }
 
+                        console.log(tabCarte[intXDevantCamera][intZDevantCamera]);
                         let objMurABriser;
 
                         if (tabCarte[intXDevantCamera][intZDevantCamera] == 'd') {
@@ -675,8 +676,11 @@
                             }
                             tabMursOuverts.push(objMurABriser);
                             nbOuvreurs--;
+                            intScore -= 50;
                             ouvrirMur(objMurABriser);
                             console.log(getPositionX(objMurABriser.transformations), getPositionZ(objMurABriser.transformations));
+                            console.log(getPositionCameraX(camera), getPositionCameraZ(camera));
+                            console.log(getCibleCameraX(camera), getCibleCameraZ(camera));
                         }
                     }
                 }
@@ -696,12 +700,20 @@
 
             // Détermine la direction en fonction de l'angle
             let direction = '';
-            if (angle >= -45 && angle < 45) {
+            if (angle >= -25 && angle < 25) {
                 direction = 'sud';
             } else if (angle >= 45 && angle < 135) {
+                direction = 'sud ouest'; //
+            } else if (angle >= 45 && angle < 135) {
+                direction = 'sud est'; //
+            } else if (angle >= 25 && angle < 115) {
                 direction = 'ouest';
-            } else if (angle >= -135 && angle < -45) {
+            } else if (angle >= 45 && angle < 135) {
+                direction = 'nord ouest'; //
+            } else if (angle >= -115 && angle < -25) {
                 direction = 'est';
+            } else if (angle >= 45 && angle < 135) {
+                direction = 'nord est'; //
             } else {
                 direction = 'nord';
             }
