@@ -441,7 +441,7 @@
                     objScene3D.tabObjets3D[OBJ3D_FLECHE + i].binVisible = binVisibleVueCarte;
                 }
                 objScene3D.tabObjets3D[OBJ3D_TRESOR].binVisible = binVisibleVueCarte;
-                console.log("triche")
+                //console.log("triche")
             }
 
             if (event.keyCode === 34) { // PageDown
@@ -556,8 +556,7 @@
                 setCibleCameraX(getPositionCameraX(camera) + fltXPrime, camera);
                 setCibleCameraZ(getPositionCameraZ(camera) + fltZPrime, camera);
             }
-            else
-                if (!isRestrictKeysActive && (event.keyCode == 38 || event.keyCode == 40)) {
+            else if (!isRestrictKeysActive && (event.keyCode == 38 || event.keyCode == 40)) {
                     // 38:  Flèche-en-haut; 40:Flèche-en-bas
                     fltX = getCibleCameraX(camera) - getPositionCameraX(camera);
                     fltZ = getCibleCameraZ(camera) - getPositionCameraZ(camera);
@@ -652,6 +651,10 @@
                     // 32 : espace
                     /* Trouve la direction dans laquelle le joueur regarde afin de briser le mur qui est toujours en face du joueur
                     Trouve la position du mur dans le tableau d'objet de murs et si c'est celui devant le joueur, on baisse le y de celui-ci */
+                    intScore -= 50;
+                    if (nbOuvreurs > 0) {
+                        const directionRegard = determinerDirectionRegard(camera);
+                        //console.log('Direction de la caméra : ' + directionRegard);
                     if (intScore >= 50) {
                         intScore -= 50;
                         if (nbOuvreurs > 0) {
@@ -695,7 +698,6 @@
                         }
                     }
                 }
-
         }
 
         // cette fonction permet de déterminer dans quelle direction le joueur regarde
