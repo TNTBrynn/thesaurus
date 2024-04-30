@@ -8,6 +8,7 @@ function creerObj3DMurs(objgl, longueurLargeurCarte, intNoTexture, intNiveau) {
     obj3DMurs.fltProfondeur = longueurLargeurCarte;
     obj3DMurs.fltLargeur = longueurLargeurCarte;
     obj3DMurs.fltHauteur = 3;
+    obj3DMurs.binVisible = true;
 
     // Les trous
     obj3DMurs.tabAUntrou = new Array();
