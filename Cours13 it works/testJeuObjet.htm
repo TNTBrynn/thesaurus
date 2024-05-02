@@ -625,6 +625,7 @@
                     // Jouer le son du prochain niveau
                     // objSons.sonNextLevel.play();
                     if (intNiveau == 10) {
+                        console.log('Gagné!')
                         nbGagnees++;
                         document.getElementById('lblGagnees').innerHTML = nbGagnees;
                         alert('Bravo! Vous avez gagné!');
@@ -689,7 +690,6 @@
                 // 32 : espace
                 /* Trouve la direction dans laquelle le joueur regarde afin de briser le mur qui est toujours en face du joueur
                 Trouve la position du mur dans le tableau d'objet de murs et si c'est celui devant le joueur, on baisse le y de celui-ci */
-                intScore -= 50;
                 if (nbOuvreurs > 0) {
                     const directionRegard = determinerDirectionRegard(camera);
                     //console.log('Direction de la caméra : ' + directionRegard);
@@ -770,6 +770,7 @@
             const formattedMinutes = minutes.toString().padStart(2, '0');
             const formattedSeconds = seconds.toString().padStart(2, '0');
             document.getElementById('lblTemps').textContent = `${formattedMinutes}:${formattedSeconds}`;
+            document.addEventListener('keydown', startTimer);
         }
 
         function recommencerJeu() {
