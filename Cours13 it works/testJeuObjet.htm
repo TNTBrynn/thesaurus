@@ -104,8 +104,8 @@
         const OBJ3D_FLECHE = 5;
         const OBJ3D_MURSINTERIEUR = 6;
         const OBJ3D_MURSDEDALE = 7;
-        const OBJ3D_TELETRANSP = 8;
-        const OBJ3D_TELERECPT = 9;
+        const OBJ3D_TELETRANSP = 0;
+        let OBJ3D_TELERECPT;
 
         const tabImages = ['assets/Sol64.jpg', 'assets/Mur.jpg', 'assets/Ciel.jpg', 'assets/Fleche.jpg',
             'assets/TresorTextureGaucheDroite.jpg', 'assets/TresorTextureFace.jpg', 'assets/TresorTexturePanneauFaceHaut.jpg', 'assets/TresorTextureFaceArriereBas.jpg',
@@ -149,7 +149,7 @@
         let nbOuvreurs = 4;
 
         // Le niveau actuel du jeu
-        let intNiveau = 0;
+        let intNiveau = 2;
 
         // Le nombre de flèches : 18 - (intNiveau *2)
         let nbFleches;
@@ -221,9 +221,11 @@
             (intNiveau % 2 === 0) ? nbOuvreurs = 4 - (intNiveau / 2) : nbOuvreurs = 4 - ((intNiveau - 1) / 2);
             nbTeleTransps = ((intNiveau+1)/2 | 0);
             nbTeleRecepts = intNiveau;
+            OBJ3D_TELERECPT = OBJ3D_TELETRANSP + nbTeleTransps;
 
             const objScene3D = new Object();
             const tabObjets3D = new Array();
+            const tabTeles3D = new Array();
 
             // Mettre les textures dans la scène
             objScene3D.textures = creerTextures(objgl, tabImages);
@@ -277,19 +279,27 @@
             //Créer Télé-Transporteur
             for (let i = 0; i < nbTeleTransps; i++) {
                  const obj3DTransp = creerObj3DTeleTransporteurs(objgl, TEX_TELETRANSP);
-                 tabObjets3D.push(obj3DTransp);
-                 randomisationPositionTransp(obj3DTransp, tabCarte)
+                 tabTeles3D.push(obj3DTransp);
+                 randomisationPositionTransp(obj3DTransp, tabCarte);
+                 console.log(getPositionX(obj3DTransp.transformations) + ', ' + getPositionZ(obj3DTransp.transformations));
+
             }
 
              //Créer Télé-Récepteur
              for (let i = 0; i < nbTeleRecepts; i++) {
                 const obj3DTeleR = creerObj3DTeleRecepteurs(objgl, TEX_TELERECEPT);
-                tabObjets3D.push(obj3DTeleR);
-                randomisationPositionRecept(obj3DTeleR, tabCarte);        
+                tabTeles3D.push(obj3DTeleR);
+                randomisationPositionRecept(obj3DTeleR, tabCarte);
+                console.log(getPositionX(obj3DTeleR.transformations) + ', ' + getPositionZ(obj3DTeleR.transformations));     
             }
+
+            console.log(tabTeles3D);
+
+
 
             // Mettre les objets 3D sur la scène
             objScene3D.tabObjets3D = tabObjets3D;
+            objScene3D.tabTeles3D = tabTeles3D;
 
             // La caméra
             const camera = creerCamera();
@@ -419,6 +429,101 @@
                     }
                 }
             }
+
+            //Textures pour tabTeles3D
+            for (let i = 0; i < objScene3D.tabTeles3D.length; i++) {
+                const vertex = objScene3D.tabTeles3D[i].vertex;
+                const couleurs = objScene3D.tabTeles3D[i].couleurs;
+                const texels = objScene3D.tabTeles3D[i].texels;
+                const maillage = objScene3D.tabTeles3D[i].maillage;
+                const transformations = objScene3D.tabTeles3D[i].transformations;
+
+                // Matrice du modèle            
+                const matModeleVue = mat4.create();
+                mat4.identity(matModeleVue);
+
+                // Placer la caméra sur la scène
+                mat4.lookAt(getPositionsCameraXYZ(objScene3D.camera),
+                    getCiblesCameraXYZ(objScene3D.camera),
+                    getOrientationsXYZ(objScene3D.camera),
+                    matModeleVue);
+
+                // Appliquer les transformations sur le modèle 
+                mat4.translate(matModeleVue, getPositionsXYZ(transformations));
+                mat4.scale(matModeleVue, getEchellesXYZ(transformations));
+                mat4.rotateX(matModeleVue, getAngleX(transformations) * Math.PI / 180);
+                mat4.rotateZ(matModeleVue, getAngleZ(transformations) * Math.PI / 180);
+                //a été déplacé pour faire tourner les flèches sur eux mêmes
+                mat4.rotateY(matModeleVue, getAngleY(transformations) * Math.PI / 180);
+
+                // Relier la matrice aux shaders
+                objgl.uniformMatrix4fv(objProgShaders.matModeleVue, false, matModeleVue);
+
+                if (maillage == null)
+                    // Dessiner les sous-objets
+                    for (let j = 0; j < vertex.length; j++) {
+
+                        // Relier les vertex aux shaders
+                        objgl.bindBuffer(objgl.ARRAY_BUFFER, vertex[j]);
+                        objgl.vertexAttribPointer(objProgShaders.posVertex, 3, objgl.FLOAT, false, 0, 0);
+                        const intNbVertex = (objgl.getBufferParameter(objgl.ARRAY_BUFFER, objgl.BUFFER_SIZE) / 4) / 3;
+
+                        // Relier les couleurs aux shaders
+                        objgl.bindBuffer(objgl.ARRAY_BUFFER, couleurs[j]);
+                        objgl.vertexAttribPointer(objProgShaders.couleurVertex, 4, objgl.FLOAT, false, 0, 0);
+
+                        // Activer la texture
+                        objgl.activeTexture(objgl.TEXTURE0 + texels[j].intNoTexture);
+                        objgl.bindTexture(objgl.TEXTURE_2D, objScene3D.textures[texels[j].intNoTexture]);
+
+                        // Relier les texels aux shaders
+                        objgl.bindBuffer(objgl.ARRAY_BUFFER, texels[j]);
+                        objgl.vertexAttribPointer(objProgShaders.posTexel, 2, objgl.FLOAT, false, 0, 0);
+
+                        // Relier le no de texture et le taux de couleur aux shaders                 
+                        objgl.uniform1i(objProgShaders.noTexture, texels[j].intNoTexture);
+                        objgl.uniform1f(objProgShaders.pcCouleurTexel, texels[j].pcCouleurTexel);
+
+                        // Dessiner le ciel ou pas en se basant sur binVisible dans Ciel.js
+                        if (objScene3D.tabTeles3D[i].binVisible == true) {
+                            // Dessiner
+                            objgl.drawArrays(vertex[j].typeDessin, 0, intNbVertex);
+                        }
+                    }
+                else { // Dessiner le maillage
+
+                    // Relier les vertex aux shaders
+                    objgl.bindBuffer(objgl.ARRAY_BUFFER, vertex);
+                    objgl.vertexAttribPointer(objProgShaders.posVertex, 3, objgl.FLOAT, false, 0, 0);
+
+                    // Relier les couleurs aux shaders
+                    objgl.bindBuffer(objgl.ARRAY_BUFFER, couleurs);
+                    objgl.vertexAttribPointer(objProgShaders.couleurVertex, 4, objgl.FLOAT, false, 0, 0)
+
+                    // Activer la texture
+                    objgl.activeTexture(objgl.TEXTURE0 + texels.intNoTexture);
+                    objgl.bindTexture(objgl.TEXTURE_2D, objScene3D.textures[texels.intNoTexture]);
+
+                    // Relier les texels aux shaders
+                    objgl.bindBuffer(objgl.ARRAY_BUFFER, texels);
+                    objgl.vertexAttribPointer(objProgShaders.posTexel, 2, objgl.FLOAT, false, 0, 0);
+
+                    // Relier le no de texture et le taux de couleur aux shaders                 
+                    objgl.uniform1i(objProgShaders.noTexture, texels.intNoTexture);
+                    objgl.uniform1f(objProgShaders.pcCouleurTexel, texels.pcCouleurTexel);
+
+                    // Sélectionner le maillage qu'on va utiliser pour les triangles et les droites
+                    objgl.bindBuffer(objgl.ELEMENT_ARRAY_BUFFER, maillage);
+
+                    // Dessiner le ciel ou pas en se basant sur binVisible dans Ciel.js
+                    if (objScene3D.tabTeles3D[i].binVisible == true) {
+                        // Dessiner les triangles
+                        objgl.drawElements(objgl.TRIANGLES, maillage.intNbTriangles * 3, objgl.UNSIGNED_SHORT, 0);
+                        // Dessiner les droites à la suite des triangles
+                        objgl.drawElements(objgl.LINES, maillage.intNbDroites * 2, objgl.UNSIGNED_SHORT, maillage.intNbTriangles * 2 * 3);
+                    }
+                }
+            }
         }
 
         function effacerCanevas(objgl) {
@@ -474,12 +579,13 @@
                 objScene3D.tabObjets3D[OBJ3D_TRESOR].binVisible = binVisibleVueCarte;
 
                 for (let i = 0; i < nbTeleTransps; i++) {
-                    objScene3D.tabObjets3D[OBJ3D_TELETRANSP + i].binVisible = binVisibleVueCarte;
+                    objScene3D.tabTeles3D[OBJ3D_TELETRANSP + i].binVisible = binVisibleVueCarte;
                 }
                 for (let i = 0; i < nbTeleRecepts; i++) {
-                    objScene3D.tabObjets3D[OBJ3D_TELERECPT + i].binVisible = binVisibleVueCarte;
+                    objScene3D.tabTeles3D[OBJ3D_TELERECPT + i].binVisible = binVisibleVueCarte;
                 }
                 //console.log("triche")
+                console.log(objScene3D.tabTeles3D);
             }
 
             if (event.keyCode === 34) { // PageDown
@@ -559,12 +665,11 @@
                     objScene3D.tabObjets3D[OBJ3D_FLECHE + i].binVisible = false;
                 }
                 objScene3D.tabObjets3D[OBJ3D_TRESOR].binVisible = false;
-
                 for (let i = 0; i < nbTeleTransps; i++) {
-                    objScene3D.tabObjets3D[OBJ3D_TELETRANSP + i].binVisible = false;
+                    objScene3D.tabTeles3D[OBJ3D_TELETRANSP + i].binVisible = false;
                 }
                 for (let i = 0; i < nbTeleRecepts; i++) {
-                    objScene3D.tabObjets3D[OBJ3D_TELERECPT + i].binVisible = false;
+                    objScene3D.tabTeles3D[OBJ3D_TELERECPT + i].binVisible = false;
                 }
 
                 //Restreindre le mouvement
@@ -584,6 +689,13 @@
                         objScene3D.tabObjets3D[OBJ3D_FLECHE + i].binVisible = true;
                     }
                     objScene3D.tabObjets3D[OBJ3D_TRESOR].binVisible = true;
+                    for (let i = 0; i < nbTeleTransps; i++) {
+                        objScene3D.tabTeles3D[OBJ3D_TELETRANSP + i].binVisible = true;
+                    }
+                    for (let i = 0; i < nbTeleRecepts; i++) {
+                        objScene3D.tabTeles3D[OBJ3D_TELERECPT + i].binVisible = true;
+                    }
+                    
                 }
             }
             if (!isRestrictKeysActive && (event.keyCode == 37 || event.keyCode == 39)) {
@@ -689,13 +801,13 @@
 
                         //Trouver les positions X et Z d'un recepteur random
                         var randomRecept = Math.floor(Math.random() * nbTeleRecepts);
-                        const transfRecept = objScene3D.tabObjets3D[OBJ3D_TELERECPT + randomRecept].transformations;
+                        var transfRecept = objScene3D.tabTeles3D[OBJ3D_TELERECPT + randomRecept].transformations;
                         var posX = getPositionX(transfRecept);
                         var posZ = getPositionZ(transfRecept);
 
                         //Check si la caméra va dans un des transporteurs et si oui, la téléporter au récepteur random
                         for (let i = 0; i < nbTeleTransps; i++) {
-                            const transformations = objScene3D.tabObjets3D[OBJ3D_TELETRANSP + i].transformations;
+                            const transformations = objScene3D.tabTeles3D[OBJ3D_TELETRANSP + i].transformations;
                             if(getPositionCameraX(camera) <= getPositionX(transformations) + 0.25 &&
                                 getPositionCameraX(camera) >= getPositionX(transformations) - 0.25 &&
                                 getPositionCameraZ(camera) >= getPositionZ(transformations) - 0.25 &&
@@ -705,11 +817,12 @@
                                 setPositionCameraX(posX, camera);
                                 setPositionCameraZ(posZ, camera);
                             }
+
                         }
 
                         //Check si la caméra va dans un des récepteurs et si oui, la téléporter au récepteur random
                         for (let i = 0; i < nbTeleRecepts; i++) {
-                            const transformations = objScene3D.tabObjets3D[OBJ3D_TELERECPT + i].transformations;
+                            const transformations = objScene3D.tabTeles3D[OBJ3D_TELERECPT + i].transformations;
                             if(getPositionCameraX(camera) <= getPositionX(transformations) + 0.25 &&
                                 getPositionCameraX(camera) >= getPositionX(transformations) - 0.25 &&
                                 getPositionCameraZ(camera) >= getPositionZ(transformations) - 0.25 &&
@@ -722,10 +835,10 @@
                         }
 
                         //Check si la caméra sort du récepteur random pour qu'elle puisse se téléporter une autre fois
-                        if(!(getPositionCameraX(camera) <= getPositionX(transfRecept) + 0.25 &&
-                            getPositionCameraX(camera) >= getPositionX(transfRecept) - 0.25 &&
-                            getPositionCameraZ(camera) >= getPositionZ(transfRecept) - 0.25 &&
-                            getPositionCameraZ(camera) <= getPositionZ(transfRecept) + 0.25)) {
+                        if(!(getPositionCameraX(camera) <= getPositionX(transfRecept) + 0.5 &&
+                            getPositionCameraX(camera) >= getPositionX(transfRecept) - 0.5 &&
+                            getPositionCameraZ(camera) >= getPositionZ(transfRecept) - 0.5 &&
+                            getPositionCameraZ(camera) <= getPositionZ(transfRecept) + 0.5)) {
                                 binTP = true;
                         }
                     }
