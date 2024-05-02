@@ -107,14 +107,14 @@
 
         var obj3DPorte;
 
-        const tabImages = ['assets/Sol.jpg', 'assets/Mur.jpg', 'assets/Ciel.jpg', 'assets/Fleche.jpg',
-            'assets/TresorTextureGaucheDroite.jpg', 'assets/TresorTextureFace.jpg', 'assets/TresorTexturePanneauFaceHaut.jpg', 'assets/TresorTextureFaceArriereBas.jpg',
-            'assets/TresorTextureArriere.jpg', 'assets/TresorTextureDessus.jpg', 'assets/Joueur.png',
-            'assets/TextureMurMilieuFace.jpg',
-            'assets/TextureMurMilieuCote.jpg',
-            'assets/TextureMurDedaleFace.jpg',
-            'assets/TextureMurDedaleCote.jpg',
-            'assets/enclos.jpg'
+        const tabImages = ['assets/images/Sol.jpg', 'assets/images/Mur.jpg', 'assets/images/Ciel.jpg', 'assets/images/Fleche.jpg',
+            'assets/images/TresorTextureGaucheDroite.jpg', 'assets/images/TresorTextureFace.jpg', 'assets/images/TresorTexturePanneauFaceHaut.jpg', 'assets/images/TresorTextureFaceArriereBas.jpg',
+            'assets/images/TresorTextureArriere.jpg', 'assets/images/TresorTextureDessus.jpg', 'assets/images/Joueur.png',
+            'assets/images/TextureMurMilieuFace.jpg',
+            'assets/images/TextureMurMilieuCote.jpg',
+            'assets/images/TextureMurDedaleFace.jpg',
+            'assets/images/TextureMurDedaleCote.jpg',
+            'assets/images/enclos.jpg'
         ];
         const TEX_SOL = 0;
         const TEX_MUR = 1;
@@ -157,7 +157,7 @@
         let nbFleches;
 
         const minutesInitiales = 0;
-        const secondsInitiales = 70;
+        const secondsInitiales = 60;
 
         let minutes = minutesInitiales;
         let seconds = secondsInitiales;
@@ -173,9 +173,10 @@
             const objCanvas = document.getElementById('monCanvas');
             objgl = initWebGL(objCanvas);  // Initialise le contexte WebGL
             objProgShaders = initShaders(objgl);
-            // objSons = initSons();
+            objSons = initSons();
             objScene3D = initScene3D(objgl); // Créer la scène
-
+            
+            // objSons.ambiance.play();
             document.addEventListener('keydown', startTimer);
 
             effacerCanevas(objgl);
@@ -435,33 +436,89 @@
             objgl.clear(objgl.COLOR_BUFFER_BIT | objgl.DEPTH_BUFFER_BIT);
         }
 
-        /*  function initSons() {
-             const objSons = new Object();
- 
-             // Ce son joue tout au long du jeu
-             let objSon = document.createElement('audio');
-             objSon.setAttribute('src', 'SonVent.mp3');
-             objSon.load();
-             objSon.loop = true;
-             objSons.sonVent = objSon;
- 
-             // Ce son joue lorsque le joueur passe au prochain niveau
-             objSon = document.createElement('audio');
-             objSon.setAttribute('src', 'SonNextLevel.mp3');
-             objSon.load();
-             objSon.loop = true;
-             objSons.sonNextLevel = objSon;
- 
-             // Ce son joue lorsque le joueur est dans la tornade
-             objSon = document.createElement('audio');
-             objSon.setAttribute('src', 'SonTornade.mp3');
-             objSon.load();
-             objSon.loop = true;
-             objSons.sonTornade = objSon;
- 
-             return objSons;
-         }
-  */
+        function initSons() {
+            const objSons = new Object();
+
+            //Ce son joue lorsque le joueur brise un mur
+            let objSon = document.createElement('audio');
+            objSon.setAttribute('src', 'assets/audio/legos-falling-made-with-Voicemod.mp3');
+            objSon.load();
+            objSon.loop = false;
+            objSons.briseMur = objSon;
+
+            // Ce son joue lorsque le joueur trouve le trésor
+            objSon = document.createElement('audio');
+            objSon.setAttribute('src', 'assets/audio/zelda.mp3');
+            objSon.load();
+            objSon.loop = false;
+            objSons.sonToucheTresor = objSon;
+
+            // Ce son joue lorsque la porte de l'enclos se ferme
+            objSon = document.createElement('audio');
+            objSon.setAttribute('src', 'assets/audio/slidingDoor.mp3');
+            objSon.load();
+            objSon.loop = false;
+            objSons.porte = objSon;
+
+            //Ce son joue lorsqu'il reste 5 secondes au jeu
+            objSon = document.createElement('audio');
+            objSon.setAttribute('src', 'assets/audio/destructionMur2.mp3');
+            objSon.load();
+            objSon.loop = false;
+            objSons.countdown = objSon;
+
+            //Ce son joue lorsque la triche est activée
+            objSon = document.createElement('audio');
+            objSon.setAttribute('src', 'assets/audio/among-us-role-reveal-sound.mp3');
+            objSon.load();
+            objSon.loop = false;
+            objSons.activationTriche = objSon;
+
+            //Ce son joue lorsque le joueur fait un Game Over
+            objSon = document.createElement('audio');
+            objSon.setAttribute('src', 'assets/audio/among-us-role-reveal-sound.mp3'); //changer le son
+            objSon.load();
+            objSon.loop = false;
+            objSons.gameOver = objSon;
+
+            //Ce son joue lorsque le joueur perd le niveau
+            objSon = document.createElement('audio');
+            objSon.setAttribute('src', 'assets/audio/minecraft-horse-death.mp3'); //changer le son
+            objSon.load();
+            objSon.loop = false;
+            objSons.perdNiveau = objSon;
+
+            //Ce son joue lorsque le joueur termine le 10e niveau
+            objSon = document.createElement('audio');
+            objSon.setAttribute('src', 'assets/audio/Fortnite_Victory_Royale_Sound_Effect_TubeRipper.mp3');
+            objSon.load();
+            objSon.loop = false;
+            objSons.gagneJeu = objSon;
+
+            //Ce son joue lorsque le niveau commence
+            objSon = document.createElement('audio');
+            objSon.setAttribute('src', 'assets/audio/Wii Sports Intro Music (HD).mp3');
+            objSon.load();
+            objSon.loop = false;
+            objSons.debutNiveau = objSon;
+
+            //Ce son joue lorsque le joueur se téléporte
+            objSon = document.createElement('audio');
+            objSon.setAttribute('src', 'assets/audio/teleportationGoku.mp3');
+            objSon.load();
+            objSon.loop = false;
+            objSons.teleportation = objSon; //à implémenter
+
+            //Ce son joue lorsque le joueur se téléporte
+            objSon = document.createElement('audio');
+            objSon.setAttribute('src', 'assets/audio/ambiance.mp3');
+            objSon.load();
+            objSon.loop = true;
+            objSons.ambiance = objSon;
+
+            return objSons;
+        }
+
 
         //Cette fonction traque la validité des touches appuyées
         // À MODIFIER: ajouter la possibilité de triche pour voir les objets
@@ -480,6 +537,7 @@
                 }
                 objScene3D.tabObjets3D[OBJ3D_TRESOR].binVisible = binVisibleVueCarte;
                 //console.log("triche")
+                objSons.activationTriche.play()
             }
 
             if (event.keyCode === 34) { // PageDown
@@ -604,11 +662,10 @@
                 fltXPrime = intDirection * 0.2 * Math.cos(Math.acos(fltX / fltRayon));
                 fltZPrime = intDirection * 0.2 * Math.sin(Math.asin(fltZ / fltRayon));
 
-                //PORTE SE FERME SON DE STAR WARS PORTE
                 if (getPositionCameraX(camera) <= 12.5 && getPositionCameraZ(camera) <= 15.5) {
-                    console.log("mur ");
                     for (let i = 0; i < nbMur; i++) {
                         if (objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].lettre == 's') {
+                            objSons.porte.play();
                             objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].binVisible = true;
                             objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].binBriser = false;
                         }
@@ -639,19 +696,15 @@
                 }
 
                 if (collisionTresor(objScene3D.tabObjets3D[OBJ3D_TRESOR], intDirection, camera)) { // Passer à un autre niveau
-                    // Arrêter le son du vent
-                    // objSons.sonVent.pause();
-                    // objSons.sonVent.currentTime = 0.0;
-
-                    // Jouer le son du prochain niveau
-                    // objSons.sonNextLevel.play();
                     if (intNiveau == 10) {
+                        objSons.gagneJeu.play();
                         console.log('Gagné!')
                         nbGagnees++;
                         document.getElementById('lblGagnees').innerHTML = nbGagnees;
                         alert('Bravo! Vous avez gagné!');
                         recommencerJeu();
                     } else {
+                        objSons.sonToucheTresor.play();
                         intScore += 10 * seconds;
                         intNiveau++;
                         resetTimer();
@@ -712,6 +765,7 @@
                 /* Trouve la direction dans laquelle le joueur regarde afin de briser le mur qui est toujours en face du joueur
                 Trouve la position du mur dans le tableau d'objet de murs et si c'est celui devant le joueur, on baisse le y de celui-ci */
                 if (nbOuvreurs > 0) {
+                    objSons.briseMur.play();
                     const directionRegard = determinerDirectionRegard(camera);
                     //console.log('Direction de la caméra : ' + directionRegard);
                     if (intScore >= 50) {
@@ -857,6 +911,7 @@
         }
 
         function startTimer() {
+            objSons.debutNiveau.play();
             document.removeEventListener('keydown', startTimer);
             let camera = objScene3D.camera
 
@@ -888,12 +943,15 @@
                         objScene3D.tabObjets3D[OBJ3D_TRESOR].binVisible = true;
                     }
                 }
-
+                if(minutes == 0 && seconds <= 5){
+                    objSons.countdown.play();
+                }
                 if (minutes < 0) {
                     clearInterval(timerInterval);
                     if (minutes < 0) {
                         //si le score est inférieur à 200 points, le joueur perd et c'est GAME OVER
                         if (intScore < 200) {
+                            objSons.gameOver.play();
                             nbGameOver++;
                             resetTimer();
                             alert('Vous avez perdu! Le temps s\'est écoulé et vous aviez moins de 200 points! Vous pouvez recommencer le jeu en appuyant sur une touche.')
@@ -902,6 +960,7 @@
                         }
                         else {
                             alert('Le temps s\'est écoulé! Vous pouvez recommencer le jeu en appuyant sur une touche.')
+                            objSons.perdNiveau.play();
                             //recommencer le niveau
                             intScore -= 200;
                             // Le joueur est retourné au milieu du dédale
