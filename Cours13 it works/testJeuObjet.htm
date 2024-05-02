@@ -118,7 +118,7 @@
         const TEX_MUR = 1;
         const TEX_CIEL = 2;
         const TEX_FLECHE = 3;
-        const TEX_TRESORGAUCHEDROITE = 4;
+        const TEX_TRESORGAUCHEDROITE = 4
         const TEX_TRESORFACE = 5;
         const TEX_TRESORFACEHAUT = 6
         const TEX_TRESORFACEARRIEREBAS = 7;
@@ -230,7 +230,7 @@
 
             // Créer le sol de l'enclos
             const obj3DSolEnclos = creerObj3DSol(objgl, 3, TEX_ENCLOS, intNiveau);
-            obj3DSolEnclos.vertex = creerVertexSol(objgl, 3, 3,0.1);
+            obj3DSolEnclos.vertex = creerVertexSol(objgl, 3, 3, 0.1);
             setPositionX(13.5, obj3DSolEnclos.transformations);
             setPositionZ(13.5, obj3DSolEnclos.transformations);
             tabObjets3D.push(obj3DSolEnclos);
@@ -252,6 +252,7 @@
                 TEX_TRESORFACEARRIEREBAS, TEX_TRESORARRIERE, TEX_TRESORDESSUS])
             tabObjets3D.push(obj3DTresor);
             randomisationPositionTresor(obj3DTresor, tabCarte);
+            // setPositionTresor(13, 15, obj3DTresor) //devant le joueur dans l'enclos
 
             //Créer Flèche
             for (let i = 0; i < nbFleches; i++) {
