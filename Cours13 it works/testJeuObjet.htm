@@ -96,13 +96,14 @@
         comme pour les flèches*/
         const OBJ3D_SOL = 0;
         const OBJ3D_ENCLOS = 1;
-        const OBJ3D_MURSEXTERIEUR = 2;
-        const OBJ3D_CIEL = 3;
-        const OBJ3D_JOUEUR = 4;
-        const OBJ3D_TRESOR = 5;
-        const OBJ3D_FLECHE = 6;
-        const OBJ3D_MURSINTERIEUR = 7;
-        const OBJ3D_MURSDEDALE = 8;
+        const OBJ3D_CARTEMURSEXTRERIEUR = 2 //pour afficher la texture des mur exterieur en vue du dessus
+        const OBJ3D_MURSEXTERIEUR = 3;
+        const OBJ3D_CIEL = 4;
+        const OBJ3D_JOUEUR = 5;
+        const OBJ3D_TRESOR = 6;
+        const OBJ3D_FLECHE = 7;
+        const OBJ3D_MURSINTERIEUR = 8;
+        const OBJ3D_MURSDEDALE = 9;
         ;
 
         const tabImages = ['assets/Sol.jpg', 'assets/Mur.jpg', 'assets/Ciel.jpg', 'assets/Fleche.jpg',
@@ -225,7 +226,7 @@
             objScene3D.textures = creerTextures(objgl, tabImages);
 
             // Créer le sol
-            const obj3DSol = creerObj3DSol(objgl, longueurLargeurCarte, TEX_SOL, intNiveau);
+            const obj3DSol = creerObj3DSol(objgl, longueurLargeurCarte, TEX_SOL);
             tabObjets3D.push(obj3DSol);
 
             // Créer le sol de l'enclos
@@ -234,6 +235,11 @@
             setPositionX(13.5, obj3DSolEnclos.transformations);
             setPositionZ(13.5, obj3DSolEnclos.transformations);
             tabObjets3D.push(obj3DSolEnclos);
+
+            //Créer la texture supérieur des murs extérieurs pour la vue du dessus
+            const obj3DCarteMursExterieur = creerObj3DSol(objgl, longueurLargeurCarte + 2, TEX_MUR);
+            setPositionSol(-1, -0.1, -1, obj3DCarteMursExterieur)
+            tabObjets3D.push(obj3DCarteMursExterieur);
 
             // Créer les murs
             const obj3DMurs = creerObj3DMurs(objgl, longueurLargeurCarte, TEX_MUR, intNiveau);
@@ -541,7 +547,7 @@
                 // Bouger la caméra au millieu en haut
                 setPositionCameraX(15.5, camera);
                 setPositionCameraY(32, camera);
-                setPositionCameraZ(15.1, camera);
+                setPositionCameraZ(15.2, camera);
                 setCibleCameraX(15.5, camera);
                 setCibleCameraY(0, camera); //La caméra regarde le bas
                 setCibleCameraZ(15.5, camera);
