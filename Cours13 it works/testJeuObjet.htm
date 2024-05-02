@@ -105,6 +105,8 @@
         const OBJ3D_MURSINTERIEUR = 7;
         const OBJ3D_MURSDEDALE = 8;
 
+        var obj3DPorte;
+
         const tabImages = ['assets/Sol.jpg', 'assets/Mur.jpg', 'assets/Ciel.jpg', 'assets/Fleche.jpg',
             'assets/TresorTextureGaucheDroite.jpg', 'assets/TresorTextureFace.jpg', 'assets/TresorTexturePanneauFaceHaut.jpg', 'assets/TresorTextureFaceArriereBas.jpg',
             'assets/TresorTextureArriere.jpg', 'assets/TresorTextureDessus.jpg', 'assets/Joueur.png',
@@ -278,16 +280,18 @@
                         setPositionRectangle(i, j, obj3DMurDedale)
                     }
                     else if (tabCarte[i][j] == s) {
-                        const obj3DPorte = creerObj3DRectangle(objgl, false, [TEX_MURMILIEUFACE, TEX_MURMILIEUCOTE]);
+                        obj3DPorte = creerObj3DRectangle(objgl, false, [TEX_MURMILIEUFACE, TEX_MURMILIEUCOTE]);
                         obj3DPorte.binVisible = false;
                         obj3DPorte.binBriser = true;
                         obj3DPorte.lettre = 's';
                         tabObjets3D.push(obj3DPorte);
+                        obj3DPorte = obj3DPorte;
                         setPositionRectangle(i, j, obj3DPorte);
                     }
                     else if (tabCarte[i][j] == m) {
                         const obj3DMurExterieur = creerObj3DMur(objgl, false, [TEX_MUR, TEX_MUR]);
                         tabObjets3D.push(obj3DMurExterieur);
+                        obj3DMurExterieur.lettre = 'm'
                         setPositionMur(i, j, obj3DMurExterieur);
                     }
                 }
@@ -905,6 +909,9 @@
                             // La caméra regarde vers le sud
                             setCiblesCameraXYZ([-16, 0.5, 16], camera);
                             // Le mur de l'enclos est réouvert
+
+                            obj3DPorte.binVisible = false;
+                            obj3DPorte.binBriser = true;
 
                             //Les murs ouverts sont fermés
                             for (let i = 0; i < tabMursOuverts.length; i++) {
