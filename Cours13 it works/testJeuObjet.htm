@@ -112,15 +112,16 @@
 
         var obj3DPorte;
 
-        const tabImages = ['assets/Sol.jpg', 'assets/Mur.jpg', 'assets/Ciel.jpg', 'assets/Fleche.jpg',
-            'assets/TresorTextureGaucheDroite.jpg', 'assets/TresorTextureFace.jpg', 'assets/TresorTexturePanneauFaceHaut.jpg', 'assets/TresorTextureFaceArriereBas.jpg',
-            'assets/TresorTextureArriere.jpg', 'assets/TresorTextureDessus.jpg', 'assets/Joueur.png',
-            'assets/TextureMurMilieuFace.jpg',
-            'assets/TextureMurMilieuCote.jpg',
-            'assets/TextureMurDedaleFace.jpg',
-            'assets/TextureMurDedaleCote.jpg',
-            'assets/teleTransporteur.jpg',
-            'assets/teleRecepteur.jpg'
+        const tabImages = ['assets/images/Sol.jpg', 'assets/images/Mur.jpg', 'assets/images/Ciel.jpg', 'assets/images/Fleche.jpg',
+            'assets/images/TresorTextureGaucheDroite.jpg', 'assets/images/TresorTextureFace.jpg', 'assets/images/TresorTexturePanneauFaceHaut.jpg', 'assets/images/TresorTextureFaceArriereBas.jpg',
+            'assets/images/TresorTextureArriere.jpg', 'assets/images/TresorTextureDessus.jpg', 'assets/images/Joueur.png',
+            'assets/images/TextureMurMilieuFace.jpg',
+            'assets/images/TextureMurMilieuCote.jpg',
+            'assets/images/TextureMurDedaleFace.jpg',
+            'assets/images/TextureMurDedaleCote.jpg',
+            'assets/images/teleTransporteur.jpg',
+            'assets/images/teleRecepteur.jpg',
+            'assets/images/enclos.jpg'
         ];
         const TEX_SOL = 0;
         const TEX_MUR = 1;
@@ -139,6 +140,7 @@
         const TEX_MURDEDALECOTE = 14;
         const TEX_TELETRANSP = 15;
         const TEX_TELERECEPT = 16;
+        const TEX_ENCLOS = 17
 
         let isRestrictKeysActive = false;
         let previousCameraPosition = null;
@@ -169,7 +171,6 @@
         let tabMursOuverts = [];
 
         let tabElementsNiveau;
-        const csvURL = 'niveau1.csv';
 
         //Le nombre de télé-transporteurs : ((intNiveau+1)/2 | 0)
         let nbTeleTransps;
@@ -191,7 +192,7 @@
             objSons = initSons();
             objScene3D = initScene3D(objgl); // Créer la scène
 
-            // objSons.ambiance.play();
+            objSons.ambiance.play();
             document.addEventListener('keydown', startTimer);
 
             effacerCanevas(objgl);
@@ -607,7 +608,7 @@
 
             //Ce son joue lorsque le joueur perd le niveau
             objSon = document.createElement('audio');
-            objSon.setAttribute('src', 'assets/audio/minecraft-horse-death.mp3'); //changer le son
+            objSon.setAttribute('src', 'assets/audio/minecraft-horse-death.mp3');
             objSon.load();
             objSon.loop = false;
             objSons.perdNiveau = objSon;
@@ -990,6 +991,7 @@
                             getPositionCameraZ(camera) >= getPositionZ(transformations) - 0.25 &&
                             getPositionCameraZ(camera) <= getPositionZ(transformations) + 0.25 &&
                             binTP) {
+                            objSons.teleportation.play();
                             binTP = false;
                             setPositionCameraX(posX, camera);
                             setPositionCameraZ(posZ, camera);
@@ -1005,6 +1007,8 @@
                             getPositionCameraZ(camera) >= getPositionZ(transformations) - 0.25 &&
                             getPositionCameraZ(camera) <= getPositionZ(transformations) + 0.25 &&
                             binTP) {
+                            objSons.teleportation.play();
+
                             binTP = false;
                             setPositionCameraX(posX, camera);
                             setPositionCameraZ(posZ, camera);
