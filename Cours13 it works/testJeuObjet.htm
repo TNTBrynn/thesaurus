@@ -89,22 +89,23 @@
             [m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m, m]
         ];
 
-        const nbMur = 364;
+        const nbMursExt = 120;
+        const nbMur = 364 + nbMursExt;
 
         /*Cette section est utilisé pour pouvoir itérer sur les objets 3D avec leur nom et, s'il y
         en a plusieurs, pouvoir utiliser une boucle avec le nombre connu d'objets 3D de ce type
         comme pour les flèches*/
         const OBJ3D_SOL = 0;
         const OBJ3D_ENCLOS = 1;
-        const OBJ3D_CARTEMURSEXTRERIEUR = 2 //pour afficher la texture des mur exterieur en vue du dessus
-        const OBJ3D_MURSEXTERIEUR = 3;
-        const OBJ3D_CIEL = 4;
-        const OBJ3D_JOUEUR = 5;
-        const OBJ3D_TRESOR = 6;
-        const OBJ3D_FLECHE = 7;
-        const OBJ3D_MURSINTERIEUR = 8;
-        const OBJ3D_MURSDEDALE = 9;
-        ;
+        const OBJ3D_CIEL = 2;
+        const OBJ3D_JOUEUR = 3;
+        const OBJ3D_TRESOR = 4;
+        const OBJ3D_FLECHE = 5;
+        const OBJ3D_MURSEXTERIEUR = 6;
+        const OBJ3D_MURSINTERIEUR = 7;
+        const OBJ3D_MURSDEDALE = 8;
+
+        var obj3DPorte;
 
         const tabImages = ['assets/Sol.jpg', 'assets/Mur.jpg', 'assets/Ciel.jpg', 'assets/Fleche.jpg',
             'assets/TresorTextureGaucheDroite.jpg', 'assets/TresorTextureFace.jpg', 'assets/TresorTexturePanneauFaceHaut.jpg', 'assets/TresorTextureFaceArriereBas.jpg',
@@ -144,7 +145,7 @@
         let intScore = 300
 
         //Longueur et largeur du niveau
-        let longueurLargeurCarte = 30;
+        let longueurLargeurCarte = 31;
 
         //Le nombre d'ouvreurs de murs : 4 (- 1 à chaque 2 niveaux)
         let nbOuvreurs = 4;
@@ -233,14 +234,14 @@
             setPositionZ(13.5, obj3DSolEnclos.transformations);
             tabObjets3D.push(obj3DSolEnclos);
 
-            //Créer la texture supérieur des murs extérieurs pour la vue du dessus
+            /* //Créer la texture supérieur des murs extérieurs pour la vue du dessus
             const obj3DCarteMursExterieur = creerObj3DSol(objgl, longueurLargeurCarte + 2, TEX_MUR);
             setPositionSol(-1, -0.1, -1, obj3DCarteMursExterieur)
-            tabObjets3D.push(obj3DCarteMursExterieur);
+            tabObjets3D.push(obj3DCarteMursExterieur); */
 
-            // Créer les murs
+            /* // Créer les murs
             const obj3DMurs = creerObj3DMurs(objgl, longueurLargeurCarte, TEX_MUR, intNiveau);
-            tabObjets3D.push(obj3DMurs);
+            tabObjets3D.push(obj3DMurs); */
 
             // Créer le ciel
             const obj3DCiel = creerObj3DCiel(objgl, longueurLargeurCarte, TEX_CIEL);
@@ -274,17 +275,24 @@
                         setPositionRectangle(i, j, obj3DMurMilieu)
                     }
                     else if (tabCarte[i][j] == d) {
-                        const obj3DMurDale = creerObj3DRectangle(objgl, true, [TEX_MURDEDALEFACE, TEX_MURDEDALECOTE]);
-                        tabObjets3D.push(obj3DMurDale);
-                        setPositionRectangle(i, j, obj3DMurDale)
+                        const obj3DMurDedale = creerObj3DRectangle(objgl, true, [TEX_MURDEDALEFACE, TEX_MURDEDALECOTE]);
+                        tabObjets3D.push(obj3DMurDedale);
+                        setPositionRectangle(i, j, obj3DMurDedale)
                     }
                     else if (tabCarte[i][j] == s) {
-                        const obj3DPorte = creerObj3DRectangle(objgl, false, [TEX_MURMILIEUFACE, TEX_MURMILIEUCOTE]);
+                        obj3DPorte = creerObj3DRectangle(objgl, false, [TEX_MURMILIEUFACE, TEX_MURMILIEUCOTE]);
                         obj3DPorte.binVisible = false;
                         obj3DPorte.binBriser = true;
                         obj3DPorte.lettre = 's';
                         tabObjets3D.push(obj3DPorte);
+                        obj3DPorte = obj3DPorte;
                         setPositionRectangle(i, j, obj3DPorte);
+                    }
+                    else if (tabCarte[i][j] == m) {
+                        const obj3DMurExterieur = creerObj3DMur(objgl, false, [TEX_MUR, TEX_MUR]);
+                        tabObjets3D.push(obj3DMurExterieur);
+                        obj3DMurExterieur.lettre = 'm'
+                        setPositionMur(i, j, obj3DMurExterieur);
                     }
                 }
             }
@@ -611,15 +619,24 @@
                 let fltXCamera = getPositionX(camera) + fltXPrime;
                 let fltZCamera = getPositionZ(camera) + fltZPrime;
 
-                // Limites du mur
-                const fltLimiteOuest = 0.1;
-                const fltLimiteEst = objScene3D.tabObjets3D[OBJ3D_MURSEXTERIEUR].fltLargeur - 0.1;
-                const fltLimiteNord = 0.1;
-                const fltLimiteSud = objScene3D.tabObjets3D[OBJ3D_MURSEXTERIEUR].fltProfondeur - 0.1;
+                // // Limites du mur
+                // const fltLimiteOuest = 0.1;
+                // const fltLimiteEst = objScene3D.tabObjets3D[OBJ3D_MURSEXTERIEUR].fltLargeur - 0.1;
+                // const fltLimiteNord = 0.1;
+                // const fltLimiteSud = objScene3D.tabObjets3D[OBJ3D_MURSEXTERIEUR].fltProfondeur - 0.1;
 
-                binAucuneCollision = (fltXCamera > fltLimiteOuest) && (fltXCamera < fltLimiteEst) &&
-                    (fltZCamera > fltLimiteNord) && (fltZCamera < fltLimiteSud);
-
+                // binAucuneCollision = (fltXCamera > fltLimiteOuest) && (fltXCamera < fltLimiteEst) &&
+                //     (fltZCamera > fltLimiteNord) && (fltZCamera < fltLimiteSud);
+                binAucuneCollision = true;
+                for (let i = 0; i < nbMursExt; i++) {
+                    binAucuneCollision = !collisionMur(objScene3D.tabObjets3D[OBJ3D_MURSEXTERIEUR + i], intDirection, camera);
+                    // binAucuneCollision = !collisionRectangle(objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i], intDirection, camera);
+                    //si la caméra touche un mur, elle ne peut plus avancer dans cette direction
+                    // console.log(binAucuneCollision);
+                    if (binAucuneCollision == false) {
+                        break;
+                    }
+                }
 
                 if (collisionTresor(objScene3D.tabObjets3D[OBJ3D_TRESOR], intDirection, camera)) { // Passer à un autre niveau
                     // Arrêter le son du vent
@@ -892,6 +909,9 @@
                             // La caméra regarde vers le sud
                             setCiblesCameraXYZ([-16, 0.5, 16], camera);
                             // Le mur de l'enclos est réouvert
+
+                            obj3DPorte.binVisible = false;
+                            obj3DPorte.binBriser = true;
 
                             //Les murs ouverts sont fermés
                             for (let i = 0; i < tabMursOuverts.length; i++) {
