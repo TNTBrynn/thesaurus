@@ -231,10 +231,14 @@ function creerTexelsTresor(objgl, tabIntNoTexture) {
         0.0, 0.0,
         0.0, 1.0,
         1.0, 1.0,
-        1.0, 0.0
-    ];
+        1.0, 0.0,
+        0.5, 0.5,
+        1.0, 0.0,
+        0.0, 0.0,
+        0.0, 1.0
+    ]; //face droite
 
-    tabTexels[5] = tabTexels[0]; //face gauche
+    tabTexels[5] = tabTexels[4]; //face gauche
     tabTexels[6] = tabTexels[0]; //face avant haute
     tabTexels[7] = tabTexels[0]; //face avant basse
     tabTexels[8] = tabTexels[0]; //face arrière haute
@@ -273,7 +277,7 @@ function creerTexelsTresor(objgl, tabIntNoTexture) {
             tabTexelsTresor[i].intNoTexture = tabIntNoTexture[3]; tabTexelsTresor[i].pcCouleurTexel = 1;
         }
         else {
-            tabTexelsTresor[i].intNoTexture = 0; tabTexelsTresor[i].pcCouleurTexel = 0;
+            tabTexelsTresor[i].intNoTexture = tabIntNoTexture[3]; tabTexelsTresor[i].pcCouleurTexel = 1;
         }
     }
 
