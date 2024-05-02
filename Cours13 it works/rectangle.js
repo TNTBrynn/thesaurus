@@ -259,8 +259,8 @@ function collisionRectangle(obj3DRectangle, intDirection, camera) {
 
     const binCollisionX = (fltXCamera > fltPositionXRectangle - fltRectangleWidth) && (fltXCamera < fltPositionXRectangle + fltRectangleWidth);
     const binCollisionZ = (fltZCamera > fltPositionZRectangle - fltRectangleDepth) && (fltZCamera < fltPositionZRectangle + fltRectangleDepth);
-    //console.log(fltXCamera, '>', fltPositionXRectangle - fltRectangleWidth, fltXCamera, '<', fltPositionXRectangle + fltRectangleWidth, binCollisionX)
-    //console.log(fltZCamera, '>', fltPositionZRectangle - fltRectangleDepth, fltZCamera, '<', fltPositionZRectangle + fltRectangleDepth, binCollisionZ)
+    // console.log(fltXCamera, '>', fltPositionXRectangle - fltRectangleWidth, fltXCamera, '<', fltPositionXRectangle + fltRectangleWidth, binCollisionX)
+    // console.log(fltZCamera, '>', fltPositionZRectangle - fltRectangleDepth, fltZCamera, '<', fltPositionZRectangle + fltRectangleDepth, binCollisionZ)
     //aucune collision retourne false;
     return binCollisionX && binCollisionZ;
 }
