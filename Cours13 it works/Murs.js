@@ -1,16 +1,16 @@
-function creerObj3DMur(objgl, binDestructible, tabIntNoTexture) {
+function creerObj3DMur(objgl, tabIntNoTexture) {
     var obj3DMur = new Object();
     obj3DMur.vertex = creerVertexMur(objgl);
     obj3DMur.couleurs = creerCouleursMur(objgl);
     obj3DMur.maillage = creerMaillageMur(objgl);
     obj3DMur.texels = creerTexelsMur(objgl, tabIntNoTexture);
-    obj3DMur.binDestructible = binDestructible; // Indique si l'objet peut être détruit par les ouvreurs de mur
     obj3DMur.binVisible = true;
     obj3DMur.binBriser = false;
     obj3DMur.transformations = creerTransformations();
     obj3DMur.fltX = 1 * 0.5;
     obj3DMur.fltZ = 1 * 0.5;
     obj3DMur.lettre = 'd';
+    obj3DMur.nom = 'mur';
     //hauteur et échelle statique
     const transformations = obj3DMur.transformations
     setEchellesXYZ([0.5, 0.5, 0.5], transformations);
@@ -246,8 +246,10 @@ function collisionMur(obj3DMur, intDirection, camera) {
 
     const binCollisionX = (fltXCamera > fltPositionXMur - fltMurWidth) && (fltXCamera < fltPositionXMur + fltMurWidth);
     const binCollisionZ = (fltZCamera > fltPositionZMur - fltMurDepth) && (fltZCamera < fltPositionZMur + fltMurDepth);
-    //console.log(fltXCamera, '>', fltPositionXMur - fltMurWidth, fltXCamera, '<', fltPositionXMur + fltMurWidth, binCollisionX)
-    //console.log(fltZCamera, '>', fltPositionZMur - fltMurDepth, fltZCamera, '<', fltPositionZMur + fltMurDepth, binCollisionZ)
+    console.log(fltXCamera, '>', fltPositionXMur - fltMurWidth, fltXCamera, '<', fltPositionXMur + fltMurWidth, binCollisionX)
+    console.log(fltZCamera, '>', fltPositionZMur - fltMurDepth, fltZCamera, '<', fltPositionZMur + fltMurDepth, binCollisionZ)
+    console.log(binCollisionX, binCollisionZ)
+
     //aucune collision retourne false;
     return binCollisionX && binCollisionZ;
 }

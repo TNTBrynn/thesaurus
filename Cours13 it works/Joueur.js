@@ -9,6 +9,7 @@ function creerObj3DJoueur(objgl, intNoTexture) {
     obj3DJoueur.binVisible = true;
     obj3DJoueur.fltX = 1 * 0.2;
     obj3DJoueur.fltZ = 1 * 0.2;
+    obj3DJoueur.nom = "joueur";
     const transformations = obj3DJoueur.transformations
     //hauteur et échelle statique
     setPositionY(0.2, transformations);

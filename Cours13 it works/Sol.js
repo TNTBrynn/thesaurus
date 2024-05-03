@@ -5,12 +5,12 @@ function creerObj3DSol(objgl, longueurLargeurCarte, intNoTexture) {
     obj3DSol.fltProfondeur = longueurLargeurCarte - 1;
     obj3DSol.fltLargeur = longueurLargeurCarte - 1;
     obj3DSol.fltHauteur = 0;
-    
     obj3DSol.vertex = creerVertexSol(objgl, obj3DSol.fltLargeur, obj3DSol.fltProfondeur , obj3DSol.fltHauteur);
     obj3DSol.couleurs = creerCouleursSol(objgl, [1, 1, 1, 1]);
 	obj3DSol.texels = creerTexelsSol(objgl, obj3DSol.fltLargeur, obj3DSol.fltProfondeur, intNoTexture);
 	obj3DSol.maillage = creerMaillageSol(objgl);
     obj3DSol.binVisible = true;
+    obj3DSol.nom = "sol";
 	
     obj3DSol.transformations = creerTransformations();
     return obj3DSol;

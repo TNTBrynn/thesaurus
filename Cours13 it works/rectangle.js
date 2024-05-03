@@ -1,15 +1,16 @@
-function creerObj3DRectangle(objgl, binDestructible, tabIntNoTexture) {
-    var obj3DRectangle = new Object();
+function creerObj3DRectangle(objgl, tabIntNoTexture) {
+    const obj3DRectangle = new Object();
     obj3DRectangle.vertex = creerVertexRectangle(objgl);
     obj3DRectangle.couleurs = creerCouleursRectangle(objgl);
     obj3DRectangle.maillage = creerMaillageRectangle(objgl);
     obj3DRectangle.texels = creerTexelsRectangle(objgl, tabIntNoTexture);
-    obj3DRectangle.binDestructible = binDestructible; // Indique si l'objet peut être détruit par les ouvreurs de mur
     obj3DRectangle.binVisible = true;
     obj3DRectangle.binBriser = false;
     obj3DRectangle.transformations = creerTransformations();
     obj3DRectangle.fltX = 1 * 0.5;
     obj3DRectangle.fltZ = 1 * 0.5;
+    obj3DRectangle.lettre = 'd';
+    obj3DRectangle.nom = "rectangle";
     //hauteur et échelle statique
     const transformations = obj3DRectangle.transformations
     setEchellesXYZ([0.5, 0.5, 0.5], transformations);
@@ -260,6 +261,7 @@ function collisionRectangle(obj3DRectangle, intDirection, camera) {
     const binCollisionZ = (fltZCamera > fltPositionZRectangle - fltRectangleDepth) && (fltZCamera < fltPositionZRectangle + fltRectangleDepth);
     // console.log(fltXCamera, '>', fltPositionXRectangle - fltRectangleWidth, fltXCamera, '<', fltPositionXRectangle + fltRectangleWidth, binCollisionX)
     // console.log(fltZCamera, '>', fltPositionZRectangle - fltRectangleDepth, fltZCamera, '<', fltPositionZRectangle + fltRectangleDepth, binCollisionZ)
+    // console.log(binCollisionX, binCollisionZ)
     //aucune collision retourne false;
     return binCollisionX && binCollisionZ;
 }

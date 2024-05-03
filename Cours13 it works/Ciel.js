@@ -6,12 +6,12 @@ function creerObj3DCiel(objgl, longueurLargeurCarte, intNoTexture) {
     obj3DCiel.fltLargeur = longueurLargeurCarte * 2;
     obj3DCiel.fltHauteur = 3;
     obj3DCiel.binVisible = true;
-
     obj3DCiel.vertex = creerVertexCiel(objgl, obj3DCiel.fltLargeur, obj3DCiel.fltProfondeur);
     obj3DCiel.couleurs = creerCouleursCiel(objgl, [1, 1, 1, 1]);
     obj3DCiel.texels = creerTexelsCiel(objgl, intNoTexture);
     obj3DCiel.maillage = creerMaillageCiel(objgl);
     obj3DCiel.transformations = creerTransformations();
+    obj3DCiel.nom = "ciel";
     setPositionY(obj3DCiel.fltHauteur, obj3DCiel.transformations);
     return obj3DCiel;
 }
