@@ -47,6 +47,10 @@
     <script type="text/javascript" src="TeleRecepteurs.js"></script>
     <script type="text/javascript">
 
+        //Le téléporteur ne marche pas
+        //prevent score from lowering if no wall
+
+        //Variables globales
         let objgl = null;
         let objProgShaders = null;
         let objScene3D = null;
@@ -154,10 +158,12 @@
         let nbOuvreurs = 4;
 
         // Le niveau actuel du jeu
-        let intNiveau = 2;
+        let intNiveau = 0;
 
         // Le nombre de flèches : 18 - (intNiveau *2)
         let nbFleches;
+
+        let nbGameOver = 0;
 
         const minutesInitiales = 0;
         const secondsInitiales = 60;
@@ -307,6 +313,7 @@
                         obj3DPorte.lettre = 's';
                         tabObjets3D.push(obj3DPorte);
                         setPositionRectangle(i, j, obj3DPorte);
+                        console.log(tabObjets3D);
                     }
                     else if (tabCarte[i][j] == m) {
                         const obj3DMur = creerObj3DMur(objgl, [TEX_MUR, TEX_MUR]);
@@ -1049,7 +1056,6 @@
         }
 
         function resetTimer() {
-
             minutes = minutesInitiales;
             seconds = secondsInitiales;
             const formattedMinutes = minutes.toString().padStart(2, '0');
@@ -1109,7 +1115,8 @@
                         resetTimer();
                         alert('Vous avez perdu! Le temps s\'est écoulé et vous aviez moins de 200 points! Vous pouvez recommencer le jeu en appuyant sur une touche.')
                         document.getElementById('lblGameOver').innerHTML = nbGameOver;
-                        recommencerJeu(); //appek init3D
+                        recommencerJeu(); //appel init3D
+                        return;
                     }
                     else {
                         objSons.perdNiveau.play();
@@ -1122,8 +1129,9 @@
                         setCiblesCameraXYZ([-16, 0.5, 16], camera);
 
                         // Le mur de l'enclos est réouvert
-                        obj3DPorte.binVisible = false;
-                        obj3DPorte.binBriser = true;
+                        objScene3D.tabObjets3D[233].binVisible = false;
+                        objScene3D.tabObjets3D[233].binBriser = true;
+                        console.log(objScene3D.tabObjets3D[233]);
 
                         //Les murs ouverts sont fermés
                         for (let i = 0; i < tabMursOuverts.length; i++) {
@@ -1134,7 +1142,7 @@
                         //Le nombre d'ouvreurs de murs est réinitialisé
                         nbOuvreurs = 4;
 
-                        resetTimer()
+                        resetTimer();
 
                         // Restaurer la position de la caméra
                         isRestrictKeysActive = false;
