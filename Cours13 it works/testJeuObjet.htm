@@ -148,6 +148,9 @@
         let previousCameraPosition = null;
         let previousCameraDirection = null;
 
+        let positionInitaleJoueur = [15, 0.5, 15];
+        let directionInitialeJoueur = [-16, 0.5, 16];
+
         //Score
         let intScore = 300
 
@@ -170,6 +173,7 @@
 
         let minutes = minutesInitiales;
         let seconds = secondsInitiales;
+        let timerInterval;
 
         //Les murs ouverts. Leur Y est négatif pour les cacher. Nous n'aurons qu'à remettre leur Y original à la fin du niveau
         let tabMursOuverts = [];
@@ -734,7 +738,7 @@
             let fltLimiteNord2;
             let fltLimiteSud2;
 
-            if (!isRestrictKeysActive && event.keyCode == 33) { // PageUp
+            if (!isRestrictKeysActive && event.keyCode == 33 && intScore > 10) { // PageUp
                 // Sauvegarder la position courante de la caméra
                 previousCameraPosition = {
                     x: getPositionCameraX(camera),
@@ -822,7 +826,7 @@
                     fltXPrime = intDirection * 0.2 * Math.cos(Math.acos(fltX / fltRayon));
                     fltZPrime = intDirection * 0.2 * Math.sin(Math.asin(fltZ / fltRayon));
 
-                    if (getPositionCameraX(camera) <= 12.5 && getPositionCameraZ(camera) <= 15.5) {
+                    if (getPositionCameraX(camera) <= 12.5 && getPositionCameraZ(camera) <= 15.5 && objScene3D.tabObjets3D[233].binBriser == true) {
                         for (let i = 0; i < nbMur; i++) {
                             if (objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].lettre == 's') {
                                 objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].binVisible = true;
@@ -873,14 +877,18 @@
                             objSons.gagneJeu.play();
                             console.log('Gagné!')
                             nbGagnees++;
+                            intNiveau = 0
                             document.getElementById('lblGagnees').innerHTML = nbGagnees;
                             alert('Bravo! Vous avez gagné!');
+                            resetTimer();
                             recommencerJeu();
                         } else {
                             objSons.sonToucheTresor.play();
+                            alert('Bravo! Vous avez trouvé le trésor! Le prochain niveau commence dès que vous appuierez sur une touche!');
                             intScore += 10 * seconds;
                             intNiveau++;
                             objScene3D = initScene3D(objgl);
+                            resetTimer();
                         }
                     }
                     //S'il n'y a pas de collision le joueur peut bouger
@@ -1059,12 +1067,13 @@
         }
 
         function resetTimer() {
+            clearInterval(timerInterval);
+            document.addEventListener('keydown', startTimer);
             minutes = minutesInitiales;
             seconds = secondsInitiales;
             const formattedMinutes = minutes.toString().padStart(2, '0');
             const formattedSeconds = seconds.toString().padStart(2, '0');
             document.getElementById('lblTemps').textContent = `${formattedMinutes}:${formattedSeconds}`;
-            document.addEventListener('keydown', startTimer);
         }
 
         function recommencerJeu() {
@@ -1078,7 +1087,7 @@
             document.removeEventListener('keydown', startTimer);
             let camera = objScene3D.camera
 
-            const timerInterval = setInterval(() => {
+            timerInterval = setInterval(() => {
                 seconds--;
                 if (seconds < 0) {
                     seconds = 59;
@@ -1110,20 +1119,24 @@
                     objSons.countdown.play();
                 }
                 if (minutes < 0) {
-                    clearInterval(timerInterval);
+                    //clearInterval(timerInterval);
                     //si le score est inférieur à 200 points, le joueur perd et c'est GAME OVER
                     if (intScore < 200) {
                         objSons.gameOver.play();
                         nbGameOver++;
                         resetTimer();
                         alert('Vous avez perdu! Le temps s\'est écoulé et vous aviez moins de 200 points! Vous pouvez recommencer le jeu en appuyant sur une touche.')
+                        console.log('Temps écoulé, avec score < 200')
                         document.getElementById('lblGameOver').innerHTML = nbGameOver;
                         recommencerJeu(); //appel init3D
                         return;
                     }
                     else {
+                        //Temps écoulé
+                        resetTimer();
                         objSons.perdNiveau.play();
                         alert('Le temps s\'est écoulé! Vous pouvez recommencer le jeu en appuyant sur une touche.')
+                        console.log('Temps écoulé, avec score > 200')
                         //recommencer le niveau
                         intScore -= 200;
                         // Le joueur est retourné au milieu du dédale
@@ -1145,17 +1158,12 @@
                         //Le nombre d'ouvreurs de murs est réinitialisé
                         nbOuvreurs = 4;
 
-                        resetTimer();
-
                         // Restaurer la position de la caméra
                         isRestrictKeysActive = false;
-                        if (previousCameraPosition && previousCameraDirection) {
-                            setPositionCameraX(previousCameraPosition.x, camera);
-                            setPositionCameraY(previousCameraPosition.y, camera);
-                            setPositionCameraZ(previousCameraPosition.z, camera);
-                            setCibleCameraX(previousCameraDirection.x, camera);
-                            setCibleCameraY(previousCameraDirection.y, camera);
-                            setCibleCameraZ(previousCameraDirection.z, camera);
+                        if (positionInitaleJoueur && directionInitialeJoueur) {
+                            setPositionCameraXYZ(previousCameraPosition, camera);
+                            setCibleCameraXYZ(directionInitialeJoueur.x, camera);
+                           
                             objScene3D.tabObjets3D[OBJ3D_CIEL].binVisible = true; //Afficher le ciel
                             for (let i = 0; i < nbFleches; i++) {
                                 objScene3D.tabObjets3D[OBJ3D_FLECHE + i].binVisible = true;
