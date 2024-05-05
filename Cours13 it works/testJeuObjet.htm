@@ -898,7 +898,7 @@
                         const directionRegard = determinerDirectionRegard(camera);
                         //console.log('Direction de la caméra : ' + directionRegard);
                         if (intScore >= 50) {
-                            intScore -= 50;
+                            
                             if (nbOuvreurs > 0) {
                                 const directionRegard = determinerDirectionRegard(camera);
                                 console.log('Direction de la caméra : ' + directionRegard);
@@ -953,12 +953,13 @@
                                         let tabXYZ = getPositionsXYZ(objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].transformations);
                                         if (tabXYZ[0] == intXDevantCamera && tabXYZ[2] == intZDevantCamera) {
                                             objMurABriser = objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i];
-                                            break;
+                                        break;
                                         }
                                     }
                                     tabMursOuverts.push(objMurABriser);
-                                    nbOuvreurs--;
                                     ouvrirMur(objMurABriser);
+                                    intScore -= 50;
+                                    nbOuvreurs--;
                                     console.log(getPositionX(objMurABriser.transformations), getPositionZ(objMurABriser.transformations));
                                 }
                             }
