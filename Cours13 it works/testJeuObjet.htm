@@ -342,8 +342,10 @@
 
             // Mettre les objets 3D sur la scène
             objScene3D.tabObjets3D = tabObjets3D;
-            objScene3D.tabTeles3D = tabTeles3D;
 
+            //Mettre les télés sur la scène
+            objScene3D.tabTeles3D = tabTeles3D;
+            
             // La caméra
             const camera = creerCamera();
             //POUR QUE LA COLLISION FONTIONNE IL FAUT QUE LA CAMERA COOMMENCE AVEC UN ORIENTATION LÉGÈREMENT DÉCALÉE PAE RAPPORT AU MUR
@@ -887,6 +889,52 @@
                         setCibleCameraZ(getCibleCameraZ(camera) + fltZPrime, camera);
                         setPositionCameraX(getPositionCameraX(camera) + fltXPrime, camera);
                         setPositionCameraZ(getPositionCameraZ(camera) + fltZPrime, camera);
+
+                         //Trouver les positions X et Z d'un recepteur random
+                        var randomRecept = Math.floor(Math.random() * nbTeleRecepts);
+                        var transfRecept = objScene3D.tabTeles3D[OBJ3D_TELERECPT + randomRecept].transformations;
+                        var posX = getPositionX(transfRecept);
+                        var posZ = getPositionZ(transfRecept);
+
+                        //Check si la caméra va dans un des transporteurs et si oui, la téléporter au récepteur random
+                        for (let i = 0; i < nbTeleTransps; i++) {
+                            const transformations = objScene3D.tabTeles3D[OBJ3D_TELETRANSP + i].transformations;
+                            if (getPositionCameraX(camera) <= getPositionX(transformations) + 0.25 &&
+                                getPositionCameraX(camera) >= getPositionX(transformations) - 0.25 &&
+                                getPositionCameraZ(camera) >= getPositionZ(transformations) - 0.25 &&
+                                getPositionCameraZ(camera) <= getPositionZ(transformations) + 0.25 &&
+                                binTP) {
+                                objSons.teleportation.play();
+                                binTP = false;
+                                setPositionCameraX(posX, camera);
+                                setPositionCameraZ(posZ, camera);
+                            }
+
+                        }
+
+                        //Check si la caméra va dans un des récepteurs et si oui, la téléporter au récepteur random
+                        for (let i = 0; i < nbTeleRecepts; i++) {
+                            const transformations = objScene3D.tabTeles3D[OBJ3D_TELERECPT + i].transformations;
+                            if (getPositionCameraX(camera) <= getPositionX(transformations) + 0.25 &&
+                                getPositionCameraX(camera) >= getPositionX(transformations) - 0.25 &&
+                                getPositionCameraZ(camera) >= getPositionZ(transformations) - 0.25 &&
+                                getPositionCameraZ(camera) <= getPositionZ(transformations) + 0.25 &&
+                                binTP) {
+                                objSons.teleportation.play();
+
+                                binTP = false;
+                                setPositionCameraX(posX, camera);
+                                setPositionCameraZ(posZ, camera);
+                            }
+                        }
+
+                        //Check si la caméra sort du récepteur random pour qu'elle puisse se téléporter une autre fois
+                        if (!(getPositionCameraX(camera) <= getPositionX(transfRecept) + 0.5 &&
+                            getPositionCameraX(camera) >= getPositionX(transfRecept) - 0.5 &&
+                            getPositionCameraZ(camera) >= getPositionZ(transfRecept) - 0.5 &&
+                            getPositionCameraZ(camera) <= getPositionZ(transfRecept) + 0.5)) {
+                            binTP = true;
+                        }
                     }
                 }
                 else if (!isRestrictKeysActive && (event.keyCode == 32)) {//utilise ouvreur de murs
@@ -964,52 +1012,6 @@
                                 }
                             }
                         }
-                    }
-
-                    //Trouver les positions X et Z d'un recepteur random
-                    var randomRecept = Math.floor(Math.random() * nbTeleRecepts);
-                    var transfRecept = objScene3D.tabTeles3D[OBJ3D_TELERECPT + randomRecept].transformations;
-                    var posX = getPositionX(transfRecept);
-                    var posZ = getPositionZ(transfRecept);
-
-                    //Check si la caméra va dans un des transporteurs et si oui, la téléporter au récepteur random
-                    for (let i = 0; i < nbTeleTransps; i++) {
-                        const transformations = objScene3D.tabTeles3D[OBJ3D_TELETRANSP + i].transformations;
-                        if (getPositionCameraX(camera) <= getPositionX(transformations) + 0.25 &&
-                            getPositionCameraX(camera) >= getPositionX(transformations) - 0.25 &&
-                            getPositionCameraZ(camera) >= getPositionZ(transformations) - 0.25 &&
-                            getPositionCameraZ(camera) <= getPositionZ(transformations) + 0.25 &&
-                            binTP) {
-                            objSons.teleportation.play();
-                            binTP = false;
-                            setPositionCameraX(posX, camera);
-                            setPositionCameraZ(posZ, camera);
-                        }
-
-                    }
-
-                    //Check si la caméra va dans un des récepteurs et si oui, la téléporter au récepteur random
-                    for (let i = 0; i < nbTeleRecepts; i++) {
-                        const transformations = objScene3D.tabTeles3D[OBJ3D_TELERECPT + i].transformations;
-                        if (getPositionCameraX(camera) <= getPositionX(transformations) + 0.25 &&
-                            getPositionCameraX(camera) >= getPositionX(transformations) - 0.25 &&
-                            getPositionCameraZ(camera) >= getPositionZ(transformations) - 0.25 &&
-                            getPositionCameraZ(camera) <= getPositionZ(transformations) + 0.25 &&
-                            binTP) {
-                            objSons.teleportation.play();
-
-                            binTP = false;
-                            setPositionCameraX(posX, camera);
-                            setPositionCameraZ(posZ, camera);
-                        }
-                    }
-
-                    //Check si la caméra sort du récepteur random pour qu'elle puisse se téléporter une autre fois
-                    if (!(getPositionCameraX(camera) <= getPositionX(transfRecept) + 0.5 &&
-                        getPositionCameraX(camera) >= getPositionX(transfRecept) - 0.5 &&
-                        getPositionCameraZ(camera) >= getPositionZ(transfRecept) - 0.5 &&
-                        getPositionCameraZ(camera) <= getPositionZ(transfRecept) + 0.5)) {
-                        binTP = true;
                     }
                 }
         }
