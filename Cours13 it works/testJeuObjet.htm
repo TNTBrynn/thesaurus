@@ -149,7 +149,7 @@
         let previousCameraDirection = null;
 
         let positionInitaleJoueur = [15, 0.5, 15];
-        let directionInitialeJoueur = [-16, 0.5, 16];
+        let directionInitialeJoueur = [-15, 0, 15];
 
         //Score
         let intScore = 300
@@ -265,15 +265,6 @@
             setPositionZ(13.5, obj3DSolEnclos.transformations);
             tabObjets3D.push(obj3DSolEnclos);
 
-            /* //Créer la texture supérieur des murs extérieurs pour la vue du dessus
-            const obj3DCarteMursExterieur = creerObj3DSol(objgl, longueurLargeurCarte + 2, TEX_MUR);
-            setPositionSol(-1, -0.1, -1, obj3DCarteMursExterieur)
-            tabObjets3D.push(obj3DCarteMursExterieur); */
-
-            /* // Créer les murs
-            const obj3DMurs = creerObj3DMurs(objgl, longueurLargeurCarte, TEX_MUR, intNiveau);
-            tabObjets3D.push(obj3DMurs); */
-
             // Créer le ciel
             const obj3DCiel = creerObj3DCiel(objgl, longueurLargeurCarte, TEX_CIEL);
             tabObjets3D.push(obj3DCiel);
@@ -349,12 +340,12 @@
 
             //Mettre les télés sur la scène
             objScene3D.tabTeles3D = tabTeles3D;
-            
+
             // La caméra
             const camera = creerCamera();
             //POUR QUE LA COLLISION FONTIONNE IL FAUT QUE LA CAMERA COOMMENCE AVEC UN ORIENTATION LÉGÈREMENT DÉCALÉE PAE RAPPORT AU MUR
-            setPositionsCameraXYZ([15, 0.5, 15], camera);
-            setCiblesCameraXYZ([-16, 0.5, 16], camera);
+            setPositionsCameraXYZ(positionInitaleJoueur, camera);
+            setCiblesCameraXYZ(directionInitialeJoueur, camera);
             setOrientationsXYZ([0, 1, 0], camera);
             objScene3D.camera = camera;
 
@@ -829,9 +820,9 @@
                     if (getPositionCameraX(camera) <= 12.5 && getPositionCameraZ(camera) <= 15.5 && objScene3D.tabObjets3D[233].binBriser == true) {
                         for (let i = 0; i < nbMur; i++) {
                             if (objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].lettre == 's') {
+                                objSons.porte.play();
                                 objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].binVisible = true;
                                 objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].binBriser = false;
-                                objSons.porte.play();
                                 break;
                             }
                         }
@@ -873,7 +864,7 @@
                     }
 
                     if (binCollisionTresor) { // Passer à un autre niveau
-                        if (intNiveau == 10) {
+                        if (intNiveau >= 10) {
                             objSons.gagneJeu.play();
                             console.log('Gagné!')
                             nbGagnees++;
@@ -898,7 +889,7 @@
                         setPositionCameraX(getPositionCameraX(camera) + fltXPrime, camera);
                         setPositionCameraZ(getPositionCameraZ(camera) + fltZPrime, camera);
 
-                         //Trouver les positions X et Z d'un recepteur random
+                        //Trouver les positions X et Z d'un recepteur random
                         var randomRecept = Math.floor(Math.random() * nbTeleRecepts);
                         var transfRecept = objScene3D.tabTeles3D[OBJ3D_TELERECPT + randomRecept].transformations;
                         var posX = getPositionX(transfRecept);
@@ -954,7 +945,7 @@
                         const directionRegard = determinerDirectionRegard(camera);
                         //console.log('Direction de la caméra : ' + directionRegard);
                         if (intScore >= 50) {
-                            
+
                             if (nbOuvreurs > 0) {
                                 const directionRegard = determinerDirectionRegard(camera);
                                 console.log('Direction de la caméra : ' + directionRegard);
@@ -1009,7 +1000,7 @@
                                         let tabXYZ = getPositionsXYZ(objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].transformations);
                                         if (tabXYZ[0] == intXDevantCamera && tabXYZ[2] == intZDevantCamera) {
                                             objMurABriser = objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i];
-                                        break;
+                                            break;
                                         }
                                     }
                                     tabMursOuverts.push(objMurABriser);
@@ -1113,6 +1104,12 @@
                             objScene3D.tabObjets3D[OBJ3D_FLECHE + i].binVisible = true;
                         }
                         objScene3D.tabObjets3D[OBJ3D_TRESOR].binVisible = true;
+                        for (let i = 0; i < nbTeleTransps; i++) {
+                            objScene3D.tabTeles3D[OBJ3D_TELETRANSP + i].binVisible = true;
+                        }
+                        for (let i = 0; i < nbTeleRecepts; i++) {
+                            objScene3D.tabTeles3D[OBJ3D_TELERECPT + i].binVisible = true;
+                        }
                     }
                 }
                 if (minutes == 0 && seconds <= 5) {
@@ -1140,9 +1137,9 @@
                         //recommencer le niveau
                         intScore -= 200;
                         // Le joueur est retourné au milieu du dédale
-                        setPositionsCameraXYZ([15, 0.5, 15], camera);
+                        setPositionsCameraXYZ(positionInitaleJoueur, camera);
                         // La caméra regarde vers le sud
-                        setCiblesCameraXYZ([-16, 0.5, 16], camera);
+                        setCiblesCameraXYZ(directionInitialeJoueur, camera);
 
                         // Le mur de l'enclos est réouvert
                         objScene3D.tabObjets3D[233].binVisible = false;
@@ -1162,13 +1159,19 @@
                         isRestrictKeysActive = false;
                         if (positionInitaleJoueur && directionInitialeJoueur) {
                             setPositionCameraXYZ(previousCameraPosition, camera);
-                            setCibleCameraXYZ(directionInitialeJoueur.x, camera);
-                           
+                            setCibleCameraXYZ(directionInitialeJoueur, camera);
+
                             objScene3D.tabObjets3D[OBJ3D_CIEL].binVisible = true; //Afficher le ciel
                             for (let i = 0; i < nbFleches; i++) {
                                 objScene3D.tabObjets3D[OBJ3D_FLECHE + i].binVisible = true;
                             }
                             objScene3D.tabObjets3D[OBJ3D_TRESOR].binVisible = true;
+                            for (let i = 0; i < nbTeleTransps; i++) {
+                                objScene3D.tabTeles3D[OBJ3D_TELETRANSP + i].binVisible = true;
+                            }
+                            for (let i = 0; i < nbTeleRecepts; i++) {
+                                objScene3D.tabTeles3D[OBJ3D_TELERECPT + i].binVisible = true;
+                            }
                         }
 
                         //attendre que le joueur appuie sur une touche pour recommencer
