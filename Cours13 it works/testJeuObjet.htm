@@ -1144,9 +1144,16 @@
                         setCiblesCameraXYZ(directionInitialeJoueur, camera);
 
                         // Le mur de l'enclos est réouvert
-                        objScene3D.tabObjets3D[233].binVisible = false;
+                        for(let i = 0; i < nbMur; i++) {
+                            if (objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].lettre == 's') {
+                                objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].binVisible = false;
+                                objScene3D.tabObjets3D[OBJ3D_MURSINTERIEUR + i].binBriser = true;
+                                break;
+                            }
+                        }
+                       /*  objScene3D.tabObjets3D[233].binVisible = false;
                         objScene3D.tabObjets3D[233].binBriser = true;
-                        console.log(objScene3D.tabObjets3D[233]);
+                        console.log(objScene3D.tabObjets3D[233]); */
 
                         //Les murs ouverts sont fermés
                         for (let i = 0; i < tabMursOuverts.length; i++) {
