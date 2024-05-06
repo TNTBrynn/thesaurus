@@ -158,7 +158,7 @@
         let longueurLargeurCarte = 31;
 
         //Le nombre d'ouvreurs de murs : 4 (- 1 à chaque 2 niveaux)
-        let nbOuvreurs = 4;
+        let nbOuvreurs;
 
         // Le niveau actuel du jeu
         let intNiveau = 0;
@@ -167,6 +167,7 @@
         let nbFleches;
 
         let nbGameOver = 0;
+        let nbGagnees = 0;
 
         const minutesInitiales = 0;
         const secondsInitiales = 60;
@@ -240,7 +241,7 @@
         function initScene3D(objgl) {
             document.getElementById('lblNiveau').innerHTML = intNiveau + 1
             nbFleches = 18 - (intNiveau * 2);
-            (intNiveau % 2 === 0) ? nbOuvreurs = 4 - (intNiveau / 2) : nbOuvreurs = 4 - ((intNiveau - 1) / 2);
+            nbOuvreurs = 4 - (intNiveau/2 | 0);
             nbTeleTransps = ((intNiveau + 1) / 2 | 0);
             nbTeleRecepts = intNiveau;
             OBJ3D_TELERECPT = OBJ3D_TELETRANSP + nbTeleTransps;
@@ -864,9 +865,9 @@
                     }
 
                     if (binCollisionTresor) { // Passer à un autre niveau
-                        if (intNiveau >= 10) {
+                        if (intNiveau+1 >= 10) {
                             objSons.gagneJeu.play();
-                            console.log('Gagné!')
+                            console.log('Gagné!');
                             nbGagnees++;
                             intNiveau = 0
                             document.getElementById('lblGagnees').innerHTML = nbGagnees;
@@ -1153,7 +1154,7 @@
                         //Le tableau de murs ouverts est vidé
                         tabMursOuverts.length = 0;
                         //Le nombre d'ouvreurs de murs est réinitialisé
-                        nbOuvreurs = 4;
+                        nbOuvreurs = 4 - (intNiveau/2 | 0);
 
                         // Restaurer la position de la caméra
                         isRestrictKeysActive = false;
